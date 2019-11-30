@@ -7,6 +7,9 @@
         mc:Ignorable="d"
         Title="VM Management Tool" Height="450" Width="800">
     <Grid>
-        
+        <Button Content="Check..." HorizontalAlignment="Left" Margin="28,34,0,0" VerticalAlignment="Top" Width="75" Click="Button_Click"/>
+        <TextBox x:Name="theConsole" HorizontalAlignment="Left" Height="346" Margin="140,34,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="615" 
+                 Background="#FFFCFCFC" IsReadOnly="True" ScrollViewer.CanContentScroll="True" AutomationProperties.Name="consoleTextbox"/>
+
     </Grid>
 </Window>

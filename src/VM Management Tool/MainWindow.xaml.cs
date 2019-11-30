@@ -12,6 +12,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using VM_Management_Tool.Services;
 
 namespace VM_Management_Tool
 {
@@ -23,6 +24,17 @@ namespace VM_Management_Tool
         public MainWindow()
         {
             InitializeComponent();
+        }
+
+        private void Button_Click(object sender, RoutedEventArgs e)
+        {
+            WinUpdatesManager.Instance.NewInfo += LogUpdateInto;
+            WinUpdatesManager.Instance.LoadHsitory();
+        }
+
+        private void LogUpdateInto(string msg)
+        {
+            theConsole.AppendText(msg+Environment.NewLine);
         }
     }
 }

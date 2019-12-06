@@ -54,6 +54,13 @@ namespace VM_Management_Tool.Services
             }
         }
 
+        internal void AbortChecking()
+        {
+            Info("Requesting abort...");
+            searchJob.RequestAbort();
+            
+        }
+
         public void CheckForUpdates()
         {
             Info("Checking for updates...");
@@ -156,6 +163,11 @@ namespace VM_Management_Tool.Services
         void ISearchCompletedCallback.Invoke(ISearchJob searchJob, ISearchCompletedCallbackArgs callbackArgs)
         {
             var searchResult = updateSearcher.EndSearch(searchJob);
+
+            if (searchResult.ResultCode != OperationResultCode.orcSucceeded) {
+                Info($"Update search failed with code: {searchResult.ResultCode}");
+                return;
+            }
 
             Info($"Found {searchResult.Updates.Count} updates:" + Environment.NewLine);
             

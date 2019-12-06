@@ -10,6 +10,7 @@
         <Button Content="Check..." HorizontalAlignment="Left" Margin="28,34,0,0" VerticalAlignment="Top" Width="75" Click="Button_Click"/>
         <TextBox x:Name="theConsole" HorizontalAlignment="Left" Height="346" Margin="140,34,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="615" 
                  Background="#FFFCFCFC" IsReadOnly="True" ScrollViewer.CanContentScroll="True" AutomationProperties.Name="consoleTextbox"/>
+        <Button x:Name="abort" Content="Abort..." HorizontalAlignment="Left" Margin="28,110,0,0" VerticalAlignment="Top" Width="75" Background="#FFD02525" Click="Abort_Click"/>
 
     </Grid>
 </Window>

@@ -24,11 +24,12 @@ namespace VM_Management_Tool
         public MainWindow()
         {
             InitializeComponent();
+            WinUpdatesManager.Instance.NewInfo += LogUpdateInto;
         }
 
         private void Button_Click(object sender, RoutedEventArgs e)
         {
-            WinUpdatesManager.Instance.NewInfo += LogUpdateInto;
+            //
             //WinUpdatesManager.Instance.LoadHsitory();
             WinUpdatesManager.Instance.CheckForUpdates();
         }
@@ -39,6 +40,11 @@ namespace VM_Management_Tool
             this.Dispatcher.Invoke(() =>
                  theConsole.AppendText(date + ": " + msg + Environment.NewLine)
             ) ;
+        }
+
+        private void Abort_Click(object sender, RoutedEventArgs e)
+        {
+            WinUpdatesManager.Instance.AbortChecking();
         }
     }
 }

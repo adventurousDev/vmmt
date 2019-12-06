@@ -29,12 +29,14 @@ namespace VM_Management_Tool
         private void Button_Click(object sender, RoutedEventArgs e)
         {
             WinUpdatesManager.Instance.NewInfo += LogUpdateInto;
-            WinUpdatesManager.Instance.LoadHsitory();
+            //WinUpdatesManager.Instance.LoadHsitory();
+            WinUpdatesManager.Instance.CheckForUpdates();
         }
 
         private void LogUpdateInto(string msg)
         {
-            theConsole.AppendText(msg+Environment.NewLine);
+            var date = DateTime.Now.ToString("dd.MM.yyyy HH:mm:ss");
+            theConsole.AppendText(date + ": " + msg + Environment.NewLine);
         }
     }
 }

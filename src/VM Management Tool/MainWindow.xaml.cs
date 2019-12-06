@@ -36,7 +36,9 @@ namespace VM_Management_Tool
         private void LogUpdateInto(string msg)
         {
             var date = DateTime.Now.ToString("dd.MM.yyyy HH:mm:ss");
-            theConsole.AppendText(date + ": " + msg + Environment.NewLine);
+            this.Dispatcher.Invoke(() =>
+                 theConsole.AppendText(date + ": " + msg + Environment.NewLine)
+            ) ;
         }
     }
 }

@@ -114,7 +114,18 @@ namespace VM_Management_Tool.Services
             }
             else if (obj is IUpdate update)
             {
-                stringBuilder.AppendLine(GetJsonKeyValPair("Title", update.Title, depth, false));
+                stringBuilder.AppendLine(GetJsonKeyValPair("Title", update.Title, depth));
+                stringBuilder.AppendLine(GetJsonKeyValPair("Category", update.Categories[0].Name, depth, false));
+            }else if (obj is ICategory category)
+            {
+                stringBuilder.AppendLine(GetJsonKeyValPair("Name", category.Name, depth));
+                stringBuilder.AppendLine(GetJsonKeyValPair("CategoryID", category.CategoryID, depth));
+                stringBuilder.AppendLine(GetJsonKeyValPair("Description", category.Description, depth));
+                stringBuilder.AppendLine(GetJsonKeyValPair("Type", category.Type, depth));                
+                stringBuilder.AppendLine(GetJsonKeyValPair("Parent category", category.Parent?.Name, depth));
+                stringBuilder.AppendLine(GetJsonKeyValPair("Child count", category.Children.Count, depth));
+                stringBuilder.AppendLine(GetJsonKeyValPair("Updates coount", category.Updates.Count, depth, false));
+
             }
             else
             {
@@ -147,10 +158,17 @@ namespace VM_Management_Tool.Services
             var searchResult = updateSearcher.EndSearch(searchJob);
 
             Info($"Found {searchResult.Updates.Count} updates:" + Environment.NewLine);
-
+            
             foreach (IUpdate update in searchResult.Updates)
             {
                 Info(Dump(update));
+            }
+
+            Info($"There are {searchResult.RootCategories.Count} cateories:" + Environment.NewLine);
+
+            foreach (ICategory category in searchResult.RootCategories)
+            {
+                Info(Dump(category));
             }
         }
     }

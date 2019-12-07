@@ -5,7 +5,7 @@ using WUApiLib;
 
 namespace VM_Management_Tool.Services
 {
-    class WinUpdatesManager : ISearchCompletedCallback
+    class WinUpdatesManager : ISearchCompletedCallback, IDownloadProgressChangedCallback, IDownloadCompletedCallback
     {
         private static readonly object Instancelock = new object();
         private static WinUpdatesManager instance = null;
@@ -28,8 +28,15 @@ namespace VM_Management_Tool.Services
             }
         }
 
+        IUpdateSession3 updateSession;
+
         ISearchJob searchJob;
         IUpdateSearcher updateSearcher;
+
+        IDownloadJob downloadJob;
+        IUpdateDownloader updateDownloader;
+
+
         private WinUpdatesManager()
         {
 
@@ -58,20 +65,35 @@ namespace VM_Management_Tool.Services
         {
             Info("Requesting abort...");
             searchJob.RequestAbort();
-            
+
         }
 
         public void CheckForUpdates()
         {
             Info("Checking for updates...");
-            var session = new UpdateSession();
-            updateSearcher = session.CreateUpdateSearcher();
+            updateSession = new UpdateSession();
+            updateSearcher = updateSession.CreateUpdateSearcher();
 
             Info("Update searcher params are: " + Dump(updateSearcher));
 
 
             //todo, make this async
             searchJob = updateSearcher.BeginSearch("IsInstalled=0", this, null);
+
+        }
+
+        public void DownloadUpdates(UpdateCollection updateCollection)
+        {
+            //updateSession = new UpdateSession();
+            //todo what if I:
+            //1. crete  new session?
+            //2. create the Downlaoder with new keywoard
+            updateDownloader = updateSession.CreateUpdateDownloader();
+
+            Info("Update downloader params are: " + Dump(updateDownloader));
+
+            //downloadJob = updateDownloader.BeginDownload(this, this, null);
+
 
         }
         private void Info(string text)
@@ -119,16 +141,22 @@ namespace VM_Management_Tool.Services
                 stringBuilder.AppendLine(GetJsonKeyValPair("ServiceID", updateSearcher.ServiceID, depth));
                 stringBuilder.AppendLine(GetJsonKeyValPair("CanAutomaticallyUpgradeService", updateSearcher.CanAutomaticallyUpgradeService, depth, false));
             }
+            else if (obj is IUpdateDownloader updateDownloader)
+            {
+                stringBuilder.AppendLine(GetJsonKeyValPair("IsForced", updateDownloader.IsForced, depth));
+                stringBuilder.AppendLine(GetJsonKeyValPair("Priority", updateDownloader.Priority, depth, false));
+            }
             else if (obj is IUpdate update)
             {
                 stringBuilder.AppendLine(GetJsonKeyValPair("Title", update.Title, depth));
                 stringBuilder.AppendLine(GetJsonKeyValPair("Category", update.Categories[0].Name, depth, false));
-            }else if (obj is ICategory category)
+            }
+            else if (obj is ICategory category)
             {
                 stringBuilder.AppendLine(GetJsonKeyValPair("Name", category.Name, depth));
                 stringBuilder.AppendLine(GetJsonKeyValPair("CategoryID", category.CategoryID, depth));
                 stringBuilder.AppendLine(GetJsonKeyValPair("Description", category.Description, depth));
-                stringBuilder.AppendLine(GetJsonKeyValPair("Type", category.Type, depth));                
+                stringBuilder.AppendLine(GetJsonKeyValPair("Type", category.Type, depth));
                 stringBuilder.AppendLine(GetJsonKeyValPair("Parent category", category.Parent?.Name, depth));
                 stringBuilder.AppendLine(GetJsonKeyValPair("Child count", category.Children.Count, depth));
                 stringBuilder.AppendLine(GetJsonKeyValPair("Updates coount", category.Updates.Count, depth, false));
@@ -164,13 +192,14 @@ namespace VM_Management_Tool.Services
         {
             var searchResult = updateSearcher.EndSearch(searchJob);
 
-            if (searchResult.ResultCode != OperationResultCode.orcSucceeded) {
+            if (searchResult.ResultCode != OperationResultCode.orcSucceeded)
+            {
                 Info($"Update search failed with code: {searchResult.ResultCode}");
                 return;
             }
 
             Info($"Found {searchResult.Updates.Count} updates:" + Environment.NewLine);
-            
+
             foreach (IUpdate update in searchResult.Updates)
             {
                 Info(Dump(update));
@@ -182,6 +211,16 @@ namespace VM_Management_Tool.Services
             {
                 Info(Dump(category));
             }
+        }
+
+        void IDownloadCompletedCallback.Invoke(IDownloadJob downloadJob, IDownloadCompletedCallbackArgs callbackArgs)
+        {
+            throw new NotImplementedException();
+        }
+
+        void IDownloadProgressChangedCallback.Invoke(IDownloadJob downloadJob, IDownloadProgressChangedCallbackArgs callbackArgs)
+        {
+            throw new NotImplementedException();
         }
     }
 

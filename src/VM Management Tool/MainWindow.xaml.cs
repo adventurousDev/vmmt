@@ -46,5 +46,10 @@ namespace VM_Management_Tool
         {
             WinUpdatesManager.Instance.AbortChecking();
         }
+
+        private void Download_Click(object sender, RoutedEventArgs e)
+        {
+            WinUpdatesManager.Instance.DownloadUpdates(null);
+        }
     }
 }

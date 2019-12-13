@@ -161,7 +161,9 @@ namespace VM_Management_Tool.Services
             else if (obj is IUpdate update)
             {
                 stringBuilder.AppendLine(GetJsonKeyValPair("Title", update.Title, depth));
-                stringBuilder.AppendLine(GetJsonKeyValPair("Category", update.Categories[0].Name, depth, false));
+                stringBuilder.AppendLine(GetJsonKeyValPair("Title", update.InstallationBehavior.RebootBehavior, depth));
+                stringBuilder.AppendLine(GetJsonKeyValPair("IsDownloaded", update.IsDownloaded, depth, false));
+                //stringBuilder.AppendLine(GetJsonKeyValPair("Category", update.Categories[0].Name, depth, false));
             }
             else if (obj is ICategory category)
             {
@@ -184,7 +186,7 @@ namespace VM_Management_Tool.Services
                 stringBuilder.AppendLine(GetJsonKeyValPair("PercentComplete", downloadProgress.PercentComplete, depth));
                 stringBuilder.AppendLine(GetJsonKeyValPair("TotalBytesDownloaded", downloadProgress.TotalBytesDownloaded, depth));
                 stringBuilder.AppendLine(GetJsonKeyValPair("TotalBytesToDownload", downloadProgress.TotalBytesToDownload, depth));
-                
+
             }
             else
             {
@@ -245,14 +247,14 @@ namespace VM_Management_Tool.Services
         void IDownloadCompletedCallback.Invoke(IDownloadJob downloadJob, IDownloadCompletedCallbackArgs callbackArgs)
         {
             var downloadResult = updateDownloader.EndDownload(downloadJob);
-            
+
 
             if (downloadResult.ResultCode != OperationResultCode.orcSucceeded)
             {
                 Info($"Download failed with code: {downloadResult.ResultCode}");
-                return;
+                //return;
             }
-            
+
             for (int i = 0; i < downloadJob.Updates.Count; i++)
             {
                 Info($"Download status for update {downloadJob.Updates[i].Title}: {downloadResult.GetUpdateResult(i).ResultCode}");

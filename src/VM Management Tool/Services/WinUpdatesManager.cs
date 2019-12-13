@@ -36,6 +36,9 @@ namespace VM_Management_Tool.Services
         IDownloadJob downloadJob;
         IUpdateDownloader updateDownloader;
 
+        UpdateCollection updateCollection;
+
+
 
         private WinUpdatesManager()
         {
@@ -43,6 +46,7 @@ namespace VM_Management_Tool.Services
         }
 
         public event Action<string> NewInfo;
+        public event Action UpdatesFound;
         public void LoadHsitory()
         {
             Info("Loading update history...");
@@ -67,6 +71,12 @@ namespace VM_Management_Tool.Services
             searchJob.RequestAbort();
 
         }
+        internal void AbortDownload()
+        {
+            Info("Requesting abort downlaod...");
+            downloadJob.RequestAbort();
+
+        }
 
         public void CheckForUpdates()
         {
@@ -82,7 +92,7 @@ namespace VM_Management_Tool.Services
 
         }
 
-        public void DownloadUpdates(UpdateCollection updateCollection)
+        public void DownloadUpdates()
         {
             //updateSession = new UpdateSession();
             //todo what if I:
@@ -92,7 +102,9 @@ namespace VM_Management_Tool.Services
 
             Info("Update downloader params are: " + Dump(updateDownloader));
 
-            //downloadJob = updateDownloader.BeginDownload(this, this, null);
+            updateDownloader.Updates = updateCollection;
+
+            downloadJob = updateDownloader.BeginDownload(this, this, null);
 
 
         }
@@ -162,6 +174,18 @@ namespace VM_Management_Tool.Services
                 stringBuilder.AppendLine(GetJsonKeyValPair("Updates coount", category.Updates.Count, depth, false));
 
             }
+            else if (obj is IDownloadProgress downloadProgress)
+            {
+                stringBuilder.AppendLine(GetJsonKeyValPair("CurrentUpdateBytesDownloaded", downloadProgress.CurrentUpdateBytesDownloaded, depth));
+                stringBuilder.AppendLine(GetJsonKeyValPair("CurrentUpdateBytesToDownload", downloadProgress.CurrentUpdateBytesToDownload, depth));
+                stringBuilder.AppendLine(GetJsonKeyValPair("CurrentUpdateDownloadPhase", downloadProgress.CurrentUpdateDownloadPhase, depth));
+                stringBuilder.AppendLine(GetJsonKeyValPair("CurrentUpdateIndex", downloadProgress.CurrentUpdateIndex, depth));
+                stringBuilder.AppendLine(GetJsonKeyValPair("CurrentUpdatePercentComplete", downloadProgress.CurrentUpdatePercentComplete, depth));
+                stringBuilder.AppendLine(GetJsonKeyValPair("PercentComplete", downloadProgress.PercentComplete, depth));
+                stringBuilder.AppendLine(GetJsonKeyValPair("TotalBytesDownloaded", downloadProgress.TotalBytesDownloaded, depth));
+                stringBuilder.AppendLine(GetJsonKeyValPair("TotalBytesToDownload", downloadProgress.TotalBytesToDownload, depth));
+                
+            }
             else
             {
                 stringBuilder.AppendLine(GetJsonKeyValPair("object", obj.ToString(), depth));
@@ -211,16 +235,36 @@ namespace VM_Management_Tool.Services
             {
                 Info(Dump(category));
             }
+            if (searchResult.Updates.Count > 0)
+            {
+                updateCollection = searchResult.Updates;
+                UpdatesFound?.Invoke();
+            }
         }
 
         void IDownloadCompletedCallback.Invoke(IDownloadJob downloadJob, IDownloadCompletedCallbackArgs callbackArgs)
         {
-            throw new NotImplementedException();
+            var downloadResult = updateDownloader.EndDownload(downloadJob);
+            
+
+            if (downloadResult.ResultCode != OperationResultCode.orcSucceeded)
+            {
+                Info($"Download failed with code: {downloadResult.ResultCode}");
+                return;
+            }
+            
+            for (int i = 0; i < downloadJob.Updates.Count; i++)
+            {
+                Info($"Download status for update {downloadJob.Updates[i].Title}: {downloadResult.GetUpdateResult(i).ResultCode}");
+            }
         }
 
         void IDownloadProgressChangedCallback.Invoke(IDownloadJob downloadJob, IDownloadProgressChangedCallbackArgs callbackArgs)
         {
-            throw new NotImplementedException();
+            Info($"Download progress: {callbackArgs.Progress.PercentComplete}%; " +
+                $"update {downloadJob.Updates[callbackArgs.Progress.CurrentUpdateIndex].Title}: {callbackArgs.Progress.CurrentUpdatePercentComplete}%");
+            Info(Dump(callbackArgs.Progress));
+
         }
     }
 

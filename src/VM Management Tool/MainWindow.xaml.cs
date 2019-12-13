@@ -25,6 +25,14 @@ namespace VM_Management_Tool
         {
             InitializeComponent();
             WinUpdatesManager.Instance.NewInfo += LogUpdateInto;
+            WinUpdatesManager.Instance.UpdatesFound += Instance_UpdatesFound;
+        }
+
+        private void Instance_UpdatesFound()
+        {
+            this.Dispatcher.Invoke(() =>
+                download.IsEnabled = true
+           );
         }
 
         private void Button_Click(object sender, RoutedEventArgs e)
@@ -49,7 +57,12 @@ namespace VM_Management_Tool
 
         private void Download_Click(object sender, RoutedEventArgs e)
         {
-            WinUpdatesManager.Instance.DownloadUpdates(null);
+            WinUpdatesManager.Instance.DownloadUpdates();
+        }
+
+        private void abortD_Click(object sender, RoutedEventArgs e)
+        {
+            WinUpdatesManager.Instance.AbortDownload();
         }
     }
 }

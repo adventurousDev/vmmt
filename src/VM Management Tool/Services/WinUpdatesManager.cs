@@ -142,6 +142,7 @@ namespace VM_Management_Tool.Services
             updateInstaller.Updates = updateCollection;
             Info("Starting update installation: " + Dump(updateInstaller));
             //var result = updateInstaller.RunWizard("Fucking hell!!!");
+            //OnInstallationComplete(result);
             installationJob = updateInstaller.BeginInstall(this,this, null);
         }
         private void Info(string text)
@@ -322,17 +323,21 @@ namespace VM_Management_Tool.Services
         {
             var installResult = updateInstaller.EndInstall(installationJob);
 
+            OnInstallationComplete(installResult);
+        }
 
+        private void OnInstallationComplete(IInstallationResult installResult)
+        {
             if (installResult.ResultCode != OperationResultCode.orcSucceeded)
             {
                 Info($"Installation failed with code: {installResult.ResultCode}");
                 //return;
             }
-           
 
-            for (int i = 0; i < downloadJob.Updates.Count; i++)
+
+            for (int i = 0; i < updateInstaller.Updates.Count; i++)
             {
-                Info($"Installation status for update {downloadJob.Updates[i].Title}: {installResult.GetUpdateResult(i).ResultCode}");
+                Info($"Installation status for update {updateInstaller.Updates[i].Title}: {installResult.GetUpdateResult(i).ResultCode}");
             }
         }
 

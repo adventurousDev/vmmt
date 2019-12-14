@@ -36,6 +36,9 @@ namespace VM_Management_Tool.Services
         IDownloadJob downloadJob;
         IUpdateDownloader updateDownloader;
 
+        IInstallationJob installationJob;
+        IUpdateInstaller updateInstaller;
+
         UpdateCollection updateCollection;
 
 
@@ -47,6 +50,7 @@ namespace VM_Management_Tool.Services
 
         public event Action<string> NewInfo;
         public event Action UpdatesFound;
+        public event Action ReadyToInstall;
         public void LoadHsitory()
         {
             Info("Loading update history...");
@@ -78,11 +82,13 @@ namespace VM_Management_Tool.Services
 
         }
 
-        public void CheckForUpdates()
+        public void CheckForUpdates(bool online = true)
         {
             Info("Checking for updates...");
             updateSession = new UpdateSession();
+            
             updateSearcher = updateSession.CreateUpdateSearcher();
+            updateSearcher.Online = online;
 
             Info("Update searcher params are: " + Dump(updateSearcher));
 
@@ -92,21 +98,51 @@ namespace VM_Management_Tool.Services
 
         }
 
+        internal void AbortInstall()
+        {
+            installationJob?.RequestAbort();
+        }
+
         public void DownloadUpdates()
         {
-            //updateSession = new UpdateSession();
-            //todo what if I:
-            //1. crete  new session?
-            //2. create the Downlaoder with new keywoard
-            updateDownloader = updateSession.CreateUpdateDownloader();
+            UpdateCollection toDwnload = new UpdateCollection();
+            foreach (IUpdate update in updateCollection)
+            {
+                if (!update.IsDownloaded && !update.IsInstalled)
+                {
+                    toDwnload.Add(update);
+                }
+            }
 
-            Info("Update downloader params are: " + Dump(updateDownloader));
+            if (toDwnload.Count > 0)
+            {
+                //updateSession = new UpdateSession();
+                //todo what if I:
+                //1. crete  new session?
+                //2. create the Downlaoder with new keywoard
+                updateDownloader = updateSession.CreateUpdateDownloader();
 
-            updateDownloader.Updates = updateCollection;
+                updateDownloader.Updates = updateCollection;
+                Info("Update downloader params are: " + Dump(updateDownloader));
 
-            downloadJob = updateDownloader.BeginDownload(this, this, null);
+                downloadJob = updateDownloader.BeginDownload(this, this, null);
+            }
+            else if (updateCollection.Count > 0)
+            {
+                ReadyToInstall?.Invoke();
+            }
 
 
+        }
+
+        public void InstallUpdates()
+        {
+            updateInstaller = updateSession.CreateUpdateInstaller();
+
+            updateInstaller.Updates = updateCollection;
+            Info("Starting update installation: " + Dump(updateInstaller));
+            var result = updateInstaller.RunWizard("Fucking hell!!!");
+            //installationJob = updateInstaller.BeginInstall();
         }
         private void Info(string text)
         {
@@ -163,7 +199,8 @@ namespace VM_Management_Tool.Services
                 stringBuilder.AppendLine(GetJsonKeyValPair("Title", update.Title, depth));
                 stringBuilder.AppendLine(GetJsonKeyValPair("Title", update.InstallationBehavior.RebootBehavior, depth));
                 stringBuilder.AppendLine(GetJsonKeyValPair("IsDownloaded", update.IsDownloaded, depth, false));
-                //stringBuilder.AppendLine(GetJsonKeyValPair("Category", update.Categories[0].Name, depth, false));
+                stringBuilder.AppendLine(GetJsonKeyValPair("IsInstalled", update.IsInstalled, depth, false));
+                stringBuilder.AppendLine(GetJsonKeyValPair("Category", update.Categories[0].Name, depth, false));
             }
             else if (obj is ICategory category)
             {
@@ -187,6 +224,13 @@ namespace VM_Management_Tool.Services
                 stringBuilder.AppendLine(GetJsonKeyValPair("TotalBytesDownloaded", downloadProgress.TotalBytesDownloaded, depth));
                 stringBuilder.AppendLine(GetJsonKeyValPair("TotalBytesToDownload", downloadProgress.TotalBytesToDownload, depth));
 
+            }
+            else if (obj is IUpdateInstaller updateInstaller)
+            {
+                stringBuilder.AppendLine(GetJsonKeyValPair("AllowSourcePrompts", updateInstaller.AllowSourcePrompts, depth));
+                stringBuilder.AppendLine(GetJsonKeyValPair("IsBusy", updateInstaller.IsBusy, depth));
+                stringBuilder.AppendLine(GetJsonKeyValPair("IsForced", updateInstaller.IsForced, depth));
+                stringBuilder.AppendLine(GetJsonKeyValPair("RebootRequiredBeforeInstallation", updateInstaller.RebootRequiredBeforeInstallation, depth, false));
             }
             else
             {
@@ -230,13 +274,14 @@ namespace VM_Management_Tool.Services
             {
                 Info(Dump(update));
             }
-
+            /*
             Info($"There are {searchResult.RootCategories.Count} cateories:" + Environment.NewLine);
 
             foreach (ICategory category in searchResult.RootCategories)
             {
                 Info(Dump(category));
             }
+            */
             if (searchResult.Updates.Count > 0)
             {
                 updateCollection = searchResult.Updates;
@@ -253,6 +298,10 @@ namespace VM_Management_Tool.Services
             {
                 Info($"Download failed with code: {downloadResult.ResultCode}");
                 //return;
+            }
+            else
+            {
+                ReadyToInstall?.Invoke();
             }
 
             for (int i = 0; i < downloadJob.Updates.Count; i++)

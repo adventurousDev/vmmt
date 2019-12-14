@@ -26,6 +26,12 @@ namespace VM_Management_Tool
             InitializeComponent();
             WinUpdatesManager.Instance.NewInfo += LogUpdateInto;
             WinUpdatesManager.Instance.UpdatesFound += Instance_UpdatesFound;
+            WinUpdatesManager.Instance.ReadyToInstall += Instance_ReadyToInstall;
+        }
+
+        private void Instance_ReadyToInstall()
+        {
+            install.IsEnabled = true;
         }
 
         private void Instance_UpdatesFound()
@@ -39,7 +45,7 @@ namespace VM_Management_Tool
         {
             //
             //WinUpdatesManager.Instance.LoadHsitory();
-            WinUpdatesManager.Instance.CheckForUpdates();
+            WinUpdatesManager.Instance.CheckForUpdates((bool)onlineCheckBox.IsChecked);
         }
 
         private void LogUpdateInto(string msg)
@@ -63,6 +69,27 @@ namespace VM_Management_Tool
         private void abortD_Click(object sender, RoutedEventArgs e)
         {
             WinUpdatesManager.Instance.AbortDownload();
+        }
+
+        private void theConsole_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            theConsole.CaretIndex = theConsole.Text.Length;
+            theConsole.ScrollToEnd();
+        }
+
+        private void Button_Click_1(object sender, RoutedEventArgs e)
+        {
+            theConsole?.Clear();
+        }
+
+        private void install_Click(object sender, RoutedEventArgs e)
+        {
+            WinUpdatesManager.Instance.InstallUpdates();
+        }
+
+        private void abortInstall_Click(object sender, RoutedEventArgs e)
+        {
+            WinUpdatesManager.Instance.AbortInstall();
         }
     }
 }

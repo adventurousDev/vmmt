@@ -5,7 +5,7 @@ using WUApiLib;
 
 namespace VM_Management_Tool.Services
 {
-    class WinUpdatesManager : ISearchCompletedCallback, IDownloadProgressChangedCallback, IDownloadCompletedCallback
+    class WinUpdatesManager : ISearchCompletedCallback, IDownloadProgressChangedCallback, IDownloadCompletedCallback, IInstallationCompletedCallback, IInstallationProgressChangedCallback
     {
         private static readonly object Instancelock = new object();
         private static WinUpdatesManager instance = null;
@@ -141,8 +141,8 @@ namespace VM_Management_Tool.Services
 
             updateInstaller.Updates = updateCollection;
             Info("Starting update installation: " + Dump(updateInstaller));
-            var result = updateInstaller.RunWizard("Fucking hell!!!");
-            //installationJob = updateInstaller.BeginInstall();
+            //var result = updateInstaller.RunWizard("Fucking hell!!!");
+            installationJob = updateInstaller.BeginInstall(this,this, null);
         }
         private void Info(string text)
         {
@@ -316,6 +316,31 @@ namespace VM_Management_Tool.Services
                 $"update {downloadJob.Updates[callbackArgs.Progress.CurrentUpdateIndex].Title}: {callbackArgs.Progress.CurrentUpdatePercentComplete}%");
             Info(Dump(callbackArgs.Progress));
 
+        }
+
+        void IInstallationCompletedCallback.Invoke(IInstallationJob installationJob, IInstallationCompletedCallbackArgs callbackArgs)
+        {
+            var installResult = updateInstaller.EndInstall(installationJob);
+
+
+            if (installResult.ResultCode != OperationResultCode.orcSucceeded)
+            {
+                Info($"Installation failed with code: {installResult.ResultCode}");
+                //return;
+            }
+           
+
+            for (int i = 0; i < downloadJob.Updates.Count; i++)
+            {
+                Info($"Installation status for update {downloadJob.Updates[i].Title}: {installResult.GetUpdateResult(i).ResultCode}");
+            }
+        }
+
+        void IInstallationProgressChangedCallback.Invoke(IInstallationJob installationJob, IInstallationProgressChangedCallbackArgs callbackArgs)
+        {
+            Info($"Install progress: {callbackArgs.Progress.PercentComplete}%; " +
+               $"Update {downloadJob.Updates[callbackArgs.Progress.CurrentUpdateIndex].Title}: {callbackArgs.Progress.CurrentUpdatePercentComplete}%");
+            //Info(Dump(callbackArgs.Progress));
         }
     }
 

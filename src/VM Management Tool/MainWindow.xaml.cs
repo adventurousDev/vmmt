@@ -31,7 +31,10 @@ namespace VM_Management_Tool
 
         private void Instance_ReadyToInstall()
         {
-            install.IsEnabled = true;
+
+            this.Dispatcher.Invoke(() =>
+                install.IsEnabled = true
+           );
         }
 
         private void Instance_UpdatesFound()

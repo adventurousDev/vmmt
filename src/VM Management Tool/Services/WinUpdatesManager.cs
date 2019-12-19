@@ -86,9 +86,10 @@ namespace VM_Management_Tool.Services
         {
             Info("Checking for updates...");
             updateSession = new UpdateSession();
-            
+
             updateSearcher = updateSession.CreateUpdateSearcher();
             updateSearcher.Online = online;
+            
 
             Info("Update searcher params are: " + Dump(updateSearcher));
 
@@ -143,7 +144,7 @@ namespace VM_Management_Tool.Services
             Info("Starting update installation: " + Dump(updateInstaller));
             //var result = updateInstaller.RunWizard("Fucking hell!!!");
             //OnInstallationComplete(result);
-            installationJob = updateInstaller.BeginInstall(this,this, null);
+            installationJob = updateInstaller.BeginInstall(this, this, null);
         }
         private void Info(string text)
         {
@@ -344,7 +345,7 @@ namespace VM_Management_Tool.Services
         void IInstallationProgressChangedCallback.Invoke(IInstallationJob installationJob, IInstallationProgressChangedCallbackArgs callbackArgs)
         {
             Info($"Install progress: {callbackArgs.Progress.PercentComplete}%; " +
-               $"Update {downloadJob.Updates[callbackArgs.Progress.CurrentUpdateIndex].Title}: {callbackArgs.Progress.CurrentUpdatePercentComplete}%");
+               $"Update {installationJob.Updates[callbackArgs.Progress.CurrentUpdateIndex].Title}: {callbackArgs.Progress.CurrentUpdatePercentComplete}%");
             //Info(Dump(callbackArgs.Progress));
         }
     }

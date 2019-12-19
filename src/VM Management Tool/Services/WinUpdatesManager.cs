@@ -334,12 +334,14 @@ namespace VM_Management_Tool.Services
                 Info($"Installation failed with code: {installResult.ResultCode}");
                 //return;
             }
+            
 
 
             for (int i = 0; i < updateInstaller.Updates.Count; i++)
             {
                 Info($"Installation status for update {updateInstaller.Updates[i].Title}: {installResult.GetUpdateResult(i).ResultCode}");
             }
+            Info($"Is reboot required? : {installResult.RebootRequired}");
         }
 
         void IInstallationProgressChangedCallback.Invoke(IInstallationJob installationJob, IInstallationProgressChangedCallbackArgs callbackArgs)

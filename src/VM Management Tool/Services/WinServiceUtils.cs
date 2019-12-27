@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Management.Automation;
 using System.ServiceProcess;
 using System.Text;
 using System.Threading.Tasks;
@@ -10,49 +11,86 @@ namespace VM_Management_Tool.Services
 {
     static class WinServiceUtils
     {
-        //TODO rewrite this with more consideration
-        //and proper APIs
-        public static bool StopService(string serviceName)
+
+        
+        public static async Task<bool> StopServiceAsync(string serviceName, int timeout)
         {
             ServiceController sc = new ServiceController(serviceName);
 
             try
             {
-                if (sc != null && sc.Status == ServiceControllerStatus.Running)
+                if (sc.Status == ServiceControllerStatus.Stopped)
+                {
+                    return true;
+                }
+                else if (sc.CanStop)
                 {
                     sc.Stop();
+                    DateTime utcNow = DateTime.UtcNow;
+                    sc.Refresh();
+                    while (sc.Status != ServiceControllerStatus.Stopped)
+                    {
+                        if ((DateTime.UtcNow.Ticks - utcNow.Ticks) / 10000 > timeout)
+                        {
+                            return false;
+                        }
+                        await Task.Delay(250).ConfigureAwait(false);
+                        sc.Refresh();
+
+                    }
+
+                    return true;
                 }
-                sc.WaitForStatus(ServiceControllerStatus.Stopped);
-                sc.Close();
-                return true;
+
+
+
             }
-            catch (Exception ex)
+            finally
             {
-                Console.WriteLine(ex.Message);
-                return false;
+                sc.Close();
             }
+            return false;
         }
-        public static bool StartService(string serviceName)
+        public static async Task<bool> StartServiceAsync(string serviceName, int timeout)
         {
             ServiceController sc = new ServiceController(serviceName);
 
             try
             {
-                if (sc != null && sc.Status == ServiceControllerStatus.Stopped)
+                if (sc.Status == ServiceControllerStatus.Running)
+                {
+                    return true;
+                }
+                else
                 {
                     sc.Start();
-                }
-                sc.WaitForStatus(ServiceControllerStatus.Running);
-                sc.Close();
-                return true;
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex.Message);
-                return false;
-            }
-        }
+                    DateTime utcNow = DateTime.UtcNow;
+                    sc.Refresh();
+                    while (sc.Status != ServiceControllerStatus.Running)
+                    {
+                        if ((DateTime.UtcNow.Ticks - utcNow.Ticks) / 10000 > timeout)
+                        {
+                            return false;
+                        }
+                        await Task.Delay(250).ConfigureAwait(false);
+                        sc.Refresh();
 
+                    }
+
+                    return true;
+                }
+
+
+
+
+
+            }
+            finally
+            {
+                sc.Close();
+            }
+
+        }
         /// <summary>
         /// Enables the Windows Service
         /// </summary>
@@ -60,6 +98,16 @@ namespace VM_Management_Tool.Services
         {
             try
             {
+                using (PowerShell shell = PowerShell.Create())
+                {
+                    shell.AddCommand("set-service").AddParameter("name", serviceName);
+                    shell.AddParameter("startuptype", "manual");
+                    shell.Invoke();
+                }
+
+
+
+                /*
                 var proc = new Process
                 {
                     StartInfo = new ProcessStartInfo
@@ -78,7 +126,7 @@ namespace VM_Management_Tool.Services
                 proc.Start();
                 proc.BeginOutputReadLine();
                 proc.BeginErrorReadLine();
-                proc.WaitForExit();
+                proc.WaitForExit();*/
             }
             catch (Exception e)
             {
@@ -93,6 +141,16 @@ namespace VM_Management_Tool.Services
         {
             try
             {
+                using (PowerShell shell = PowerShell.Create())
+                {
+                    shell.AddCommand("set-service").AddParameter("name", serviceName);
+                    shell.AddParameter("startuptype", "disabled");
+                    shell.Invoke();
+                }
+
+
+
+                /*
                 var proc = new Process
                 {
                     StartInfo = new ProcessStartInfo
@@ -112,6 +170,7 @@ namespace VM_Management_Tool.Services
                 proc.BeginOutputReadLine();
                 proc.BeginErrorReadLine();
                 proc.WaitForExit();
+                */
             }
             catch (Exception e)
             {

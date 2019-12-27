@@ -72,7 +72,7 @@ namespace VM_Management_Tool.Services
         internal void AbortChecking()
         {
             Info("Requesting abort...");
-            searchJob.RequestAbort();
+            searchJob?.RequestAbort();
 
         }
         internal void AbortDownload()

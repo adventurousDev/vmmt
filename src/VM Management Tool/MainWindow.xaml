@@ -7,16 +7,33 @@
         mc:Ignorable="d"
         Title="VM Management Tool" Height="450" Width="1013.333">
     <Grid>
-        <Button Content="Check..." HorizontalAlignment="Left" Margin="25,40,0,0" VerticalAlignment="Top" Width="75" Click="Button_Click"/>
-        <TextBox x:Name="theConsole" HorizontalAlignment="Left" Height="340" Margin="140,40,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="620" 
-                 Background="#FFFCFCFC" IsReadOnly="True" ScrollViewer.CanContentScroll="True" AutomationProperties.Name="consoleTextbox" VerticalScrollBarVisibility="Auto" TextChanged="theConsole_TextChanged"/>
-        <Button x:Name="abort" Content="Abort..." HorizontalAlignment="Left" Margin="26,280,0,0" VerticalAlignment="Top" Width="75" Background="#FFD02525" Click="Abort_Click"/>
-        <Button x:Name="abortD" Content="Abort Downlaod..." HorizontalAlignment="Left" Margin="26,320,0,0" VerticalAlignment="Top" Width="75" Background="#FFD02525" Click="abortD_Click" />
-        <Button x:Name="download" Content="Download..." HorizontalAlignment="Left" Margin="26,80,0,0" VerticalAlignment="Top" Width="75" IsEnabled="False" Click="Download_Click"  />
-        <Button Content="Clear" HorizontalAlignment="Left" Margin="800,40,0,0" VerticalAlignment="Top" Width="75" Click="Button_Click_1"/>
-        <Button x:Name="install" Content="Install..." HorizontalAlignment="Left" Margin="26,120,0,0" VerticalAlignment="Top" Width="75" IsEnabled="False" Click="install_Click"  />
-        <Button x:Name="abortInstall" Content="Abort Install..." HorizontalAlignment="Left" Margin="26,360,0,0" VerticalAlignment="Top" Width="75" Background="#FFD02525"  RenderTransformOrigin="0.56,2.581" Click="abortInstall_Click" />
-        <CheckBox x:Name="onlineCheckBox" Content="Online" IsChecked="True" HorizontalAlignment="Left" Margin="24,19,0,0" VerticalAlignment="Top" Height="16"/>
+        <TabControl >
+            <TabItem Header="WU">
+                <Grid>
+                    <Button Content="Check..." HorizontalAlignment="Left" Margin="25,40,0,0" VerticalAlignment="Top" Width="75" Click="Button_Click"/>
 
+                    <Button x:Name="abort" Content="Abort..." HorizontalAlignment="Left" Margin="26,280,0,0" VerticalAlignment="Top" Width="75" Background="#FFD02525" Click="Abort_Click"/>
+                    <Button x:Name="abortD" Content="Abort Downlaod..." HorizontalAlignment="Left" Margin="26,320,0,0" VerticalAlignment="Top" Width="75" Background="#FFD02525" Click="abortD_Click" />
+                    <Button x:Name="download" Content="Download..." HorizontalAlignment="Left" Margin="26,80,0,0" VerticalAlignment="Top" Width="75" IsEnabled="False" Click="Download_Click"  />
+
+                    <Button x:Name="install" Content="Install..." HorizontalAlignment="Left" Margin="26,120,0,0" VerticalAlignment="Top" Width="75" IsEnabled="False" Click="install_Click"  />
+                    <Button x:Name="abortInstall" Content="Abort Install..." HorizontalAlignment="Left" Margin="26,360,0,0" VerticalAlignment="Top" Width="75" Background="#FFD02525"  RenderTransformOrigin="0.56,2.581" Click="abortInstall_Click" />
+                    <CheckBox x:Name="onlineCheckBox" Content="Online" IsChecked="True" HorizontalAlignment="Left" Margin="24,19,0,0" VerticalAlignment="Top" Height="16"/>
+                </Grid>
+
+            </TabItem>
+            <TabItem Header="Serv">
+                <Grid>
+                    <Button x:Name="enableService" Content="Endable" HorizontalAlignment="Left" Margin="25,40,0,0" VerticalAlignment="Top" Width="75" Click="enableService_Click" />
+                    <Button x:Name="disableService"  Content="Disable" HorizontalAlignment="Left" Margin="25,75,0,0" VerticalAlignment="Top" Width="75" Click="disableService_Click" />
+                    <Button x:Name="startService" Content="Start" HorizontalAlignment="Left" Margin="25,115,0,0" VerticalAlignment="Top" Width="75" Click="startService_Click" />
+                    <Button x:Name="stopService"  Content="Stop" HorizontalAlignment="Left" Margin="25,150,0,0" VerticalAlignment="Top" Width="75" Click="stopService_Click" />
+                </Grid>
+            </TabItem>
+
+        </TabControl>
+        <TextBox x:Name="theConsole" HorizontalAlignment="Left" Height="340" Margin="140,40,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="620" 
+                        Background="#FFFCFCFC" IsReadOnly="True" ScrollViewer.CanContentScroll="True" AutomationProperties.Name="consoleTextbox" VerticalScrollBarVisibility="Auto" TextChanged="theConsole_TextChanged"/>
+        <Button Content="Clear" HorizontalAlignment="Left" Margin="800,40,0,0" VerticalAlignment="Top" Width="75" Click="Button_Click_1"/>
     </Grid>
 </Window>

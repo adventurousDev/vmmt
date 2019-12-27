@@ -54,9 +54,11 @@ namespace VM_Management_Tool
         private void LogUpdateInto(string msg)
         {
             var date = DateTime.Now.ToString("dd.MM.yyyy HH:mm:ss");
+            var outputmsg = date + ": " + msg + Environment.NewLine;
             this.Dispatcher.Invoke(() =>
-                 theConsole.AppendText(date + ": " + msg + Environment.NewLine)
+                 theConsole.AppendText(outputmsg)
             ) ;
+            
         }
 
         private void Abort_Click(object sender, RoutedEventArgs e)
@@ -93,6 +95,46 @@ namespace VM_Management_Tool
         private void abortInstall_Click(object sender, RoutedEventArgs e)
         {
             WinUpdatesManager.Instance.AbortInstall();
+        }
+
+        private void enableService_Click(object sender, RoutedEventArgs e)
+        {
+            WinServiceUtils.EnableService("wuauserv");
+        }
+
+        private void disableService_Click(object sender, RoutedEventArgs e)
+        {
+            WinServiceUtils.DisableService("wuauserv");
+        }
+       
+        private async void startService_Click(object sender, RoutedEventArgs e)
+        {
+            LogUpdateInto("starting service...");
+            
+            bool result = await WinServiceUtils.StartServiceAsync("wuauserv", 5000);
+            if (result)
+            {
+                LogUpdateInto("success!");
+            }
+            else
+            {
+                LogUpdateInto("fail!");
+            }
+        }
+
+        private async void stopService_Click(object sender, RoutedEventArgs e)
+        {
+            LogUpdateInto("stopping service...");
+            
+            bool result = await WinServiceUtils.StopServiceAsync("wuauserv", 5000);
+            if (result)
+            {
+                LogUpdateInto("success!");
+            }
+            else
+            {
+                LogUpdateInto("fail!");
+            }
         }
     }
 }

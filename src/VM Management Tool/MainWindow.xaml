@@ -30,6 +30,13 @@
                     <Button x:Name="stopService"  Content="Stop" HorizontalAlignment="Left" Margin="25,150,0,0" VerticalAlignment="Top" Width="75" Click="stopService_Click" />
                 </Grid>
             </TabItem>
+            <TabItem Header="Optimize">
+                <Grid>
+                    <Button x:Name="sdeleteBtn" Content="Run SDelete" HorizontalAlignment="Left" Margin="25,40,0,0" VerticalAlignment="Top" Width="75" Click="sdeleteBtn_Click"  />
+                    <Label  x:Name="progressStage" Content="Stage" HorizontalAlignment="Left" Margin="798,116,0,0" VerticalAlignment="Top" Width="114" Height="24"/>
+                    <ProgressBar x:Name="progressBar" HorizontalAlignment="Left" Height="10" Margin="798,101,0,0" VerticalAlignment="Top" Width="100"/>
+                </Grid>
+            </TabItem>
 
         </TabControl>
         <TextBox x:Name="theConsole" HorizontalAlignment="Left" Height="340" Margin="140,40,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="620" 

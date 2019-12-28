@@ -64,6 +64,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Services\WinOptimizationsManager.cs" />
     <Compile Include="Services\WinUpdatesManager.cs" />
     <Compile Include="Services\WinServiceUtils.cs" />
     <Page Include="MainWindow.xaml">

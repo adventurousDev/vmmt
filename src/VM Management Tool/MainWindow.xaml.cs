@@ -27,6 +27,35 @@ namespace VM_Management_Tool
             WinUpdatesManager.Instance.NewInfo += LogUpdateInto;
             WinUpdatesManager.Instance.UpdatesFound += Instance_UpdatesFound;
             WinUpdatesManager.Instance.ReadyToInstall += Instance_ReadyToInstall;
+
+            WinOptimizationsManager.Instance.NewInfo += LogUpdateInto;
+            WinOptimizationsManager.Instance.SDeleteProgressChanged += Instance_SDeleteProgressChanged;
+        }
+
+        private void Instance_SDeleteProgressChanged(string stage, int percentage)
+        {
+            this.Dispatcher.Invoke(() =>
+                {
+                    progressStage.Content = stage;
+
+                    if (percentage == -8)
+                    {
+                        progressBar.IsIndeterminate = true;
+                    }
+                    else if (percentage > 0)
+                    {
+                        progressBar.IsIndeterminate = false;
+                        progressBar.Value = percentage;
+                    }
+                    else
+                    {
+                        progressBar.IsIndeterminate = false;
+                        progressBar.Value = 0;
+                    }
+
+                }
+           );
+
         }
 
         private void Instance_ReadyToInstall()
@@ -57,8 +86,8 @@ namespace VM_Management_Tool
             var outputmsg = date + ": " + msg + Environment.NewLine;
             this.Dispatcher.Invoke(() =>
                  theConsole.AppendText(outputmsg)
-            ) ;
-            
+            );
+
         }
 
         private void Abort_Click(object sender, RoutedEventArgs e)
@@ -106,11 +135,11 @@ namespace VM_Management_Tool
         {
             WinServiceUtils.DisableService("wuauserv");
         }
-       
+
         private async void startService_Click(object sender, RoutedEventArgs e)
         {
             LogUpdateInto("starting service...");
-            
+
             bool result = await WinServiceUtils.StartServiceAsync("wuauserv", 5000);
             if (result)
             {
@@ -125,7 +154,7 @@ namespace VM_Management_Tool
         private async void stopService_Click(object sender, RoutedEventArgs e)
         {
             LogUpdateInto("stopping service...");
-            
+
             bool result = await WinServiceUtils.StopServiceAsync("wuauserv", 5000);
             if (result)
             {
@@ -135,6 +164,12 @@ namespace VM_Management_Tool
             {
                 LogUpdateInto("fail!");
             }
+        }
+
+        private void sdeleteBtn_Click(object sender, RoutedEventArgs e)
+        {
+
+            WinOptimizationsManager.Instance.RunSDelete();
         }
     }
 }

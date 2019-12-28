@@ -7,7 +7,7 @@ namespace VM_Management_Tool.Services
 {
     class WinUpdatesManager : ISearchCompletedCallback, IDownloadProgressChangedCallback, IDownloadCompletedCallback, IInstallationCompletedCallback, IInstallationProgressChangedCallback
     {
-        private static readonly object Instancelock = new object();
+        private static readonly object instancelock = new object();
         private static WinUpdatesManager instance = null;
 
         public static WinUpdatesManager Instance
@@ -16,7 +16,7 @@ namespace VM_Management_Tool.Services
             {
                 if (instance == null)
                 {
-                    lock (Instancelock)
+                    lock (instancelock)
                     {
                         if (instance == null)
                         {

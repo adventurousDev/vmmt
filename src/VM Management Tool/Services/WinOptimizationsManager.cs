@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Runtime.InteropServices;
 
 namespace VM_Management_Tool.Services
 {
@@ -31,12 +32,23 @@ namespace VM_Management_Tool.Services
         }
 
         Process sDeleteProc;
+        Process cleanmgrProc;
 
         public event Action<string> NewInfo;
         public event Action<int> SDeleteExited;
         public event Action<string> SDeleteError;
         public event Action<string, int> SDeleteProgressChanged;
         public bool SDeleteRunning { get { return sDeleteProc != null; } }
+        private const int SW_HIDE = 0;
+
+        [DllImport("User32")]
+        private static extern int ShowWindow(int hwnd, int nCmdShow);
+
+        public void HideCleanMgrWndow()
+        {
+            var hWnd = cleanmgrProc.MainWindowHandle.ToInt32();
+            ShowWindow(hWnd, SW_HIDE);
+        }
 
         public void RunSDelete()
         {
@@ -68,7 +80,58 @@ namespace VM_Management_Tool.Services
             sDeleteProc.BeginOutputReadLine();
 
         }
+        public void RunCleanmgr()
+        {
+            if (cleanmgrProc != null)
+            {
+                //SDeleteError?.Invoke("SDelete is already running");
+                return;
+            }
+            Info("Starting cleanmgr...");
 
+            //todo deregister events before loosing reference
+            cleanmgrProc = new Process();
+            cleanmgrProc.StartInfo.FileName = "cleanmgr.exe";
+            cleanmgrProc.StartInfo.Arguments = "/sagerun:1";
+            cleanmgrProc.StartInfo.UseShellExecute = false;
+            cleanmgrProc.StartInfo.CreateNoWindow = true;
+            cleanmgrProc.StartInfo.RedirectStandardOutput = true;
+            cleanmgrProc.StartInfo.RedirectStandardError = true;
+
+            cleanmgrProc.EnableRaisingEvents = true;
+            cleanmgrProc.OutputDataReceived += CleanmgrProc_OutputDataReceived;
+            cleanmgrProc.ErrorDataReceived += CleanmgrProc_ErrorDataReceived;
+            cleanmgrProc.Exited += CleanmgrProc_Exited;
+
+
+            cleanmgrProc.Start();
+            cleanmgrProc.BeginErrorReadLine();
+            cleanmgrProc.BeginOutputReadLine();
+            Info($"started cleanmgr; PID = {cleanmgrProc.Id}");
+
+        }
+
+        private void CleanmgrProc_Exited(object sender, EventArgs e)
+        {
+            var exitCode = cleanmgrProc.ExitCode;
+            Info($"Finished execution. Exit code: {exitCode}");
+            cleanmgrProc.Close();
+            cleanmgrProc = null;
+        }
+
+        private void CleanmgrProc_ErrorDataReceived(object sender, DataReceivedEventArgs e)
+        {
+            Info($"cleanmgr process Error: {e.Data}");
+        }
+
+        private void CleanmgrProc_OutputDataReceived(object sender, DataReceivedEventArgs e)
+        {
+            if (e.Data == null)
+            {
+                return;
+            }
+            Info($"cleanmgr process Info: {e.Data}");
+        }
 
         private void SDeleteProc_Exited(object sender, EventArgs e)
         {

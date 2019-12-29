@@ -35,6 +35,8 @@
                     <Button x:Name="sdeleteBtn" Content="Run SDelete" HorizontalAlignment="Left" Margin="25,40,0,0" VerticalAlignment="Top" Width="75" Click="sdeleteBtn_Click"  />
                     <Label  x:Name="progressStage" Content="Stage" HorizontalAlignment="Left" Margin="798,116,0,0" VerticalAlignment="Top" Width="114" Height="24"/>
                     <ProgressBar x:Name="progressBar" HorizontalAlignment="Left" Height="10" Margin="798,101,0,0" VerticalAlignment="Top" Width="100"/>
+                    <Button x:Name="cleanmgrBtn" Content="Run Clean Manager" HorizontalAlignment="Left" Margin="25,78,0,0" VerticalAlignment="Top" Width="75" Click="cleanmgrBtn_Click"   />
+                    <Button x:Name="hidewindow" Content="Hide" HorizontalAlignment="Left" Margin="797,194,0,0" VerticalAlignment="Top" Width="75" Click="hidewindow_Click"    />
                 </Grid>
             </TabItem>
 

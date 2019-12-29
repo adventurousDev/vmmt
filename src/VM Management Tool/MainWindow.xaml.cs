@@ -171,5 +171,15 @@ namespace VM_Management_Tool
 
             WinOptimizationsManager.Instance.RunSDelete();
         }
+
+        private void cleanmgrBtn_Click(object sender, RoutedEventArgs e)
+        {
+            WinOptimizationsManager.Instance.RunCleanmgr();
+        }
+
+        private void hidewindow_Click(object sender, RoutedEventArgs e)
+        {
+            WinOptimizationsManager.Instance.HideCleanMgrWndow();
+        }
     }
 }

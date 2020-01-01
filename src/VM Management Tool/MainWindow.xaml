@@ -37,6 +37,7 @@
                     <ProgressBar x:Name="progressBar" HorizontalAlignment="Left" Height="10" Margin="798,101,0,0" VerticalAlignment="Top" Width="100"/>
                     <Button x:Name="cleanmgrBtn" Content="Run Clean Manager" HorizontalAlignment="Left" Margin="25,78,0,0" VerticalAlignment="Top" Width="75" Click="cleanmgrBtn_Click"   />
                     <Button x:Name="hidewindow" Content="Hide" HorizontalAlignment="Left" Margin="797,194,0,0" VerticalAlignment="Top" Width="75" Click="hidewindow_Click"    />
+                    <Button x:Name="cleanmgrReg" Content="Print Registry" HorizontalAlignment="Left" Margin="797,252,0,0" VerticalAlignment="Top" Width="75" Click="cleanmgrReg_Click"     />
                 </Grid>
             </TabItem>
 

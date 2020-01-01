@@ -6,6 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Runtime.InteropServices;
+using Microsoft.Win32;
 
 namespace VM_Management_Tool.Services
 {
@@ -40,6 +41,8 @@ namespace VM_Management_Tool.Services
         public event Action<string, int> SDeleteProgressChanged;
         public bool SDeleteRunning { get { return sDeleteProc != null; } }
         private const int SW_HIDE = 0;
+        private const int CLEANMGR_STATEFLAGS_ID = 9999;
+
 
         [DllImport("User32")]
         private static extern int ShowWindow(int hwnd, int nCmdShow);
@@ -80,6 +83,46 @@ namespace VM_Management_Tool.Services
             sDeleteProc.BeginOutputReadLine();
 
         }
+        private void PrepareCleanmgrRegistry()
+        {
+            RegistryKey root = RegistryKey.OpenBaseKey(RegistryHive.LocalMachine, RegistryView.Registry64);
+            RegistryKey volumeCahches = root.OpenSubKey(@"SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\VolumeCaches", true);
+
+            foreach (string keyname in volumeCahches.GetSubKeyNames())
+            {
+                if (keyname.Equals("Update Cleanup"))
+                {
+                    //for now just ignoring the update cleanup because it is taking to long
+                    continue;
+                }
+
+                RegistryKey key = volumeCahches.OpenSubKey(keyname, true);
+
+                key.SetValue($"StateFlags{CLEANMGR_STATEFLAGS_ID}", "2", Microsoft.Win32.RegistryValueKind.DWord);
+                //Registry.SetValue(key.Name, $"StateFlags{CLEANMGR_STATEFLAGS_ID}", "2", Microsoft.Win32.RegistryValueKind.DWord);
+                //Info(key.GetValue($"StateFlags{CLEANMGR_STATEFLAGS_ID}").ToString()); // Replace KEY_NAME with what you're looking for
+            }
+        }
+        public void TmpRegisty()
+        {
+            RegistryKey root = RegistryKey.OpenBaseKey(RegistryHive.LocalMachine,RegistryView.Registry64);
+            RegistryKey volumeCahches = root.OpenSubKey(@"SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\VolumeCaches", true);
+
+            foreach (string keyname in volumeCahches.GetSubKeyNames())
+            {
+                if(keyname.Equals("Update Cleanup"))
+                {
+                    //for now just ignoring the update cleanup because it is taking to long
+                    continue;
+                }
+
+                RegistryKey key = volumeCahches.OpenSubKey(keyname, true);
+
+                key.SetValue($"StateFlags{CLEANMGR_STATEFLAGS_ID}", "2", Microsoft.Win32.RegistryValueKind.DWord);
+                //Registry.SetValue(key.Name, $"StateFlags{CLEANMGR_STATEFLAGS_ID}", "2", Microsoft.Win32.RegistryValueKind.DWord);
+                //Info(key.GetValue($"StateFlags{CLEANMGR_STATEFLAGS_ID}").ToString()); // Replace KEY_NAME with what you're looking for
+            }
+        }
         public void RunCleanmgr()
         {
             if (cleanmgrProc != null)
@@ -88,11 +131,12 @@ namespace VM_Management_Tool.Services
                 return;
             }
             Info("Starting cleanmgr...");
+            PrepareCleanmgrRegistry();
 
             //todo deregister events before loosing reference
             cleanmgrProc = new Process();
             cleanmgrProc.StartInfo.FileName = "cleanmgr.exe";
-            cleanmgrProc.StartInfo.Arguments = "/sagerun:1";
+            cleanmgrProc.StartInfo.Arguments = $"/sagerun:{CLEANMGR_STATEFLAGS_ID}";
             cleanmgrProc.StartInfo.UseShellExecute = false;
             cleanmgrProc.StartInfo.CreateNoWindow = true;
             cleanmgrProc.StartInfo.RedirectStandardOutput = true;
@@ -176,7 +220,7 @@ namespace VM_Management_Tool.Services
                 stage = "Cleaning MFT";
                 progress = -8;//indefinite progress
             }
-            
+
             //todo extract the stage and the progress
 
             SDeleteProgressChanged?.Invoke(stage, progress);

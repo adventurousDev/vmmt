@@ -181,5 +181,10 @@ namespace VM_Management_Tool
         {
             WinOptimizationsManager.Instance.HideCleanMgrWndow();
         }
+
+        private void cleanmgrReg_Click(object sender, RoutedEventArgs e)
+        {
+            WinOptimizationsManager.Instance.TmpRegisty();
+        }
     }
 }

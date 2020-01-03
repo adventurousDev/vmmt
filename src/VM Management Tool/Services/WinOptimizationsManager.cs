@@ -34,6 +34,7 @@ namespace VM_Management_Tool.Services
 
         Process sDeleteProc;
         Process cleanmgrProc;
+        Process defragProc;
 
         public event Action<string> NewInfo;
         public event Action<int> SDeleteExited;
@@ -105,12 +106,12 @@ namespace VM_Management_Tool.Services
         }
         public void TmpRegisty()
         {
-            RegistryKey root = RegistryKey.OpenBaseKey(RegistryHive.LocalMachine,RegistryView.Registry64);
+            RegistryKey root = RegistryKey.OpenBaseKey(RegistryHive.LocalMachine, RegistryView.Registry64);
             RegistryKey volumeCahches = root.OpenSubKey(@"SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\VolumeCaches", true);
 
             foreach (string keyname in volumeCahches.GetSubKeyNames())
             {
-                if(keyname.Equals("Update Cleanup"))
+                if (keyname.Equals("Update Cleanup"))
                 {
                     //for now just ignoring the update cleanup because it is taking to long
                     continue;
@@ -154,6 +155,71 @@ namespace VM_Management_Tool.Services
             Info($"started cleanmgr; PID = {cleanmgrProc.Id}");
 
         }
+
+        public void RunDefrag()
+        {
+            //1. Enable defrag service 
+            WinServiceUtils.EnableService("defragsvc");
+            //2. Create the process and register for the events
+            //3. Run the process
+            //4. Print the outputs 
+            //5. Handle the ending
+            if (defragProc != null)
+            {
+                //SDeleteError?.Invoke("SDelete is already running");
+                return;
+            }
+            Info("Starting defrag...");
+            //PrepareCleanmgrRegistry();
+
+            //todo deregister events before loosing reference
+            defragProc = new Process();
+            defragProc.StartInfo.FileName = Path.Combine(@"C:\Windows\Sysnative", "Defrag.exe");
+
+            defragProc.StartInfo.Arguments = $"/C /O /V /H";
+            defragProc.StartInfo.UseShellExecute = false;
+            defragProc.StartInfo.CreateNoWindow = true;
+            defragProc.StartInfo.RedirectStandardOutput = true;
+            defragProc.StartInfo.RedirectStandardError = true;
+            defragProc.StartInfo.RedirectStandardInput = true;
+
+
+            defragProc.EnableRaisingEvents = true;
+            defragProc.OutputDataReceived += DefragProc_OutputDataReceived;
+            defragProc.ErrorDataReceived += DefragProc_ErrorDataReceived; ;
+            defragProc.Exited += DefragProc_Exited;
+
+
+            defragProc.Start();
+            defragProc.BeginErrorReadLine();
+            defragProc.BeginOutputReadLine();
+            Info($"started defrag; PID = {defragProc.Id}");
+        }
+        private void DefragProc_ErrorDataReceived(object sender, DataReceivedEventArgs e)
+        {
+            Info($"defrag process Error: {e.Data}");
+        }
+
+        private void DefragProc_OutputDataReceived(object sender, DataReceivedEventArgs e)
+        {
+            if (e.Data == null)
+            {
+                return;
+            }
+            Info($"defrag process Info: {e.Data}");
+        }
+
+        private void DefragProc_Exited(object sender, EventArgs e)
+        {
+            
+            var exitCode = defragProc.ExitCode;
+            
+            defragProc.Close();
+            defragProc = null;
+            Info($"Finished execution. Exit code: {exitCode}");
+
+        }
+
 
         private void CleanmgrProc_Exited(object sender, EventArgs e)
         {

@@ -186,5 +186,10 @@ namespace VM_Management_Tool
         {
             WinOptimizationsManager.Instance.TmpRegisty();
         }
+
+        private void defragBtn_Click(object sender, RoutedEventArgs e)
+        {
+            WinOptimizationsManager.Instance.RunDefrag();
+        }
     }
 }

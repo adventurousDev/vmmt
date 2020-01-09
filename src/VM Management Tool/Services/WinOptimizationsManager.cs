@@ -7,6 +7,8 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Runtime.InteropServices;
 using Microsoft.Win32;
+using System.Management.Automation;
+using System.Collections.ObjectModel;
 
 namespace VM_Management_Tool.Services
 {
@@ -44,6 +46,7 @@ namespace VM_Management_Tool.Services
         private const int SW_HIDE = 0;
         private const int CLEANMGR_STATEFLAGS_ID = 9999;
 
+        volatile bool defragProcExited = false;
 
         [DllImport("User32")]
         private static extern int ShowWindow(int hwnd, int nCmdShow);
@@ -169,6 +172,7 @@ namespace VM_Management_Tool.Services
                 //SDeleteError?.Invoke("SDelete is already running");
                 return;
             }
+            defragProcExited = false;
             Info("Starting defrag...");
             //PrepareCleanmgrRegistry();
 
@@ -195,6 +199,57 @@ namespace VM_Management_Tool.Services
             defragProc.BeginOutputReadLine();
             Info($"started defrag; PID = {defragProc.Id}");
         }
+
+        #region trying out running defrag in powershell
+        [Obsolete]
+        public void RunDefragPS()
+        {
+            try
+            {
+                WinServiceUtils.EnableService("defragsvc");
+                PowerShell powershell = PowerShell.Create();
+
+                PSDataCollection<PSObject> output = new PSDataCollection<PSObject>();
+                output.DataAdded += Output_DataAdded;
+                powershell.InvocationStateChanged += Powershell_InvocationStateChanged;
+
+                powershell.AddScript("defrag /C /O /V /H /U");
+
+
+                IAsyncResult asyncResult = powershell.BeginInvoke<PSObject, PSObject>(null, output);
+
+
+
+
+
+            }
+            catch (Exception e)
+            {
+                throw new Exception("Could not enable the service, error: " + e.Message);
+            }
+
+        }
+
+        [Obsolete]
+        private void Powershell_InvocationStateChanged(object sender, PSInvocationStateChangedEventArgs e)
+        {
+            Info("Incovation state chaged: " + e.InvocationStateInfo.State);
+        }
+        [Obsolete]
+        private void Output_DataAdded(object sender, DataAddedEventArgs e)
+        {
+            PSDataCollection<PSObject> myp = (PSDataCollection<PSObject>)sender;
+
+            Collection<PSObject> results = myp.ReadAll();
+            Info("Data added; count: " + results.Count);
+            foreach (PSObject result in results)
+            {
+                Info(result.ToString());
+            }
+        }
+        #endregion
+
+
         private void DefragProc_ErrorDataReceived(object sender, DataReceivedEventArgs e)
         {
             Info($"defrag process Error: {e.Data}");
@@ -202,21 +257,27 @@ namespace VM_Management_Tool.Services
 
         private void DefragProc_OutputDataReceived(object sender, DataReceivedEventArgs e)
         {
-            if (e.Data == null)
+            var output = e.Data;
+            if (e.Data == null && defragProcExited)
             {
-                return;
+                var exitCode = defragProc.ExitCode;
+                bool hasExited = defragProc.HasExited;
+                defragProc.Close();
+                defragProc = null;
+                Info($"Finished execution. Exit code: {exitCode}; really exited {hasExited}; ");
             }
-            Info($"defrag process Info: {e.Data}");
+            else
+            {
+                Info($"defrag process Info: {output}");
+
+            }
         }
 
         private void DefragProc_Exited(object sender, EventArgs e)
         {
-            
-            var exitCode = defragProc.ExitCode;
-            
-            defragProc.Close();
-            defragProc = null;
-            Info($"Finished execution. Exit code: {exitCode}");
+            defragProcExited = true;
+            //todo also consider adding a timeout in case the null data is never received
+
 
         }
 

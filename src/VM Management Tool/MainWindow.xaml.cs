@@ -189,6 +189,7 @@ namespace VM_Management_Tool
 
         private void defragBtn_Click(object sender, RoutedEventArgs e)
         {
+            //WinOptimizationsManager.Instance.RunDefragPS();
             WinOptimizationsManager.Instance.RunDefrag();
         }
     }

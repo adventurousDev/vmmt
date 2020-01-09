@@ -180,7 +180,7 @@ namespace VM_Management_Tool.Services
             defragProc = new Process();
             defragProc.StartInfo.FileName = Path.Combine(@"C:\Windows\Sysnative", "Defrag.exe");
 
-            defragProc.StartInfo.Arguments = $"/C /O /V /H";
+            defragProc.StartInfo.Arguments = $"/C /O /V /H /U";
             defragProc.StartInfo.UseShellExecute = false;
             defragProc.StartInfo.CreateNoWindow = true;
             defragProc.StartInfo.RedirectStandardOutput = true;

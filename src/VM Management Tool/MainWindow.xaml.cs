@@ -13,6 +13,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using VM_Management_Tool.Services;
+using VM_Management_Tool.Services.Optimization;
 
 namespace VM_Management_Tool
 {
@@ -191,6 +192,14 @@ namespace VM_Management_Tool
         {
             //WinOptimizationsManager.Instance.RunDefragPS();
             WinOptimizationsManager.Instance.RunDefrag();
+        }
+
+        private void loadButton_Click(object sender, RoutedEventArgs e)
+        {
+            var template = new OptimizationTemplate();
+            template.NewInfo += LogUpdateInto;
+            string path = @"C:\Users\Student\Desktop\VMwareOSOptimizationTool_b1140_15488330\bwlp_Windows_10.xml";
+            template.Load(path);
         }
     }
 }

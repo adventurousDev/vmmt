@@ -7,7 +7,7 @@
         mc:Ignorable="d"
         Title="VM Management Tool" Height="450" Width="1013.333">
     <Grid>
-        <TabControl >
+        <TabControl SelectedIndex="3">
             <TabItem Header="WU">
                 <Grid>
                     <Button Content="Check..." HorizontalAlignment="Left" Margin="25,40,0,0" VerticalAlignment="Top" Width="75" Click="Button_Click"/>
@@ -39,6 +39,11 @@
                     <Button x:Name="hidewindow" Content="Hide" HorizontalAlignment="Left" Margin="797,194,0,0" VerticalAlignment="Top" Width="75" Click="hidewindow_Click"    />
                     <Button x:Name="cleanmgrReg" Content="Print Registry" HorizontalAlignment="Left" Margin="797,252,0,0" VerticalAlignment="Top" Width="75" Click="cleanmgrReg_Click"     />
                     <Button x:Name="defragBtn" Content="Run Defrag" HorizontalAlignment="Left" Margin="25,124,0,0" VerticalAlignment="Top" Width="75" Click="defragBtn_Click"    />
+                </Grid>
+            </TabItem>
+            <TabItem Header="Template">
+                <Grid>
+                    <Button x:Name="loadButton" Content="Load XMl" HorizontalAlignment="Left" Margin="25,40,0,0" VerticalAlignment="Top" Width="75" Click="loadButton_Click"   />
                 </Grid>
             </TabItem>
 

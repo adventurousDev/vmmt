@@ -64,6 +64,17 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Services\Optimization\Action.cs" />
+    <Compile Include="Services\Optimization\Actions\CustomCheckAction.cs" />
+    <Compile Include="Services\Optimization\Actions\SchTasksAction.cs" />
+    <Compile Include="Services\Optimization\Actions\ServiceAction.cs" />
+    <Compile Include="Services\Optimization\Actions\ShellExecuteAction.cs" />
+    <Compile Include="Services\Optimization\Condition.cs" />
+    <Compile Include="Services\Optimization\Group.cs" />
+    <Compile Include="Services\Optimization\IGroupChild.cs" />
+    <Compile Include="Services\Optimization\OptimizationTemplate.cs" />
+    <Compile Include="Services\Optimization\Actions\RegistryAction.cs" />
+    <Compile Include="Services\Optimization\Step.cs" />
     <Compile Include="Services\WinOptimizationsManager.cs" />
     <Compile Include="Services\WinUpdatesManager.cs" />
     <Compile Include="Services\WinServiceUtils.cs" />
@@ -118,5 +129,6 @@
       <EmbedInteropTypes>True</EmbedInteropTypes>
     </COMReference>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

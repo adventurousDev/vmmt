@@ -9,17 +9,14 @@ namespace VM_Management_Tool.Services.Optimization
 {
     abstract class Action_
     {
+        public enum StatusResult
+        {
+            Unavailable,
+            Match,
+            Mismatch
 
-        //public enum ActionType
-        //{
-
-        //    Registry,
-        //    Service,
-        //    ShellExecute,
-        //    SchTasks,
-        //    CustomCheck
-        //}
-
+        }
+       
 
         public bool MessageOnly { get; set; }
         //we could also keep the mutable dictionary as private and 
@@ -36,5 +33,8 @@ namespace VM_Management_Tool.Services.Optimization
             }
         }
 
+        public virtual StatusResult CheckStatus() {
+            return StatusResult.Unavailable;
+        }
     }
 }

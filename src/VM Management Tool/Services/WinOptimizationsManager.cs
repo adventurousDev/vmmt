@@ -106,6 +106,8 @@ namespace VM_Management_Tool.Services
                 //Registry.SetValue(key.Name, $"StateFlags{CLEANMGR_STATEFLAGS_ID}", "2", Microsoft.Win32.RegistryValueKind.DWord);
                 //Info(key.GetValue($"StateFlags{CLEANMGR_STATEFLAGS_ID}").ToString()); // Replace KEY_NAME with what you're looking for
             }
+            volumeCahches.Close();
+            root.Close();
         }
         public void TmpRegisty()
         {

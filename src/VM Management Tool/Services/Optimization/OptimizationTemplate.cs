@@ -16,7 +16,7 @@ namespace VM_Management_Tool.Services.Optimization
         const string OS_REF_METADATA_KEY = "osdefinitions";
 
         public Dictionary<string, object> Metadata { get; set; }
-        public IList<Group> Groups;
+        public IList<Group> RootGroups;
 
         //events 
         public event Action<string> NewInfo;
@@ -70,27 +70,78 @@ namespace VM_Management_Tool.Services.Optimization
                 //next, get all the groups and steps
 
                 //the collection of root groups(normally there is just one)
-                Groups = new List<Group>();
+                RootGroups = new List<Group>();
 
                 var rootGroupIterator = nav.Select("/sequence/group");
 
                 while (rootGroupIterator.MoveNext())
                 {
                     var group = RecursivelyParseGroup(rootGroupIterator.Current.Clone());
-                    Groups.Add(group);
+                    RootGroups.Add(group);
                 }
 
+                //test shit ****************************************************************
+                /*
+                var steps = GetAllSteps();
+                nav.MoveToRoot();
+                var stepsIterator = nav.Select("//step[@name]");
+                var xmlNames = new List<string>();//new HashSet<string>();
+                //var actionsIterator = nav.Select("//action");
+                while (stepsIterator.MoveNext())
+                {
+                    var name = stepsIterator.Current.GetAttribute("name", "");
+                    if (name == "")
+                    {
+                        throw new Exception("no name!!!");
+                    }
+                    xmlNames.Add(name);
+                }
+
+                //var onjNames = new HashSet<string>(steps.Select((step) => { return step.Name; }));
+
+                //xmlNames.SymmetricExceptWith(onjNames);
+                //string json = JsonConvert.SerializeObject(steps);
+                //Log(json);
+                xmlNames.Sort();
+                string names = string.Join(Environment.NewLine,xmlNames);
+                Log(names);
+                */
             }
             catch (Exception e)
             {
                 throw;
             }
 
-            string json = JsonConvert.SerializeObject(Groups);
-            Log(json);
+
 
         }
 
+        public List<Step> GetAllSteps()
+        {
+            var res = new List<Step>();
+            if (RootGroups != null)
+            {
+                foreach (Group rootGroup in RootGroups)
+                {
+                    RecursivelyAddSteps(res, rootGroup);
+                }
+            }
+            return res;
+        }
+        void RecursivelyAddSteps(List<Step> theList, Group group)
+        {
+            foreach (var child in group.Children)
+            {
+                if (child is Step step)
+                {
+                    theList.Add(step);
+                }
+                else
+                {
+                    RecursivelyAddSteps(theList, child as Group);
+                }
+            }
+        }
         Group RecursivelyParseGroup(XPathNavigator groupXNav)
         {
             //it has to be group
@@ -206,7 +257,7 @@ namespace VM_Management_Tool.Services.Optimization
                 if (customOptimizationXNav != null)
                 {
                     action.CustomOptimization = ParseAction(customOptimizationXNav, true);
-                    
+
                 }
                 var customRollbackXNav = actionXNav.SelectSingleNode("customrollback");
                 if (customRollbackXNav != null)
@@ -289,7 +340,13 @@ namespace VM_Management_Tool.Services.Optimization
         {
             //parse params
             //these are all known keys:
-            var parameters = ParseParams(actionXNav, new[] { "keyName", "valueName", "type", "data", "fileName" });
+            var parameters = ParseParams(actionXNav, new[] {
+                RegistryAction.PARAM_NAME_KEY,
+                RegistryAction.PARAM_NAME_VALUE,
+                RegistryAction.PARAM_NAME_TYPE,
+                RegistryAction.PARAM_NAME_DATA,
+                RegistryAction.PARAM_NAME_FILENAME
+            });
 
 
 
@@ -302,28 +359,28 @@ namespace VM_Management_Tool.Services.Optimization
                 case "ADD":
                     command = RegistryAction.RegistryCommand.Add;
                     //mandatories
-                    AsserNonEmptyParamsAndThrow(commandStr, new[] { "keyName" }, parameters);
+                    AsserNonEmptyParamsAndThrow(commandStr, new[] { RegistryAction.PARAM_NAME_KEY }, parameters);
                     break;
                 case "DELETEKEY":
                     command = RegistryAction.RegistryCommand.DeleteKey;
                     //mandatories
-                    AsserNonEmptyParamsAndThrow(commandStr, new[] { "keyName" }, parameters);
+                    AsserNonEmptyParamsAndThrow(commandStr, new[] { RegistryAction.PARAM_NAME_KEY }, parameters);
                     break;
                 case "DELETEVALUE":
                     command = RegistryAction.RegistryCommand.DeleteValue;
                     //mandatories
-                    AsserNonEmptyParamsAndThrow(commandStr, new[] { "keyName", "valueName" }, parameters);
+                    AsserNonEmptyParamsAndThrow(commandStr, new[] { RegistryAction.PARAM_NAME_KEY, RegistryAction.PARAM_NAME_VALUE }, parameters);
                     break;
                 case "LOAD":
                     command = RegistryAction.RegistryCommand.Load;
                     //mandatories
-                    AsserNonEmptyParamsAndThrow(commandStr, new[] { "keyName", "fileName" }, parameters);
+                    AsserNonEmptyParamsAndThrow(commandStr, new[] { RegistryAction.PARAM_NAME_KEY, RegistryAction.PARAM_NAME_FILENAME }, parameters);
 
                     break;
                 case "UNLOAD":
                     command = RegistryAction.RegistryCommand.Unload;
                     //mandatories
-                    AsserNonEmptyParamsAndThrow(commandStr, new[] { "keyName" }, parameters);
+                    AsserNonEmptyParamsAndThrow(commandStr, new[] { RegistryAction.PARAM_NAME_KEY}, parameters);
                     break;
                 default:
                     throw new Exception($"Unknown registry command {commandStr}");
@@ -339,11 +396,11 @@ namespace VM_Management_Tool.Services.Optimization
             {
                 string key = keys[i];
                 string value = actionXNav.SelectSingleNode($"params/{key}")?.Value;
-                if(value != null)
+                if (value != null)
                 {
                     parameters.Add(key, value);
                 }
-                
+
             }
             return parameters;
         }

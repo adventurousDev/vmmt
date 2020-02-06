@@ -10,5 +10,9 @@ namespace VM_Management_Tool.Services.Optimization.Actions
     //so these will need to be removed probably
     class ServiceAction : Action_
     {
+        public ServiceAction(Dictionary<string, string> params_) : base(params_)
+        {
+
+        }
     }
 }

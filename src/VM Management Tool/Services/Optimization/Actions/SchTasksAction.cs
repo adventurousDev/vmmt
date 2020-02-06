@@ -6,9 +6,14 @@ using System.Threading.Tasks;
 
 namespace VM_Management_Tool.Services.Optimization.Actions
 {
-    //todo decided against custom action sub-types for now
-    //so these will need to be removed probably
     class SchTasksAction : Action_
     {
+        
+        
+        public SchTasksAction(Dictionary<string, string> params_) : base(params_)
+        {
+
+        }
+       
     }
 }

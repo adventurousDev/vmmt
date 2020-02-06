@@ -10,5 +10,10 @@ namespace VM_Management_Tool.Services.Optimization.Actions
     //so these will need to be removed probably
     class ShellExecuteAction : Action_
     {
+        public string ShellCommand { get; private set; }
+        public ShellExecuteAction(string shellCommand) : base(null)
+        {
+            ShellCommand = shellCommand;
+        }
     }
 }

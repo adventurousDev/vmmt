@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Xml;
 using System.Xml.XPath;
+using VM_Management_Tool.Services.Optimization.Actions;
 
 namespace VM_Management_Tool.Services.Optimization
 {
@@ -164,50 +165,207 @@ namespace VM_Management_Tool.Services.Optimization
             return step;
         }
 
-        Action_ ParseAction(XPathNavigator actionXNav)
+        Action_ ParseAction(XPathNavigator actionXNav, bool subAction = false)
         {
             if (actionXNav == null)
             {
                 return null;
             }
-            Action_.Types actionType;
-            string type = actionXNav.SelectSingleNode("type").Value;
+            Action_ action = null;
+            string type = actionXNav.SelectSingleNode("type")?.Value;
             switch (type)
             {
                 case "Registry":
-                    actionType = Action_.Types.Registry;
+                    action = ParseRegistryAction(actionXNav);
                     break;
                 case "Service":
-                    actionType = Action_.Types.Service;
+                    action = ParseServiceAction(actionXNav);
                     break;
                 case "ShellExecute":
-                    actionType = Action_.Types.ShellExecute;
+                    action = ParseShellExecuteAction(actionXNav);
                     break;
                 case "SchTasks":
-                    actionType = Action_.Types.SchTasks;
+                    action = ParseSchTasksAction(actionXNav);
                     break;
                 case "Custom Check":
-                    actionType = Action_.Types.CustomCheck;
+                    action = ParseCustomCheckAction(actionXNav);
                     break;
                 default:
                     throw new Exception("Invalid action type");
-                    
+            }
 
+            //fetch messageOnly attribute
+            action.MessageOnly = actionXNav.GetAttribute("messageOnly", "").ToLower() == "true";
+
+            //this flag/ check is not even necessary because the XML structure
+            //would express it
+            if (!subAction)
+            {
+                //todo also deal with sub-actions
+                var customOptimizationXNav = actionXNav.SelectSingleNode("customOptimization");
+                if (customOptimizationXNav != null)
+                {
+                    action.CustomOptimization = ParseAction(customOptimizationXNav, true);
+                    
+                }
+                var customRollbackXNav = actionXNav.SelectSingleNode("customrollback");
+                if (customRollbackXNav != null)
+                {
+                    action.CustomRollback = ParseAction(customRollbackXNav, true);
+
+                }
+            }
+
+            return action;
+        }
+
+        private Action_ ParseCustomCheckAction(XPathNavigator actionXNav)
+        {
+            //parse params
+            //these are all known keys:
+            var parameters = ParseParams(actionXNav, new[] { "noLess", "noGreater", "programName" });
+
+            //parse command
+            //and perform mandatory params and other checks
+            var targetStr = actionXNav.SelectSingleNode("target")?.Value;
+            CustomCheckAction.CustomCheckTarget target;
+            switch (targetStr)
+            {
+                case "Disc Count":
+                    target = CustomCheckAction.CustomCheckTarget.DiskCount;
+                    break;
+                case "Disc Space":
+                    target = CustomCheckAction.CustomCheckTarget.DiskCount;
+                    break;
+                case "Installed Program":
+                    target = CustomCheckAction.CustomCheckTarget.InstalledProgram;
+                    //mandatories
+                    AsserNonEmptyParamsAndThrow(targetStr, new[] { "programName" }, parameters);
+                    break;
+
+                default:
+                    throw new Exception($"Unknown custom command target {targetStr}");
+
+            }
+            return new CustomCheckAction(target, parameters);
+
+        }
+
+        private Action_ ParseSchTasksAction(XPathNavigator actionXNav)
+        {
+            //parse params
+            //these are all known keys:
+            var parameters = ParseParams(actionXNav, new[] { "taskName", "status" });
+
+
+
+            return new SchTasksAction(parameters);
+        }
+
+        private Action_ ParseShellExecuteAction(XPathNavigator actionXNav)
+        {
+            //this has no parameters
+
+            //get the string command
+            string command = actionXNav.SelectSingleNode("command")?.Value;
+            if (string.IsNullOrEmpty(command))
+            {
+                throw new Exception("SchellExecute action required a non-empty command");
+            }
+
+            return new ShellExecuteAction(command);
+        }
+
+        private Action_ ParseServiceAction(XPathNavigator actionXNav)
+        {
+            //parse params
+            //these are all known keys:
+            var parameters = ParseParams(actionXNav, new[] { "serviceName", "startMode" });
+
+            return new ServiceAction(parameters);
+        }
+
+        RegistryAction ParseRegistryAction(XPathNavigator actionXNav)
+        {
+            //parse params
+            //these are all known keys:
+            var parameters = ParseParams(actionXNav, new[] { "keyName", "valueName", "type", "data", "fileName" });
+
+
+
+            //parse command
+            //and perform mandatory params and other checks
+            var commandStr = actionXNav.SelectSingleNode("command")?.Value;
+            RegistryAction.RegistryCommand command;
+            switch (commandStr)
+            {
+                case "ADD":
+                    command = RegistryAction.RegistryCommand.Add;
+                    //mandatories
+                    AsserNonEmptyParamsAndThrow(commandStr, new[] { "keyName" }, parameters);
+                    break;
+                case "DELETEKEY":
+                    command = RegistryAction.RegistryCommand.DeleteKey;
+                    //mandatories
+                    AsserNonEmptyParamsAndThrow(commandStr, new[] { "keyName" }, parameters);
+                    break;
+                case "DELETEVALUE":
+                    command = RegistryAction.RegistryCommand.DeleteValue;
+                    //mandatories
+                    AsserNonEmptyParamsAndThrow(commandStr, new[] { "keyName", "valueName" }, parameters);
+                    break;
+                case "LOAD":
+                    command = RegistryAction.RegistryCommand.Load;
+                    //mandatories
+                    AsserNonEmptyParamsAndThrow(commandStr, new[] { "keyName", "fileName" }, parameters);
+
+                    break;
+                case "UNLOAD":
+                    command = RegistryAction.RegistryCommand.Unload;
+                    //mandatories
+                    AsserNonEmptyParamsAndThrow(commandStr, new[] { "keyName" }, parameters);
+                    break;
+                default:
+                    throw new Exception($"Unknown registry command {commandStr}");
 
             }
 
-
-            return null;
+            return new RegistryAction(command, parameters);
+        }
+        Dictionary<string, string> ParseParams(XPathNavigator actionXNav, string[] keys)
+        {
+            var parameters = new Dictionary<string, string>();
+            for (int i = 0; i < keys.Length; i++)
+            {
+                string key = keys[i];
+                string value = actionXNav.SelectSingleNode($"params/{key}")?.Value;
+                if(value != null)
+                {
+                    parameters.Add(key, value);
+                }
+                
+            }
+            return parameters;
         }
         Condition ParseCondition(XPathNavigator conditionXNav)
         {
+            //todo implement this
             if (conditionXNav == null)
             {
                 return null;
             }
             return null;
         }
-
+        void AsserNonEmptyParamsAndThrow(string command, string[] mandatoryKeys, Dictionary<string, string> parameters)
+        {
+            for (int i = 0; i < mandatoryKeys.Length; i++)
+            {
+                if (!parameters.TryGetValue(mandatoryKeys[i], out string value) || string.IsNullOrEmpty(value))
+                {
+                    throw new Exception($"The command/ target: {command} requires parameter(s): {string.Join(",", mandatoryKeys)}");
+                }
+            }
+        }
         void Log(string msg)
         {
             NewInfo?.Invoke(msg);

@@ -1,26 +1,39 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace VM_Management_Tool.Services.Optimization
 {
-    class Action_
+    abstract class Action_
     {
-        public enum Types
+
+        //public enum ActionType
+        //{
+
+        //    Registry,
+        //    Service,
+        //    ShellExecute,
+        //    SchTasks,
+        //    CustomCheck
+        //}
+
+
+        public bool MessageOnly { get; set; }
+        //we could also keep the mutable dictionary as private and 
+        //return it wrapped in readonly here in get
+        public IReadOnlyDictionary<string, string> Params { get; protected set; }
+
+        public Action_ CustomOptimization { get; set; }
+        public Action_ CustomRollback { get; set; }
+        public Action_(Dictionary<string, string> params_)
         {
-            Registry,
-            Service,
-            ShellExecute,
-            SchTasks,
-            CustomCheck
-
-
-        }
-        public Action_()
-        {
-
+            if (params_ != null)
+            {
+                Params = new ReadOnlyDictionary<string, string>(params_);
+            }
         }
 
     }

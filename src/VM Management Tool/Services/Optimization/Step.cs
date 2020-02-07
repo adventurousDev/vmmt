@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -21,6 +22,7 @@ namespace VM_Management_Tool.Services.Optimization
         public Categories Category { get; private set; }
         public bool DefaultSelected { get; private set; }
         public bool RebootRequired { get; private set; }
+        [JsonIgnore]
         public Group Parent { get; set; }
         public Action_ Action { get; private set; }
         

@@ -106,6 +106,8 @@ namespace VM_Management_Tool.Services.Optimization
                 string names = string.Join(Environment.NewLine,xmlNames);
                 Log(names);
                 */
+                //string json = JsonConvert.SerializeObject(RootGroups);
+                //Log(json);
             }
             catch (Exception e)
             {
@@ -115,7 +117,7 @@ namespace VM_Management_Tool.Services.Optimization
 
 
         }
-
+        
         public List<Step> GetAllSteps()
         {
             var res = new List<Step>();
@@ -215,6 +217,8 @@ namespace VM_Management_Tool.Services.Optimization
             Step step = new Step(name, description, category, defaultSelected, rebootRequired, action, condition);
             return step;
         }
+
+       
 
         Action_ ParseAction(XPathNavigator actionXNav, bool subAction = false)
         {

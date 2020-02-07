@@ -36,55 +36,80 @@ namespace VM_Management_Tool.Services.Optimization.Actions
         }
         public override StatusResult CheckStatus()
         {
+
+            //The question this method is answering is:Would the state of the value(type, value) after execution be the
+            //same as it is now.
+
             //ADD command ---------------------------------------------------------------
 
             //if there is only key defined
             //-- check that key exists 
             //if the value AND type AND data is defined
             //-- then check that the key has the value with that type and that data value
+            //-- and no type is effectively the same as REG_SZ
 
-            string keyName = Params[PARAM_NAME_KEY];
-            //check if key exists 
-            //* first need to get the root and match it with hive
-
-            //get the root/ hive
-
-            string hive = keyName.Substring(0, keyName.IndexOf('\\'));
-            switch (hive)
+            string keyName = RegistryUtils.NormalizeHive(Params[PARAM_NAME_KEY]);
+            using (RegistryKey theKey = RegistryUtils.GetRegistryKey(keyName))
             {
-                case "HKCR":
-                case "HKEY_CLASSES_ROOT":
-                    //deal with this 
-                    break;
-                case "HKCC":
-                case "HKEY_CURRENT_CONFIG":
-                    //deal with this 
-                    break;
-                case "HKU":
-                case "HKEY_USERS":
-                    //deal with this 
-                    break;
-                case "HKCU":
-                case "HKEY_CURRENT_USER":
-                    //deal with this 
-                    break;
-                case "HKLM":
-                case "HKEY_LOCAL_MACHINE":
-                    //deal with this 
-                    break;
-                default:
-                    throw new Exception($"Wrong registry key: uncknown root ({hive})");
+                
+                if (theKey == null)
+                {
+                    return StatusResult.Mismatch;
+                }
+
+                if (Params.TryGetValue(PARAM_NAME_VALUE, out string valueName)
+                      && Params.TryGetValue(PARAM_NAME_DATA, out string data))
+                {
+                    //there is value available 
+
+                    //get the value and its type(kind)
+
+
+                    Params.TryGetValue(PARAM_NAME_TYPE, out string type);
+                    if (type == null)
+                    {
+                        type = "REG_SZ";
+                    }
+                    var valueKind = RegistryUtils.String2RegistryValueKind(type);
+
+                    var valueDataCurr = theKey.GetValue(valueName);
+                    if (valueDataCurr != null)
+                    {
+                        //this value exists 
+                        //now check the type
+                        var valueKindCurr = theKey.GetValueKind(valueName);
+                        if (valueKindCurr == valueKind)
+                        {
+                            //finally check the actual value
+                            string valueStrCurr = RegistryUtils.RegValue2String(valueDataCurr, valueKindCurr);
+                            if (data.Equals(valueStrCurr))
+                            {
+                                return StatusResult.Match;
+                            }
+                        }
+
+                    }
+
+
+                }
+                else
+                {
+                    //at tis point the key has been found 
+                    //but no other params are there to check 
+                    //so it is a match
+                    return StatusResult.Match;
+                } 
             }
 
-            //if yes continue to the value check
-            if (Params.ContainsKey(PARAM_NAME_VALUE)
-                && Params.ContainsKey(PARAM_NAME_TYPE)
-                && Params.ContainsKey(PARAM_NAME_DATA))
-            {
 
-            }
+            //data+"!" makes sure that out dummy deafult will never accidentially 
+            //equal to the template value
+            //var value = Registry.GetValue(keyName, valueName, data + "!");
 
-            return StatusResult.Unavailable;
+
+
+
+            return StatusResult.Mismatch;
 
 
         }

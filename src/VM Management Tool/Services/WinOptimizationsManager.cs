@@ -89,6 +89,7 @@ namespace VM_Management_Tool.Services
         }
         private void PrepareCleanmgrRegistry()
         {
+            //todo will this(64 view) cause errror on 32 system?
             RegistryKey root = RegistryKey.OpenBaseKey(RegistryHive.LocalMachine, RegistryView.Registry64);
             RegistryKey volumeCahches = root.OpenSubKey(@"SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\VolumeCaches", true);
 

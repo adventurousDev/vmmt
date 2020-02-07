@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -11,7 +12,8 @@ namespace VM_Management_Tool.Services.Optimization
         
         public string Name { get; private set; }
         public string Description { get; private set; }
-
+       
+        [JsonIgnore]
         public Group Parent { get; set; }
         public IList<IGroupChild> Children { get; private set; }
         public Group(string name, string description)
@@ -24,7 +26,7 @@ namespace VM_Management_Tool.Services.Optimization
         public void AddChild(IGroupChild child)
         {
             Children.Add(child);
-            child.Parent = null;//this;
+            child.Parent =this;
         }
     }
 }

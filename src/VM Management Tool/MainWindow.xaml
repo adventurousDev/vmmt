@@ -44,11 +44,16 @@
             <TabItem Header="Template">
                 <Grid>
                     <Button x:Name="loadButton" Content="Load XMl" HorizontalAlignment="Left" Margin="25,40,0,0" VerticalAlignment="Top" Width="75" Click="loadButton_Click"   />
+                    <Button x:Name="regtestButton" Content="Load Reg" HorizontalAlignment="Left" Margin="25,86,0,0" VerticalAlignment="Top" Width="75" Click="regtestButton_Click"    />
+                    <TextBox x:Name="regKeyTextBox" Height="23" TextWrapping="Wrap"  Width="800" Margin="135,341,65,28" RenderTransformOrigin="0.5,0.5"/>
+                    <TextBox x:Name="regValTextBox" Height="23" TextWrapping="Wrap"  Width="200" Margin="772,112,28,257" RenderTransformOrigin="0.5,0.5"/>
+                    <Button x:Name="regtestButton_Copy" Content="Set Reg" HorizontalAlignment="Left" Margin="25,135,0,0" VerticalAlignment="Top" Width="75" Click="regtestButton_Copy_Click"  />
                 </Grid>
             </TabItem>
+            
 
         </TabControl>
-        <TextBox x:Name="theConsole" HorizontalAlignment="Left" Height="340" Margin="140,40,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="620" 
+        <TextBox x:Name="theConsole" HorizontalAlignment="Left" Height="315" Margin="140,40,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="620" 
                         Background="#FFFCFCFC" IsReadOnly="True" ScrollViewer.CanContentScroll="True" AutomationProperties.Name="consoleTextbox" VerticalScrollBarVisibility="Auto" TextChanged="theConsole_TextChanged"/>
         <Button Content="Clear" HorizontalAlignment="Left" Margin="800,40,0,0" VerticalAlignment="Top" Width="75" Click="Button_Click_1"/>
     </Grid>

@@ -124,9 +124,9 @@ namespace VM_Management_Tool.Services
             using (var hive = RegistryKey.OpenBaseKey(GetRegistryHive(keyAbsPath), registryView))
             {
                 int subPathStart = keyAbsPath.IndexOf('\\');
-                if (subPathStart == 0)
+                if (subPathStart > 0)
                 {
-                    string inHivePath = keyAbsPath.Substring(subPathStart).TrimEnd('\\');
+                    string inHivePath = keyAbsPath.Substring(subPathStart+1).TrimEnd('\\');
                     var resSubKey = hive.OpenSubKey(inHivePath);
                     return resSubKey;
 

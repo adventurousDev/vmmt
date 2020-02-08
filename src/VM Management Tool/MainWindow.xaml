@@ -48,6 +48,7 @@
                     <TextBox x:Name="regKeyTextBox" Height="23" TextWrapping="Wrap"  Width="800" Margin="135,341,65,28" RenderTransformOrigin="0.5,0.5"/>
                     <TextBox x:Name="regValTextBox" Height="23" TextWrapping="Wrap"  Width="200" Margin="772,112,28,257" RenderTransformOrigin="0.5,0.5"/>
                     <Button x:Name="regtestButton_Copy" Content="Set Reg" HorizontalAlignment="Left" Margin="25,135,0,0" VerticalAlignment="Top" Width="75" Click="regtestButton_Copy_Click"  />
+                    <Button x:Name="randomTest" Content="Random Test" HorizontalAlignment="Left" Margin="25,177,0,0" VerticalAlignment="Top" Width="75" Click="randomTest_Click"   />
                 </Grid>
             </TabItem>
             

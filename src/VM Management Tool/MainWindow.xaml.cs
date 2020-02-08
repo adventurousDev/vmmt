@@ -218,5 +218,12 @@ namespace VM_Management_Tool
             template.NewInfo += LogUpdateInto;
             template.CreateRegValue();
         }
+
+        private void randomTest_Click(object sender, RoutedEventArgs e)
+        {
+            var template = new CustomTests();
+            template.NewInfo += LogUpdateInto;
+            template.TestRegistryAction();
+        }
     }
 }

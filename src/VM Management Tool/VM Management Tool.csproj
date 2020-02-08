@@ -86,6 +86,7 @@
     <Compile Include="Services\Optimization\Actions\RegistryAction.cs" />
     <Compile Include="Services\Optimization\Step.cs" />
     <Compile Include="Services\RegistryUtils.cs" />
+    <Compile Include="Services\ShellCommand.cs" />
     <Compile Include="Services\WinOptimizationsManager.cs" />
     <Compile Include="Services\WinUpdatesManager.cs" />
     <Compile Include="Services\WinServiceUtils.cs" />

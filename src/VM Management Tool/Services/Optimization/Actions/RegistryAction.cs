@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -36,8 +37,8 @@ namespace VM_Management_Tool.Services.Optimization.Actions
         }
         public override StatusResult CheckStatus()
         {
-            //no need to check load and unload
-            //these have to always run            
+            //no need to check load and unload commands
+            //these have to always run anyway            
             if (Command == RegistryCommand.Load || Command == RegistryCommand.Unload)
             {
                 return StatusResult.Unavailable;
@@ -116,7 +117,7 @@ namespace VM_Management_Tool.Services.Optimization.Actions
             }
             else
             {
-                using (RegistryKey theKey = RegistryUtils.GetRegistryKey(keyName, RegistryView.Registry64))
+                using (RegistryKey theKey = RegistryUtils.GetRegistryKey(keyName, RegistryView.Registry64))//todo get the view dynamically
                 {
                     if (theKey == null)
                     {
@@ -161,6 +162,142 @@ namespace VM_Management_Tool.Services.Optimization.Actions
             return StatusResult.Mismatch;
 
 
+        }
+        bool ExecuteAdd()
+        {
+            try
+            {
+                string keyName = RegistryUtils.NormalizeHive(Params[PARAM_NAME_KEY]);
+                //create the key, or open it if already there
+                using (RegistryKey theKey = RegistryUtils.CreateOrOpenRegistryKey(keyName, RegistryView.Registry64))//todo get the view dynamically
+                {
+                    //check if value name and data is available 
+                    if (Params.TryGetValue(PARAM_NAME_VALUE, out string valueName)
+                         && Params.TryGetValue(PARAM_NAME_DATA, out string data))
+                    {
+                        Params.TryGetValue(PARAM_NAME_TYPE, out string type);
+                        var valueKind = RegistryUtils.String2RegistryValueKind(type);
+                        if (RegistryUtils.TryParseRegValueData(data, valueKind, out object dataVal))
+                        {
+                            theKey.SetValue(valueName, dataVal, valueKind);
+                        }
+                        else
+                        {
+                            throw new Exception($"Wrong data for registry value of type: {type}");
+                        }
+
+                    }
+                }
+                return true;
+            }
+            catch (Exception ex)
+            {
+                return false;
+            }
+        }
+        bool ExecuteDeleteKey()
+        {
+            try
+            {
+                string keyName = RegistryUtils.NormalizeHive(Params[PARAM_NAME_KEY]);
+                using (var baseKey = RegistryUtils.GetBaseRegistryKey(keyName, RegistryView.Registry64))
+                {
+                    var keyRelativePath = keyName.Substring(keyName.IndexOf('\\')+1);
+                    //todo should we care if the value does not exist in the first place?
+                    baseKey.DeleteSubKeyTree(keyRelativePath, false);
+                    return true;
+                    
+                }
+            }
+            catch (Exception e)
+            {
+                return false;
+            }
+
+        }
+        bool ExecuteDeleteValue()
+        {
+            try
+            {
+                string keyName = RegistryUtils.NormalizeHive(Params[PARAM_NAME_KEY]);
+                //create the key, or open it if already there
+                using (RegistryKey theKey = RegistryUtils.CreateOrOpenRegistryKey(keyName, RegistryView.Registry64))//todo get the view dynamically
+                {
+                    //check if value name and data is available 
+                    if (Params.TryGetValue(PARAM_NAME_VALUE, out string valueName))
+                    {
+                        theKey.DeleteValue(valueName, false);
+                    }
+                }
+                return true;
+            }
+            catch (Exception ex)
+            {
+                return false;
+            }
+
+
+        }
+        bool ExecuteLoad()
+        {
+            //Had to switch to using cmd, becasue jsut reg would not work for load 
+            //no matter what. Was getting an error: 
+            //ERROR: The system was unable to find the specified registry key or value.
+            //string cmd = "cmd.exe"; this is now default for ShellCommand
+            var keyName = Params[PARAM_NAME_KEY];
+            var fileName = Params[PARAM_NAME_FILENAME];
+            string args = $"reg load \"{keyName}\" \"{fileName}\"";
+
+            var shellCommand = new ShellCommand( args);
+
+            if(shellCommand.TryExecute(out string output))
+            {
+                if(output.TrimEnd() == "The operation completed successfully.")
+                {
+                    return true;
+                }
+            }
+            return false;
+
+        }
+        bool ExecuteUnload()
+        {
+            //Had to switch to using cmd, becasue jsut reg would not work for load 
+            //no matter what. Was getting an error: 
+            //ERROR: The system was unable to find the specified registry key or value.
+            //string cmd = "cmd.exe";
+            var keyName = Params[PARAM_NAME_KEY];
+            string args = $"reg unload \"{keyName}\"";
+
+            var shellCommand = new ShellCommand(args);
+
+            if (shellCommand.TryExecute(out string output))
+            {
+                if (output.TrimEnd() == "The operation completed successfully.")
+                {
+                    return true;
+                }
+            }
+            return false;
+
+        }
+        public override bool Execute()
+        {
+            switch (Command)
+            {
+                case RegistryCommand.Add:
+                    return ExecuteAdd();
+                case RegistryCommand.DeleteKey:
+                    return ExecuteDeleteKey();
+                case RegistryCommand.DeleteValue:
+                    return ExecuteDeleteValue();
+                case RegistryCommand.Load:
+                    return ExecuteLoad();
+                case RegistryCommand.Unload:
+                    return ExecuteUnload();
+            }
+
+            return false;
         }
     }
 }

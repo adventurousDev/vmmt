@@ -114,6 +114,9 @@ namespace VM_Management_Tool.Services
                 case "REG_QWORD":
                     ret = RegistryValueKind.QWord;
                     break;
+                default:
+                    ret = RegistryValueKind.Unknown;
+                    break;
 
             }
             return ret;
@@ -126,7 +129,7 @@ namespace VM_Management_Tool.Services
                 int subPathStart = keyAbsPath.IndexOf('\\');
                 if (subPathStart > 0)
                 {
-                    string inHivePath = keyAbsPath.Substring(subPathStart+1).TrimEnd('\\');
+                    string inHivePath = keyAbsPath.Substring(subPathStart + 1).TrimEnd('\\');
                     var resSubKey = hive.OpenSubKey(inHivePath);
                     return resSubKey;
 
@@ -141,6 +144,31 @@ namespace VM_Management_Tool.Services
 
 
 
+            }
+        }
+        public static RegistryKey GetBaseRegistryKey(string keyAbsPath, RegistryView registryView = RegistryView.Default)
+        {
+            return RegistryKey.OpenBaseKey(GetRegistryHive(keyAbsPath), registryView);
+        }
+        public static RegistryKey CreateOrOpenRegistryKey(string keyAbsPath, RegistryView registryView = RegistryView.Default)
+        {
+            using (var hive = RegistryKey.OpenBaseKey(GetRegistryHive(keyAbsPath), registryView))
+            {
+                int subPathStart = keyAbsPath.IndexOf('\\');
+                if (subPathStart > 0)
+                {
+                    string inHivePath = keyAbsPath.Substring(subPathStart + 1).TrimEnd('\\');
+                    var resSubKey = hive.CreateSubKey(inHivePath);
+                    return resSubKey;
+
+                }
+                else
+                {
+                    //if the key is jsut the hive we have to return it
+                    //opening it again because using is gonna dispose the used one
+                    //todo test this
+                    return RegistryKey.OpenBaseKey(GetRegistryHive(keyAbsPath), registryView);
+                }
             }
         }
 
@@ -158,11 +186,55 @@ namespace VM_Management_Tool.Services
                     {
                         throw new Exception("Unexpected value of binary registry key");
                     }
-                   
-                    //for now handling everyting else with ToString()
+
+                //for now handling everyting else with ToString()
                 default:
                     return value.ToString();
-                   
+
+            }
+        }
+
+        public static bool TryParseRegValueData(string dataString, RegistryValueKind kind, out object data)
+        {
+            data = null;
+            switch (kind)
+            {
+                case RegistryValueKind.Binary:
+                    data = HEXStr2Bytes(dataString);
+                    break;
+                case RegistryValueKind.DWord:
+                    if (int.TryParse(dataString, out int intVal))
+                    {
+                        data = intVal;
+
+                    }
+                    break;
+                case RegistryValueKind.None:
+                case RegistryValueKind.Unknown:
+                case RegistryValueKind.String:
+                    data = dataString;
+                    break;
+
+                default:
+                    throw new Exception($"Parsing the registry value of kind: {kind} from a sting not yet suppoerted!");
+            }
+
+            return data != null;
+        }
+        private static byte[] HEXStr2Bytes(string hexString)
+        {
+            try
+            {
+                //asuming the input is concatenation of 2-digit hex values 
+                int bytesCount = hexString.Length / 2;
+                byte[] bytes = new byte[bytesCount];
+                for (int i = 0; i < hexString.Length; i += 2)
+                    bytes[i / 2] = Convert.ToByte(hexString.Substring(i, 2), 16);
+                return bytes;
+            }
+            catch
+            {
+                return null;
             }
         }
     }

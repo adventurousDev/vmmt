@@ -20,5 +20,15 @@ namespace VM_Management_Tool.Services.Optimization.Actions
         {
             Target = target;
         }
+
+        public override bool Execute()
+        {
+            throw new NotImplementedException();
+        }
+
+        public override StatusResult CheckStatus()
+        {
+            throw new NotImplementedException();
+        }
     }
 }

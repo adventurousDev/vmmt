@@ -209,14 +209,16 @@ namespace VM_Management_Tool
             template.NewInfo += LogUpdateInto;
 
             template.ReadRegValue(regKeyTextBox.Text, regValTextBox.Text);
-            
+
         }
 
         private void regtestButton_Copy_Click(object sender, RoutedEventArgs e)
         {
             var template = new CustomTests();
             template.NewInfo += LogUpdateInto;
-            template.CreateRegValue();
+            //template.CreateRegValue();
+            //template.CreateRegKey();
+            template.DeleteKey();
         }
 
         private void randomTest_Click(object sender, RoutedEventArgs e)

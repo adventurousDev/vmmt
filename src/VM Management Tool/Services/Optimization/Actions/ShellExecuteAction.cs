@@ -15,5 +15,15 @@ namespace VM_Management_Tool.Services.Optimization.Actions
         {
             ShellCommand = shellCommand;
         }
+
+        public override bool Execute()
+        {
+            throw new NotImplementedException();
+        }
+
+        public override StatusResult CheckStatus()
+        {
+            return StatusResult.Unavailable;
+        }
     }
 }

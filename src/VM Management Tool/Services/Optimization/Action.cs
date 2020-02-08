@@ -33,8 +33,8 @@ namespace VM_Management_Tool.Services.Optimization
             }
         }
 
-        public virtual StatusResult CheckStatus() {
-            return StatusResult.Unavailable;
-        }
+        public abstract StatusResult CheckStatus(); 
+        public abstract bool Execute();
+        
     }
 }

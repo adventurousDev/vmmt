@@ -277,6 +277,38 @@ namespace VM_Management_Tool.Services
 
         }
 
+        internal void TestSchtaskAction()
+        {
+            var action = new SchTasksAction(new Dictionary<string, string>() {
+                [SchTasksAction.PARAM_NAME_TASK_NAME] = @"\Microsoft\XblGameSave\XblGameSaveTask",
+                [SchTasksAction.PARAM_NAME_STATUS] = "DISABLED"
+            });
+            var action2 = new SchTasksAction(new Dictionary<string, string>() {
+                [SchTasksAction.PARAM_NAME_TASK_NAME] = @"\Microsoft\XblGameSave\XblGameSaveTaskLogon",
+                [SchTasksAction.PARAM_NAME_STATUS] = "DISABLED"
+            });
+            var action3 = new SchTasksAction(new Dictionary<string, string>() {
+                [SchTasksAction.PARAM_NAME_TASK_NAME] = @"\Microsoft\XblGameSave\XblGameSaveTaskLogon",
+                [SchTasksAction.PARAM_NAME_STATUS] = "ENABLED"
+            });
+
+            var action4 = new SchTasksAction(new Dictionary<string, string>()
+            {
+                [SchTasksAction.PARAM_NAME_TASK_NAME] = @"\Microsoft\afjsak\XblGameSaveTaskLogon",
+                [SchTasksAction.PARAM_NAME_STATUS] = "DISABLED"
+            });
+
+            //Log("exec d=d: " + Enum.GetName(typeof(Action_.StatusResult), action.CheckStatus()));
+            //Log("check r=d: " + Enum.GetName(typeof(Action_.StatusResult), action2.CheckStatus()));
+            //Log("check r=e: " + Enum.GetName(typeof(Action_.StatusResult), action3.CheckStatus()));
+            //Log("check ?=d: " + Enum.GetName(typeof(Action_.StatusResult), action4.CheckStatus()));
+            Log("exec d=d: " + action.Execute());
+            Log("exec r=d: " + action2.Execute());
+            Log("exec d=e: " + action3.Execute());
+            Log("exec ?=d: " + action4.Execute());
+
+        }
+
         public void TestShellAction()
         {
             var cmd = "netsh advfirewall set allprofiles state off";

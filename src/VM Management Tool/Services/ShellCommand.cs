@@ -20,8 +20,8 @@ namespace VM_Management_Tool.Services
         }
         public ShellCommand(string args, string cmd)
         {
-            Command = cmd;            
-            Arguments =  args;
+            Command = cmd;
+            Arguments = args;
         }
 
 
@@ -49,8 +49,12 @@ namespace VM_Management_Tool.Services
                         )
                     {
                         output = proc.StandardOutput.ReadToEnd();
-                        var err = proc.StandardError.ReadToEnd();
+
                         return true;
+                    }
+                    else if (proc.ExitCode != 0)
+                    {
+                        //var err = proc.StandardError.ReadToEnd();
                     }
                 }
             }

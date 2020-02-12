@@ -10,6 +10,8 @@ namespace VM_Management_Tool.Services.Optimization.Actions
     //so these will need to be removed probably
     class ShellExecuteAction : Action_
     {
+        public const string PARAM_NAME_COMMAND = "command";
+
         public string ShellCommand { get; private set; }
         public ShellExecuteAction(string shellCommand) : base(null)
         {
@@ -18,7 +20,7 @@ namespace VM_Management_Tool.Services.Optimization.Actions
 
         public override bool Execute()
         {
-            throw new NotImplementedException();
+            return new ShellCommand(ShellCommand).TryExecute(out _);
         }
 
         public override StatusResult CheckStatus()

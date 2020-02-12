@@ -277,6 +277,12 @@ namespace VM_Management_Tool.Services
 
         }
 
-
+        public void TestShellAction()
+        {
+            var cmd = "netsh advfirewall set allprofiles state off";
+            var action = new ShellExecuteAction(cmd);
+            ;
+            Log("Turn off firewall; result: "+ action.Execute());
+        }
     }
 }

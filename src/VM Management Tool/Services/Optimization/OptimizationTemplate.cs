@@ -130,6 +130,15 @@ namespace VM_Management_Tool.Services.Optimization
             }
             return res;
         }
+        public void PrintAllShellCMDs()
+        {
+            var shellCmds = GetAllSteps().Where((s) => s.Action is ShellExecuteAction).Select((s) => (s.Action as ShellExecuteAction).ShellCommand);
+            foreach(var cmd in shellCmds)
+            {
+                Log(cmd);
+            }
+            
+        }
         void RecursivelyAddSteps(List<Step> theList, Group group)
         {
             foreach (var child in group.Children)

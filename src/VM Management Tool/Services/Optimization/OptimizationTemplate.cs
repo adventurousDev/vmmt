@@ -30,9 +30,9 @@ namespace VM_Management_Tool.Services.Optimization
             {
 
 
-                //var xmlReader = XmlReader.Create(path)
+                var xmlReader = XmlReader.Create(path, new XmlReaderSettings());
 
-                var doc = new XPathDocument(path);
+                var doc = new XPathDocument(xmlReader);
                 var nav = doc.CreateNavigator();
                 nav.MoveToRoot();
 
@@ -108,6 +108,7 @@ namespace VM_Management_Tool.Services.Optimization
                 */
                 //string json = JsonConvert.SerializeObject(RootGroups);
                 //Log(json);
+                xmlReader.Close();
             }
             catch (Exception e)
             {
@@ -191,22 +192,28 @@ namespace VM_Management_Tool.Services.Optimization
 
         }
 
-        internal void RunAll()
+        internal void RunAll(HashSet<string> onlyRun = null)
         {
-            var allSteps = GetAllSteps();
+            var csvDelimiter = '`';
 
+            var allSteps = GetAllSteps();
+            Log($"Starting processing {allSteps.Count} steps");
             int lastPercentage = 0;
             int stepCounter = 0;
 
             StringBuilder csvBuilder = new StringBuilder();
             csvBuilder.AppendLine("");
             string curentGroup = "none";
-            string csv = $"Group, Step, Type, Category, State Before, Execution result, State After";
+            string csv = $"Group{csvDelimiter} Step{csvDelimiter}Type{csvDelimiter}Category{csvDelimiter} State Before{csvDelimiter} Execution result{csvDelimiter} State After";
             csvBuilder.AppendLine(csv);
             foreach (var step in allSteps)
             {
+                if (onlyRun != null && ! onlyRun.Contains(step.Name))
+                {
+                    continue;
+                }
                 stepCounter++;
-                int percentage = (stepCounter / allSteps.Count) * 100;
+                int percentage = (int)((stepCounter*1f / allSteps.Count) * 100);
                 if(percentage - lastPercentage>=10)
                 {
                     Log($"Processing steps: {percentage}%");
@@ -220,12 +227,12 @@ namespace VM_Management_Tool.Services.Optimization
                     csvBuilder.AppendLine(csv);
 
                 }
-
+                Log($"Processing step: {step.Name}");
                 var stateBefore = step.Action.CheckStatus();
                 bool execResult = step.Action.Execute();
                 var stateAfter = step.Action.CheckStatus();
 
-                csv = $",{step.Name}, {step.Action.GetType()}, {step.Category}, {stateBefore}, {execResult}, {stateAfter}";
+                csv = $"{csvDelimiter}{step.Name}{csvDelimiter} {step.Action.GetType()}{csvDelimiter} {step.Category}{csvDelimiter} {stateBefore}{csvDelimiter} {execResult}{csvDelimiter} {stateAfter}";
                 csvBuilder.AppendLine(csv);
 
             }

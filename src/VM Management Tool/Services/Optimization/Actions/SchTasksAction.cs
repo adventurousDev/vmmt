@@ -26,7 +26,7 @@ namespace VM_Management_Tool.Services.Optimization.Actions
                 var cmd = new ShellCommand(args);
                 if (cmd.TryExecute(out string taskStatusCSV))
                 {
-                    var actualStatus = taskStatusCSV.Split(',')[2];//{Disabled, Ready}
+                    var actualStatus = taskStatusCSV.Split(new[] { '\r', '\n' },StringSplitOptions.RemoveEmptyEntries)[0].Split(',')[2];//{Disabled, Ready}
                     var checkStatus = Params[PARAM_NAME_STATUS];// {DISABLED, ENABLED}
                     if((actualStatus.Trim().Trim('"') == "Disabled" && checkStatus == "DISABLED")
                         ||

@@ -198,11 +198,15 @@ namespace VM_Management_Tool
         {
             var template = new OptimizationTemplate();
             template.NewInfo += LogUpdateInto;
-            // string path = @"C:\Users\Student\Desktop\VMwareOSOptimizationTool_b1140_15488330\bwlp_Windows_10.xml";
-            string path = @"C:\Users\Student\Desktop\VMwareOSOptimizationTool_b1140_15488330\Hayk_Windows 10 1507-1803-Server 2016_comp.xml";
+            string path = @"C:\Users\Student\Desktop\VMwareOSOptimizationTool_b1140_15488330\bwlp_Windows_10.xml";
+            //string path = @"C:\Users\Student\Desktop\VMwareOSOptimizationTool_b1140_15488330\Hayk_Windows 10 1507-1803-Server 2016_comp.xml";
             template.Load(path);
             //template.PrintAllShellCMDs();
-            template.RunAll();
+            var onlyRunSet = new HashSet<string>()
+            {
+                "Application Experience - Microsoft Compatibility Appraiser",
+            };
+            template.RunAll(onlyRunSet);
         }
 
         private void regtestButton_Click(object sender, RoutedEventArgs e)

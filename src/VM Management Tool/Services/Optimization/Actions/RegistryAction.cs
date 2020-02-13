@@ -96,7 +96,7 @@ namespace VM_Management_Tool.Services.Optimization.Actions
                             {
                                 //finally check the actual value
                                 string valueStrCurr = RegistryUtils.RegValue2String(valueDataCurr, valueKindCurr);
-                                if (data.ToLower().Equals(valueStrCurr))
+                                if (data.ToLower().Equals(valueStrCurr.ToLower()))
                                 {
                                     return StatusResult.Match;
                                 }

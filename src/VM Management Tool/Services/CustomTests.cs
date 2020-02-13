@@ -352,5 +352,7 @@ namespace VM_Management_Tool.Services
             Log("service " + name +"; "+ Enum.GetName(typeof(Action_.StatusResult), serviceAction.CheckStatus())+" | type:  "+templateStartType);
             Log("service " + name+ "; execution result: " + serviceAction.Execute());
         }
+
+        
     }
 }

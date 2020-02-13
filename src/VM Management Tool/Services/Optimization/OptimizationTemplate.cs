@@ -117,7 +117,7 @@ namespace VM_Management_Tool.Services.Optimization
 
 
         }
-        
+
         public List<Step> GetAllSteps()
         {
             var res = new List<Step>();
@@ -126,18 +126,18 @@ namespace VM_Management_Tool.Services.Optimization
                 foreach (Group rootGroup in RootGroups)
                 {
                     RecursivelyAddSteps(res, rootGroup);
-                }
+                };
             }
             return res;
         }
         public void PrintAllShellCMDs()
         {
             var shellCmds = GetAllSteps().Where((s) => s.Action is ShellExecuteAction).Select((s) => (s.Action as ShellExecuteAction).ShellCommand);
-            foreach(var cmd in shellCmds)
+            foreach (var cmd in shellCmds)
             {
                 Log(cmd);
             }
-            
+
         }
         void RecursivelyAddSteps(List<Step> theList, Group group)
         {
@@ -191,6 +191,50 @@ namespace VM_Management_Tool.Services.Optimization
 
         }
 
+        internal void RunAll()
+        {
+            var allSteps = GetAllSteps();
+
+            int lastPercentage = 0;
+            int stepCounter = 0;
+
+            StringBuilder csvBuilder = new StringBuilder();
+            csvBuilder.AppendLine("");
+            string curentGroup = "none";
+            string csv = $"Group, Step, Type, Category, State Before, Execution result, State After";
+            csvBuilder.AppendLine(csv);
+            foreach (var step in allSteps)
+            {
+                stepCounter++;
+                int percentage = (stepCounter / allSteps.Count) * 100;
+                if(percentage - lastPercentage>=10)
+                {
+                    Log($"Processing steps: {percentage}%");
+                    lastPercentage = percentage;
+                }
+
+                if (step.Parent.Name != curentGroup)
+                {
+                    curentGroup = step.Parent.Name;
+                    csv = $"{curentGroup}";
+                    csvBuilder.AppendLine(csv);
+
+                }
+
+                var stateBefore = step.Action.CheckStatus();
+                bool execResult = step.Action.Execute();
+                var stateAfter = step.Action.CheckStatus();
+
+                csv = $",{step.Name}, {step.Action.GetType()}, {step.Category}, {stateBefore}, {execResult}, {stateAfter}";
+                csvBuilder.AppendLine(csv);
+
+            }
+
+            Log(csvBuilder.ToString());
+
+        }
+
+
         Step ParseStep(XPathNavigator stepXNav)
         {
             //it has to be step
@@ -227,7 +271,7 @@ namespace VM_Management_Tool.Services.Optimization
             return step;
         }
 
-       
+
 
         Action_ ParseAction(XPathNavigator actionXNav, bool subAction = false)
         {
@@ -393,7 +437,7 @@ namespace VM_Management_Tool.Services.Optimization
                 case "UNLOAD":
                     command = RegistryAction.RegistryCommand.Unload;
                     //mandatories
-                    AsserNonEmptyParamsAndThrow(commandStr, new[] { RegistryAction.PARAM_NAME_KEY}, parameters);
+                    AsserNonEmptyParamsAndThrow(commandStr, new[] { RegistryAction.PARAM_NAME_KEY }, parameters);
                     break;
                 default:
                     throw new Exception($"Unknown registry command {commandStr}");

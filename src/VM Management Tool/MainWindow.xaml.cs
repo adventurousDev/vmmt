@@ -201,7 +201,8 @@ namespace VM_Management_Tool
             // string path = @"C:\Users\Student\Desktop\VMwareOSOptimizationTool_b1140_15488330\bwlp_Windows_10.xml";
             string path = @"C:\Users\Student\Desktop\VMwareOSOptimizationTool_b1140_15488330\Hayk_Windows 10 1507-1803-Server 2016_comp.xml";
             template.Load(path);
-            template.PrintAllShellCMDs();
+            //template.PrintAllShellCMDs();
+            template.RunAll();
         }
 
         private void regtestButton_Click(object sender, RoutedEventArgs e)

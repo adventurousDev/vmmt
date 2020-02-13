@@ -226,7 +226,7 @@ namespace VM_Management_Tool
         {
             var template = new CustomTests();
             template.NewInfo += LogUpdateInto;
-            template.TestSchtaskAction();
+            template.TestServiceStuff();
         }
     }
 }

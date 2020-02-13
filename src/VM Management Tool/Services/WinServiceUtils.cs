@@ -12,7 +12,7 @@ namespace VM_Management_Tool.Services
     static class WinServiceUtils
     {
 
-        
+
         public static async Task<bool> StopServiceAsync(string serviceName, int timeout)
         {
             ServiceController sc = new ServiceController(serviceName);
@@ -96,42 +96,7 @@ namespace VM_Management_Tool.Services
         /// </summary>
         public static void EnableService(string serviceName)
         {
-            try
-            {
-                using (PowerShell shell = PowerShell.Create())
-                {
-                    shell.AddCommand("set-service").AddParameter("name", serviceName);
-                    shell.AddParameter("startuptype", "manual");
-                    shell.Invoke();
-                }
-
-
-
-                /*
-                var proc = new Process
-                {
-                    StartInfo = new ProcessStartInfo
-                    {
-                        Arguments = "/C powershell.exe Set-Service '" + serviceName + "' -startuptype \"Manual\"",
-                        WindowStyle = ProcessWindowStyle.Hidden,
-                        RedirectStandardOutput = true,
-                        RedirectStandardError = true,
-                        UseShellExecute = false,
-                        CreateNoWindow = true,
-                        FileName = "cmd.exe"
-                    }
-                };
-                //proc.OutputDataReceived += (s, e) => LogWriter.LogWrite(e.Data);
-                //proc.ErrorDataReceived += (s, e) => LogWriter.LogWrite(e.Data);
-                proc.Start();
-                proc.BeginOutputReadLine();
-                proc.BeginErrorReadLine();
-                proc.WaitForExit();*/
-            }
-            catch (Exception e)
-            {
-                throw new Exception("Could not enable the service, error: " + e.Message);
-            }
+            SetStartupType(serviceName, "manual");
         }
 
         /// <summary>
@@ -139,43 +104,55 @@ namespace VM_Management_Tool.Services
         /// </summary>
         public static void DisableService(string serviceName)
         {
+            SetStartupType(serviceName, "disabled");
+        }
+        public static string GetStartupType(string serviceName)
+        {
+            try
+            {
+                using (PowerShell shell = PowerShell.Create())
+                {
+                    shell.AddCommand("get-service").AddParameter("name", serviceName);
+                    //shell.AddParameter("startuptype", startupType);
+                    var resCollection = shell.Invoke();
+                    if (resCollection.Count > 0)
+                    {
+                        var startType = resCollection[0].Properties["StartType"].Value;
+                        return startType.ToString();
+                    }
+                    else
+                    {
+                        throw new Exception($"The service {serviceName} not found.");
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                throw new Exception("Could not change serice startup type" + e.Message);
+            }
+        }
+        public static void SetStartupType(string serviceName, string startupType)
+        {
             try
             {
                 using (PowerShell shell = PowerShell.Create())
                 {
                     shell.AddCommand("set-service").AddParameter("name", serviceName);
-                    shell.AddParameter("startuptype", "disabled");
+                    shell.AddParameter("startuptype", startupType);
+                    
                     shell.Invoke();
-                }
-
-
-
-                /*
-                var proc = new Process
-                {
-                    StartInfo = new ProcessStartInfo
+                    if (shell.HadErrors)
                     {
-                        Arguments = "/C powershell.exe Set-Service '" + serviceName + "' -startuptype \"DISABLED\"",
-                        WindowStyle = ProcessWindowStyle.Hidden,
-                        RedirectStandardOutput = true,
-                        RedirectStandardError = true,
-                        UseShellExecute = false,
-                        CreateNoWindow = true,
-                        FileName = "cmd.exe"
+                        throw new Exception("Errors setting service startup mode");
                     }
-                };
-                //proc.OutputDataReceived += (s, e) => LogWriter.LogWrite(e.Data);
-                //proc.ErrorDataReceived += (s, e) => LogWriter.LogWrite(e.Data);
-                proc.Start();
-                proc.BeginOutputReadLine();
-                proc.BeginErrorReadLine();
-                proc.WaitForExit();
-                */
+                }
             }
             catch (Exception e)
             {
-                throw new Exception("Could not disable the service, error: " + e.Message);
+                throw new Exception("Could not change serice startup type" + e.Message);
             }
+
+
         }
     }
 }

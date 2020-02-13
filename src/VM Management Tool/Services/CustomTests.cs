@@ -279,15 +279,18 @@ namespace VM_Management_Tool.Services
 
         internal void TestSchtaskAction()
         {
-            var action = new SchTasksAction(new Dictionary<string, string>() {
+            var action = new SchTasksAction(new Dictionary<string, string>()
+            {
                 [SchTasksAction.PARAM_NAME_TASK_NAME] = @"\Microsoft\XblGameSave\XblGameSaveTask",
                 [SchTasksAction.PARAM_NAME_STATUS] = "DISABLED"
             });
-            var action2 = new SchTasksAction(new Dictionary<string, string>() {
+            var action2 = new SchTasksAction(new Dictionary<string, string>()
+            {
                 [SchTasksAction.PARAM_NAME_TASK_NAME] = @"\Microsoft\XblGameSave\XblGameSaveTaskLogon",
                 [SchTasksAction.PARAM_NAME_STATUS] = "DISABLED"
             });
-            var action3 = new SchTasksAction(new Dictionary<string, string>() {
+            var action3 = new SchTasksAction(new Dictionary<string, string>()
+            {
                 [SchTasksAction.PARAM_NAME_TASK_NAME] = @"\Microsoft\XblGameSave\XblGameSaveTaskLogon",
                 [SchTasksAction.PARAM_NAME_STATUS] = "ENABLED"
             });
@@ -314,7 +317,40 @@ namespace VM_Management_Tool.Services
             var cmd = "netsh advfirewall set allprofiles state off";
             var action = new ShellExecuteAction(cmd);
             ;
-            Log("Turn off firewall; result: "+ action.Execute());
+            Log("Turn off firewall; result: " + action.Execute());
+        }
+
+        public void TestServiceStuff()
+        {
+            //var name = "gupdatem";
+            //WinServiceUtils.SetStartupType(name,"manual");
+            //WinServiceUtils.DisableService(name);
+            //Log(WinServiceUtils.GetStartupType(name));
+
+            //* disable an enabled service | gupdate
+            //* enable a disabled service | gupdatem
+            //* change a disabled service to automatic with auto | HomeGroupProvider
+            //* try change a non-existent service state | blablaserv
+
+        
+
+            PrintTypeAndChangeTo("gupdate","DISABLED");
+            PrintTypeAndChangeTo("gupdatem", "MANUAL");
+            PrintTypeAndChangeTo("HomeGroupProvider", "AUTO");
+            PrintTypeAndChangeTo("blablaserv", "DISABLED");
+
+
+        }
+        private void PrintTypeAndChangeTo(string name, string templateStartType)
+        {
+            var paramz = new Dictionary<String, string>()
+            {
+                [ServiceAction.PARAM_NAME_SERVICE_NAME] = name,
+                [ServiceAction.PARAM_NAME_START_MODE] = templateStartType
+            };
+            var serviceAction = new ServiceAction(paramz);
+            Log("service " + name +"; "+ Enum.GetName(typeof(Action_.StatusResult), serviceAction.CheckStatus())+" | type:  "+templateStartType);
+            Log("service " + name+ "; execution result: " + serviceAction.Execute());
         }
     }
 }

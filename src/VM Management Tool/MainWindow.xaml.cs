@@ -204,7 +204,8 @@ namespace VM_Management_Tool
             //template.PrintAllShellCMDs();
             var onlyRunSet = new HashSet<string>()
             {
-                "Application Experience - Microsoft Compatibility Appraiser",
+                //"Xps-Foundation"
+                "Remove 3DBuilder"
             };
             template.RunAll(onlyRunSet);
         }
@@ -231,7 +232,7 @@ namespace VM_Management_Tool
         {
             var template = new CustomTests();
             template.NewInfo += LogUpdateInto;
-            template.TestServiceStuff();
+            template.TestShellAction();
         }
     }
 }

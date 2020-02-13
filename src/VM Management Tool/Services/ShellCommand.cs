@@ -15,7 +15,12 @@ namespace VM_Management_Tool.Services
         public ShellCommand(string args)
         {
             //Command = cmd;
-            Command = "cmd.exe";
+            //had to switch to full path w/ sysnative
+            //because it should always call the version of cmd.exe with the same architecture 
+            //as the OS
+            //for isntance there was a problem with DISM returning 11, 
+            //when running it from 32 bit app on 64 bit Windows which is realted to that
+            Command = @"c:\windows\sysnative\cmd.exe";
             Arguments = "/c " + args;
         }
         public ShellCommand(string args, string cmd)
@@ -25,7 +30,7 @@ namespace VM_Management_Tool.Services
         }
 
 
-        public bool TryExecute(out string output, int timeout = 3000)
+        public bool TryExecute(out string output, int timeout = 30000)
         {
             output = null;
             try
@@ -52,10 +57,7 @@ namespace VM_Management_Tool.Services
 
                         return true;
                     }
-                    else if (proc.ExitCode != 0)
-                    {
-                        //var err = proc.StandardError.ReadToEnd();
-                    }
+                    //var err = proc.StandardError.ReadToEnd();
                 }
             }
             catch (Exception e)

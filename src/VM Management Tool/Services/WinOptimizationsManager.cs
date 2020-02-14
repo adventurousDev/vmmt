@@ -16,6 +16,7 @@ namespace VM_Management_Tool.Services
     {
         private static readonly object instancelock = new object();
         private static WinOptimizationsManager instance = null;
+        //todo does this really need to be a singleton?
         public static WinOptimizationsManager Instance
         {
             get
@@ -110,26 +111,7 @@ namespace VM_Management_Tool.Services
             volumeCahches.Close();
             root.Close();
         }
-        public void TmpRegisty()
-        {
-            RegistryKey root = RegistryKey.OpenBaseKey(RegistryHive.LocalMachine, RegistryView.Registry64);
-            RegistryKey volumeCahches = root.OpenSubKey(@"SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\VolumeCaches", true);
-
-            foreach (string keyname in volumeCahches.GetSubKeyNames())
-            {
-                if (keyname.Equals("Update Cleanup"))
-                {
-                    //for now just ignoring the update cleanup because it is taking to long
-                    continue;
-                }
-
-                RegistryKey key = volumeCahches.OpenSubKey(keyname, true);
-
-                key.SetValue($"StateFlags{CLEANMGR_STATEFLAGS_ID}", "2", Microsoft.Win32.RegistryValueKind.DWord);
-                //Registry.SetValue(key.Name, $"StateFlags{CLEANMGR_STATEFLAGS_ID}", "2", Microsoft.Win32.RegistryValueKind.DWord);
-                //Info(key.GetValue($"StateFlags{CLEANMGR_STATEFLAGS_ID}").ToString()); // Replace KEY_NAME with what you're looking for
-            }
-        }
+        
         public void RunCleanmgr()
         {
             if (cleanmgrProc != null)

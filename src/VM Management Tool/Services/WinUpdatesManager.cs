@@ -10,6 +10,7 @@ namespace VM_Management_Tool.Services
         private static readonly object instancelock = new object();
         private static WinUpdatesManager instance = null;
 
+        //todo does this really need to be a singleton?
         public static WinUpdatesManager Instance
         {
             get

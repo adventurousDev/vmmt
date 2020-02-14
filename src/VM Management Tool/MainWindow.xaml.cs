@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
@@ -31,6 +33,18 @@ namespace VM_Management_Tool
 
             WinOptimizationsManager.Instance.NewInfo += LogUpdateInto;
             WinOptimizationsManager.Instance.SDeleteProgressChanged += Instance_SDeleteProgressChanged;
+            this.Loaded += OnLoad;
+        }
+
+        private void OnLoad(object sender, RoutedEventArgs e)
+        {
+            LogUpdateInto(Assembly.GetExecutingAssembly().GetName().Version.ToString(4));
+            var exePath = Application.ResourceAssembly.Location;
+            //4. rename the current executable
+            if (File.Exists(exePath + "_temp"))
+            {
+                File.Delete(exePath + "_temp");
+            }
         }
 
         private void Instance_SDeleteProgressChanged(string stage, int percentage)
@@ -185,7 +199,7 @@ namespace VM_Management_Tool
 
         private void cleanmgrReg_Click(object sender, RoutedEventArgs e)
         {
-            WinOptimizationsManager.Instance.TmpRegisty();
+            //WinOptimizationsManager.Instance.TmpRegisty();
         }
 
         private void defragBtn_Click(object sender, RoutedEventArgs e)
@@ -233,6 +247,12 @@ namespace VM_Management_Tool
             var template = new CustomTests();
             template.NewInfo += LogUpdateInto;
             template.TestShellAction();
+        }
+
+        private void testUpdate_Click(object sender, RoutedEventArgs e)
+        {
+            new UpdateManager().Update();
+            //new UpdateManager().TmpReplaceAndRestart(@"C:\Users\Student\Desktop\TmpExe\exe.tmp");
         }
     }
 }

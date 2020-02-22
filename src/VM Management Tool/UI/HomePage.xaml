@@ -1,0 +1,105 @@
+﻿<Page x:Class="VM_Management_Tool.HomePage"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+      xmlns:local="clr-namespace:VM_Management_Tool"
+      mc:Ignorable="d" 
+      d:DesignHeight="450" d:DesignWidth="800"
+      MinWidth="482"
+      MinHeight="300"
+      Title="Page1">
+
+    <Grid >
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="16"/>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="16"/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="16"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="16"/>
+        </Grid.RowDefinitions>
+        <StackPanel 
+            Grid.Row="1"
+            Grid.Column="1"
+            Orientation="Vertical" 
+            VerticalAlignment="Top"
+            HorizontalAlignment="Center"
+            >
+            <TextBlock Foreground="Black" FontSize="16" Margin="0,0,0,8">
+                Wellcome to VM Management Tool
+            </TextBlock>
+            <RichTextBox Background="{x:Null}" SpellCheck.IsEnabled="False"
+                         BorderBrush="{x:Null}"
+                         IsReadOnly="True"
+                         IsEnabled="True"
+                         Focusable="False"
+                         BorderThickness="0"
+                         SelectionBrush="{x:Null}"
+                         
+                         >
+                <FlowDocument MaxPageWidth="450">
+                    <Paragraph >
+                        This program performs required maintanance and optimization
+                        of the Windows virtual desktop images. Specifically the following tasks are performed:
+
+                    </Paragraph>
+                    <List MarkerStyle="Disc" Margin="0">
+                        <ListItem>
+                            <Paragraph>
+                                <Bold>Windwos Updates
+                                </Bold>
+                            </Paragraph>
+                        </ListItem>
+                        <ListItem>
+                            <Paragraph>
+                                <Bold>System optimization(template-based)</Bold>
+                            </Paragraph>
+                        </ListItem>
+                        <ListItem>
+                            <Paragraph>
+                                <Bold>Disk space optimizarion and cleanup</Bold>
+                            </Paragraph>
+                        </ListItem>
+                    </List>
+                    <Paragraph >
+                        To run all the recommended optimizations, please select "Basic" and click "Run".
+                        <LineBreak/>
+                        To review and edit optimization configurationschoose the "Advanced" option and click "Configure".
+                    </Paragraph>
+                   
+
+                </FlowDocument>
+            </RichTextBox>
+
+
+        </StackPanel>
+        <StackPanel Orientation="Vertical"
+                    VerticalAlignment="Bottom"
+                    HorizontalAlignment="Right"
+                    Margin="0,0,11,11"
+                    Grid.Row="1"
+                    Grid.Column="1"
+                    >
+            <StackPanel Orientation="Horizontal"  Margin="0,0,0,7">
+
+                <RadioButton x:Name="basicRadioBtn" Content="Basic" IsChecked="True" GroupName="optLevel" 
+                             Margin="0,0,7,0" 
+                             Checked="RadioBtn_CheckedChanged"
+                             
+                             />
+                <RadioButton x:Name="advancedRadioBtn" Content="Advanced" GroupName="optLevel"
+                             Checked="RadioBtn_CheckedChanged"
+                             
+                             />
+            </StackPanel>
+            <Button x:Name="nextRunButton" Content="Run" MaxWidth="64" MinWidth="64" HorizontalAlignment="Right"
+                    Click="Button_Click"/>
+
+
+        </StackPanel>
+
+    </Grid>
+</Page>

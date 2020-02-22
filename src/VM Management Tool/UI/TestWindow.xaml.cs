@@ -22,9 +22,22 @@ namespace VM_Management_Tool
     /// <summary>
     /// Interaction logic for MainWindow.xaml
     /// </summary>
-    public partial class MainWindow : Window
+    public partial class TestWindow : Window
     {
-        public MainWindow()
+        private static TestWindow instance = null;
+        public static TestWindow Instance
+        {
+            get
+            {
+                if (instance == null )
+                {
+                    instance = new TestWindow();
+                }
+                
+                return instance;
+            }
+        }
+        public TestWindow()
         {
             InitializeComponent();
             WinUpdatesManager.Instance.NewInfo += LogUpdateInto;
@@ -34,6 +47,12 @@ namespace VM_Management_Tool
             WinOptimizationsManager.Instance.NewInfo += LogUpdateInto;
             WinOptimizationsManager.Instance.SDeleteProgressChanged += Instance_SDeleteProgressChanged;
             this.Loaded += OnLoad;
+            Closing += TestWindow_Closing;
+        }
+
+        private void TestWindow_Closing(object sender, System.ComponentModel.CancelEventArgs e)
+        {
+            instance = null;
         }
 
         private void OnLoad(object sender, RoutedEventArgs e)

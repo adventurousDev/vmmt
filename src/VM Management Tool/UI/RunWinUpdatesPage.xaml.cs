@@ -24,5 +24,11 @@ namespace VM_Management_Tool.UI
         {
             InitializeComponent();
         }
+
+        private void abortButton_Click(object sender, RoutedEventArgs e)
+        {
+           
+
+        }
     }
 }

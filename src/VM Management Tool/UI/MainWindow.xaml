@@ -5,7 +5,10 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:VM_Management_Tool"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800">
+        Title="MainWindow" Height="450" Width="800"
+         MinWidth="600"
+         MinHeight="360"
+        >
     <DockPanel>
         <Menu DockPanel.Dock="Top" Background="White">
             <MenuItem Header="_File">                
@@ -22,7 +25,8 @@
 
             </MenuItem>
         </Menu>
-        <Frame Source="HomePage.xaml" NavigationUIVisibility="Hidden" >
+        <Frame Source="HomePage.xaml" 
+               NavigationUIVisibility="Hidden" >
             
         </Frame>
     </DockPanel>

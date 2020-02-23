@@ -12,6 +12,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using VM_Management_Tool.UI;
 
 namespace VM_Management_Tool
 {
@@ -35,7 +36,7 @@ namespace VM_Management_Tool
             }
             else
             {
-                var navTo = new RunOptimizationsPage();
+                var navTo = new RunWinUpdatesPage();
                 NavigationService.Navigate(navTo);
             }
             

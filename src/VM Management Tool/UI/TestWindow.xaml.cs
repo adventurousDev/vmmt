@@ -14,10 +14,10 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
-using VM_Management_Tool.Services;
-using VM_Management_Tool.Services.Optimization;
+using VMManagementTool.Services;
+using VMManagementTool.Services.Optimization;
 
-namespace VM_Management_Tool
+namespace VMManagementTool
 {
     /// <summary>
     /// Interaction logic for MainWindow.xaml

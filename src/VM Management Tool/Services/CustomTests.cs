@@ -4,10 +4,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using VM_Management_Tool.Services.Optimization;
-using VM_Management_Tool.Services.Optimization.Actions;
+using VMManagementTool.Services.Optimization;
+using VMManagementTool.Services.Optimization.Actions;
 
-namespace VM_Management_Tool.Services
+namespace VMManagementTool.Services
 {
     class CustomTests
     {

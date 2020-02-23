@@ -7,7 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 
-namespace VM_Management_Tool.Services
+namespace VMManagementTool.Services
 {
     class UpdateManager
     {

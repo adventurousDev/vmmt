@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace VM_Management_Tool.Properties
+namespace VMManagementTool.Properties
 {
 
 

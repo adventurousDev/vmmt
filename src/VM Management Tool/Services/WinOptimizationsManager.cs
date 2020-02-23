@@ -10,7 +10,7 @@ using Microsoft.Win32;
 using System.Management.Automation;
 using System.Collections.ObjectModel;
 
-namespace VM_Management_Tool.Services
+namespace VMManagementTool.Services
 {
     class WinOptimizationsManager
     {

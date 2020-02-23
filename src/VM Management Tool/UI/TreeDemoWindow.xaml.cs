@@ -12,7 +12,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 
-namespace VM_Management_Tool.UI
+namespace VMManagementTool.UI
 {
     /// <summary>
     /// Interaction logic for TreeDemoWindow.xaml

@@ -13,7 +13,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 
-namespace VM_Management_Tool
+namespace VMManagementTool
 {
     /// <summary>
     /// Interaction logic for AdvanceConfigPage.xaml

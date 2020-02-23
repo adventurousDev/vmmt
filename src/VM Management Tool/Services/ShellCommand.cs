@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace VM_Management_Tool.Services
+namespace VMManagementTool.Services
 {
     class ShellCommand
     {

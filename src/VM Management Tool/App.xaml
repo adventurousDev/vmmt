@@ -1,7 +1,7 @@
-﻿<Application x:Class="VM_Management_Tool.App"
+﻿<Application x:Class="VMManagementTool.App"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:local="clr-namespace:VM_Management_Tool"
+             xmlns:local="clr-namespace:VMManagementTool"
              StartupUri="UI/MainWindow.xaml">
     <Application.Resources>
          

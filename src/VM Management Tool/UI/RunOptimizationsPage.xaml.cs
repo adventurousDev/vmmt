@@ -12,17 +12,23 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using VMManagementTool.Services;
 
-namespace VM_Management_Tool
+namespace VMManagementTool
 {
     /// <summary>
     /// Interaction logic for RunOptimizationsPage.xaml
     /// </summary>
     public partial class RunOptimizationsPage : Page
     {
+       
+
         public RunOptimizationsPage()
         {
             InitializeComponent();
+           
         }
+
+      
     }
 }

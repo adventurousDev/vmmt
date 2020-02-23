@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace VM_Management_Tool.Services.Optimization.Actions
+namespace VMManagementTool.Services.Optimization.Actions
 {
     class SchTasksAction : Action_
     {

@@ -3,7 +3,7 @@ using System;
 using System.Text;
 using WUApiLib;
 
-namespace VM_Management_Tool.Services
+namespace VMManagementTool.Services
 {
     class WinUpdatesManager : ISearchCompletedCallback, IDownloadProgressChangedCallback, IDownloadCompletedCallback, IInstallationCompletedCallback, IInstallationProgressChangedCallback
     {
@@ -44,7 +44,7 @@ namespace VM_Management_Tool.Services
 
 
 
-        private WinUpdatesManager()
+        public WinUpdatesManager()
         {
 
         }
@@ -52,6 +52,13 @@ namespace VM_Management_Tool.Services
         public event Action<string> NewInfo;
         public event Action UpdatesFound;
         public event Action ReadyToInstall;
+
+        public event Action<bool> CheckCompleted;
+        public event Action<bool> DownloadCompleted;
+        public event Action<bool> InstallationCompleted;
+        public event Action<int, string> ProgressChanged;
+
+         
         public void LoadHsitory()
         {
             Info("Loading update history...");
@@ -85,6 +92,7 @@ namespace VM_Management_Tool.Services
 
         public void CheckForUpdates(bool online = true)
         {
+
             Info("Checking for updates...");
             updateSession = new UpdateSession();
 
@@ -289,6 +297,12 @@ namespace VM_Management_Tool.Services
             {
                 updateCollection = searchResult.Updates;
                 UpdatesFound?.Invoke();
+                CheckCompleted?.Invoke(true);
+
+            }
+            else
+            {
+                CheckCompleted?.Invoke(false);
             }
         }
 
@@ -301,10 +315,13 @@ namespace VM_Management_Tool.Services
             {
                 Info($"Download failed with code: {downloadResult.ResultCode}");
                 //return;
+                DownloadCompleted?.Invoke(false);
             }
             else
             {
                 ReadyToInstall?.Invoke();
+                DownloadCompleted?.Invoke(true);
+
             }
 
             for (int i = 0; i < downloadJob.Updates.Count; i++)
@@ -318,6 +335,7 @@ namespace VM_Management_Tool.Services
             Info($"Download progress: {callbackArgs.Progress.PercentComplete}%; " +
                 $"update {downloadJob.Updates[callbackArgs.Progress.CurrentUpdateIndex].Title}: {callbackArgs.Progress.CurrentUpdatePercentComplete}%");
             Info(Dump(callbackArgs.Progress));
+            ProgressChanged?.Invoke(callbackArgs.Progress.PercentComplete, installationJob.Updates[callbackArgs.Progress.CurrentUpdateIndex].Title);
 
         }
 
@@ -350,6 +368,7 @@ namespace VM_Management_Tool.Services
             Info($"Install progress: {callbackArgs.Progress.PercentComplete}%; " +
                $"Update {installationJob.Updates[callbackArgs.Progress.CurrentUpdateIndex].Title}: {callbackArgs.Progress.CurrentUpdatePercentComplete}%");
             //Info(Dump(callbackArgs.Progress));
+            ProgressChanged?.Invoke(callbackArgs.Progress.PercentComplete, installationJob.Updates[callbackArgs.Progress.CurrentUpdateIndex].Title);
         }
     }
 

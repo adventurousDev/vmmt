@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace VM_Management_Tool.Services.Optimization
+namespace VMManagementTool.Services.Optimization
 {
     abstract class Action_
     {

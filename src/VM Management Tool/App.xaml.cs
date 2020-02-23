@@ -6,7 +6,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
 
-namespace VM_Management_Tool
+namespace VMManagementTool
 {
     /// <summary>
     /// Interaction logic for App.xaml

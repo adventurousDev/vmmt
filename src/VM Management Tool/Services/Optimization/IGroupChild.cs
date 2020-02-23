@@ -1,4 +1,4 @@
-﻿namespace VM_Management_Tool.Services.Optimization
+﻿namespace VMManagementTool.Services.Optimization
 {
     internal interface IGroupChild
     {

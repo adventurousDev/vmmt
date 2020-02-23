@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace VM_Management_Tool.Services.Optimization.Actions
+namespace VMManagementTool.Services.Optimization.Actions
 {
     //todo decided against custom action sub-types for now
     //so these will need to be removed probably

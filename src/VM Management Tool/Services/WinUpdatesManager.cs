@@ -60,7 +60,7 @@ namespace VMManagementTool.Services
         public event Action<bool> InstallationCompleted;
         public event Action<int, string> ProgressChanged;
 
-         
+
         public void LoadHsitory()
         {
             Info("Loading update history...");
@@ -83,7 +83,7 @@ namespace VMManagementTool.Services
             AbortChecking();
             AbortDownload();
             AbortInstall();
-            
+
         }
         //according to https://docs.microsoft.com/en-us/windows/win32/wua_sdk/guidelines-for-asynchronous-wua-operations,
         //because we use the same object as a callback, that "has" the job objecs,
@@ -106,6 +106,11 @@ namespace VMManagementTool.Services
             downloadJob_?.RequestAbort();
 
         }
+        internal void AbortInstall()
+        {
+
+            installationJob_?.RequestAbort();
+        }
 
         public void CheckForUpdates(bool online = true)
         {
@@ -115,20 +120,14 @@ namespace VMManagementTool.Services
 
             updateSearcher = updateSession.CreateUpdateSearcher();
             updateSearcher.Online = online;
-            
+
 
             Info("Update searcher params are: " + Dump(updateSearcher));
 
 
-            //todo, make this async
+
             searchJob_ = updateSearcher.BeginSearch("IsInstalled=0", this, null);
 
-        }
-
-        internal void AbortInstall()
-        {
-            
-            installationJob_?.RequestAbort();
         }
 
         public void DownloadUpdates()
@@ -173,6 +172,124 @@ namespace VMManagementTool.Services
             //OnInstallationComplete(result);
             installationJob_ = updateInstaller.BeginInstall(this, this, null);
         }
+
+        //------ WUA callbacks ----------------------------------------------
+
+        //Search Complete callback
+        //for now this will be our callback 
+        //This needs some testing because can be problematic accorting to: 
+        //https://docs.microsoft.com/en-us/windows/win32/wua_sdk/guidelines-for-asynchronous-wua-operations
+        void ISearchCompletedCallback.Invoke(ISearchJob searchJob, ISearchCompletedCallbackArgs callbackArgs)
+        {
+            var searchResult = updateSearcher.EndSearch(searchJob);
+
+            if (searchResult.ResultCode != OperationResultCode.orcSucceeded)
+            {
+                Info($"Update search failed with code: {searchResult.ResultCode}");
+                CheckCompleted?.Invoke(false);
+                return;
+            }
+
+            Info($"Found {searchResult.Updates.Count} updates:" + Environment.NewLine);
+
+            foreach (IUpdate update in searchResult.Updates)
+            {
+                Info(Dump(update));
+            }
+            /*
+            Info($"There are {searchResult.RootCategories.Count} cateories:" + Environment.NewLine);
+
+            foreach (ICategory category in searchResult.RootCategories)
+            {
+                Info(Dump(category));
+            }
+            */
+            if (searchResult.Updates.Count > 0)
+            {
+                updateCollection = searchResult.Updates;
+                UpdatesFound?.Invoke();
+                CheckCompleted?.Invoke(true);
+
+            }
+            else
+            {
+                CheckCompleted?.Invoke(false);
+            }
+        }
+
+
+        //Downlaod Complete callback
+        void IDownloadCompletedCallback.Invoke(IDownloadJob downloadJob, IDownloadCompletedCallbackArgs callbackArgs)
+        {
+            var downloadResult = updateDownloader.EndDownload(downloadJob);
+
+
+            if (downloadResult.ResultCode != OperationResultCode.orcSucceeded)
+            {
+                Info($"Download failed with code: {downloadResult.ResultCode}");
+                //return;
+                DownloadCompleted?.Invoke(false);
+            }
+            else
+            {
+                ReadyToInstall?.Invoke();
+                DownloadCompleted?.Invoke(true);
+
+            }
+
+            for (int i = 0; i < downloadJob.Updates.Count; i++)
+            {
+                Info($"Download status for update {downloadJob.Updates[i].Title}: {downloadResult.GetUpdateResult(i).ResultCode}");
+            }
+        }
+        //Download Progress callback
+        void IDownloadProgressChangedCallback.Invoke(IDownloadJob downloadJob, IDownloadProgressChangedCallbackArgs callbackArgs)
+        {
+            Info($"Download progress: {callbackArgs.Progress.PercentComplete}%; " +
+                $"update {downloadJob.Updates[callbackArgs.Progress.CurrentUpdateIndex].Title}: {callbackArgs.Progress.CurrentUpdatePercentComplete}%");
+            Info(Dump(callbackArgs.Progress));
+            ProgressChanged?.Invoke(callbackArgs.Progress.PercentComplete, downloadJob.Updates[callbackArgs.Progress.CurrentUpdateIndex].Title);
+
+        }
+        
+        //Installation Complete callback
+        void IInstallationCompletedCallback.Invoke(IInstallationJob installationJob, IInstallationCompletedCallbackArgs callbackArgs)
+        {
+            var installResult = updateInstaller.EndInstall(installationJob);
+
+            OnInstallationComplete(installResult);
+        }
+
+        private void OnInstallationComplete(IInstallationResult installResult)
+        {
+            if (installResult.ResultCode != OperationResultCode.orcSucceeded)
+            {
+                Info($"Installation failed with code: {installResult.ResultCode}");
+                InstallationCompleted?.Invoke(false);
+                return;
+            }
+
+            InstallationCompleted?.Invoke(true);
+
+            for (int i = 0; i < updateInstaller.Updates.Count; i++)
+            {
+                Info($"Installation status for update {updateInstaller.Updates[i].Title}: {installResult.GetUpdateResult(i).ResultCode}");
+            }
+            Info($"Is reboot required? : {installResult.RebootRequired}");
+
+        }
+
+        //Installation Progress callback
+        void IInstallationProgressChangedCallback.Invoke(IInstallationJob installationJob, IInstallationProgressChangedCallbackArgs callbackArgs)
+        {
+            Info($"Install progress: {callbackArgs.Progress.PercentComplete}%; " +
+               $"Update {installationJob.Updates[callbackArgs.Progress.CurrentUpdateIndex].Title}: {callbackArgs.Progress.CurrentUpdatePercentComplete}%");
+            //Info(Dump(callbackArgs.Progress));
+            ProgressChanged?.Invoke(callbackArgs.Progress.PercentComplete, installationJob.Updates[callbackArgs.Progress.CurrentUpdateIndex].Title);
+        }
+
+        //------- Log Utils -------------------------------------------------------------------
+
         private void Info(string text)
         {
             NewInfo?.Invoke(text);
@@ -226,7 +343,7 @@ namespace VMManagementTool.Services
             else if (obj is IUpdate update)
             {
                 stringBuilder.AppendLine(GetJsonKeyValPair("Title", update.Title, depth));
-                stringBuilder.AppendLine(GetJsonKeyValPair("Title", update.InstallationBehavior.RebootBehavior, depth));
+                stringBuilder.AppendLine(GetJsonKeyValPair("RebootBehavior", update.InstallationBehavior.RebootBehavior, depth));
                 stringBuilder.AppendLine(GetJsonKeyValPair("IsDownloaded", update.IsDownloaded, depth, false));
                 stringBuilder.AppendLine(GetJsonKeyValPair("IsInstalled", update.IsInstalled, depth, false));
                 stringBuilder.AppendLine(GetJsonKeyValPair("Category", update.Categories[0].Name, depth, false));
@@ -284,115 +401,6 @@ namespace VMManagementTool.Services
             return res.PadLeft(res.Length + depth * 4); ;
         }
 
-
-        //for now this will be our callback 
-        //This needs some testing because can be problematic accorting to: 
-        //https://docs.microsoft.com/en-us/windows/win32/wua_sdk/guidelines-for-asynchronous-wua-operations
-        void ISearchCompletedCallback.Invoke(ISearchJob searchJob, ISearchCompletedCallbackArgs callbackArgs)
-        {
-            var searchResult = updateSearcher.EndSearch(searchJob);
-
-            if (searchResult.ResultCode != OperationResultCode.orcSucceeded)
-            {
-                Info($"Update search failed with code: {searchResult.ResultCode}");
-                CheckCompleted?.Invoke(false);
-                return;
-            }
-
-            Info($"Found {searchResult.Updates.Count} updates:" + Environment.NewLine);
-
-            foreach (IUpdate update in searchResult.Updates)
-            {
-                Info(Dump(update));
-            }
-            /*
-            Info($"There are {searchResult.RootCategories.Count} cateories:" + Environment.NewLine);
-
-            foreach (ICategory category in searchResult.RootCategories)
-            {
-                Info(Dump(category));
-            }
-            */
-            if (searchResult.Updates.Count > 0)
-            {
-                updateCollection = searchResult.Updates;
-                UpdatesFound?.Invoke();
-                CheckCompleted?.Invoke(true);
-
-            }
-            else
-            {
-                CheckCompleted?.Invoke(false);
-            }
-        }
-        //Downlaod Complete callback
-        void IDownloadCompletedCallback.Invoke(IDownloadJob downloadJob, IDownloadCompletedCallbackArgs callbackArgs)
-        {
-            var downloadResult = updateDownloader.EndDownload(downloadJob);
-
-
-            if (downloadResult.ResultCode != OperationResultCode.orcSucceeded)
-            {
-                Info($"Download failed with code: {downloadResult.ResultCode}");
-                //return;
-                DownloadCompleted?.Invoke(false);
-            }
-            else
-            {
-                ReadyToInstall?.Invoke();
-                DownloadCompleted?.Invoke(true);
-
-            }
-
-            for (int i = 0; i < downloadJob.Updates.Count; i++)
-            {
-                Info($"Download status for update {downloadJob.Updates[i].Title}: {downloadResult.GetUpdateResult(i).ResultCode}");
-            }
-        }
-        //Download Progress callback
-        void IDownloadProgressChangedCallback.Invoke(IDownloadJob downloadJob, IDownloadProgressChangedCallbackArgs callbackArgs)
-        {
-            Info($"Download progress: {callbackArgs.Progress.PercentComplete}%; " +
-                $"update {downloadJob.Updates[callbackArgs.Progress.CurrentUpdateIndex].Title}: {callbackArgs.Progress.CurrentUpdatePercentComplete}%");
-            Info(Dump(callbackArgs.Progress));
-            ProgressChanged?.Invoke(callbackArgs.Progress.PercentComplete, downloadJob.Updates[callbackArgs.Progress.CurrentUpdateIndex].Title);
-
-        }
-        //Installation Complete callback
-        void IInstallationCompletedCallback.Invoke(IInstallationJob installationJob, IInstallationCompletedCallbackArgs callbackArgs)
-        {
-            var installResult = updateInstaller.EndInstall(installationJob);
-
-            OnInstallationComplete(installResult);
-        }
-
-        private void OnInstallationComplete(IInstallationResult installResult)
-        {
-            if (installResult.ResultCode != OperationResultCode.orcSucceeded)
-            {
-                Info($"Installation failed with code: {installResult.ResultCode}");
-                InstallationCompleted?.Invoke(false);
-                return;
-            }
-
-            InstallationCompleted?.Invoke(true);
-
-            for (int i = 0; i < updateInstaller.Updates.Count; i++)
-            {
-                Info($"Installation status for update {updateInstaller.Updates[i].Title}: {installResult.GetUpdateResult(i).ResultCode}");
-            }
-            Info($"Is reboot required? : {installResult.RebootRequired}");
-            
-        }
-
-        //Installation Progress callback
-        void IInstallationProgressChangedCallback.Invoke(IInstallationJob installationJob, IInstallationProgressChangedCallbackArgs callbackArgs)
-        {
-            Info($"Install progress: {callbackArgs.Progress.PercentComplete}%; " +
-               $"Update {installationJob.Updates[callbackArgs.Progress.CurrentUpdateIndex].Title}: {callbackArgs.Progress.CurrentUpdatePercentComplete}%");
-            //Info(Dump(callbackArgs.Progress));
-            ProgressChanged?.Invoke(callbackArgs.Progress.PercentComplete, installationJob.Updates[callbackArgs.Progress.CurrentUpdateIndex].Title);
-        }
     }
 
 }

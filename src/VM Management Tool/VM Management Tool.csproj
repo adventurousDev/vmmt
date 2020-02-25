@@ -102,9 +102,6 @@
     <Compile Include="UI\HomePage.xaml.cs">
       <DependentUpon>HomePage.xaml</DependentUpon>
     </Compile>
-    <Compile Include="UI\RunOptimizationsPage.xaml.cs">
-      <DependentUpon>RunOptimizationsPage.xaml</DependentUpon>
-    </Compile>
     <Compile Include="Services\CustomTests.cs" />
     <Compile Include="Services\Optimization\Action.cs" />
     <Compile Include="Services\Optimization\Actions\CustomCheckAction.cs" />
@@ -129,9 +126,6 @@
     <Compile Include="UI\RunWinUpdatesPage.xaml.cs">
       <DependentUpon>RunWinUpdatesPage.xaml</DependentUpon>
     </Compile>
-    <Compile Include="UI\TreeDemoWindow.xaml.cs">
-      <DependentUpon>TreeDemoWindow.xaml</DependentUpon>
-    </Compile>
     <Page Include="UI\AdvanceConfigPage.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -141,10 +135,6 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="UI\HomePage.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="UI\RunOptimizationsPage.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -168,10 +158,6 @@
       <DependentUpon>TestWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Page Include="UI\TreeDemoWindow.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs">

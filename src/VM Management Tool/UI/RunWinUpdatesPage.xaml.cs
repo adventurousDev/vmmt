@@ -12,6 +12,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using VM_Management_Tool.Test;
 using VMManagementTool.Services;
 
 namespace VMManagementTool.UI
@@ -21,8 +22,9 @@ namespace VMManagementTool.UI
     /// </summary>
     public partial class RunWinUpdatesPage : Page
     {
-        WinUpdatesManager winUpdateManager;
-
+        //WinUpdatesManager winUpdateManager;
+        DummyWinUpdateManager winUpdateManager;
+        volatile bool aborted = false;
         public RunWinUpdatesPage()
         {
             InitializeComponent();
@@ -32,28 +34,48 @@ namespace VMManagementTool.UI
 
         private void RunWinUpdatesPage_Unloaded(object sender, RoutedEventArgs e)
         {
-            Cleanup();
+            //Cleanup();
         }
 
         private async void RunOptimizationsPage_Loaded(object sender, RoutedEventArgs e)
         {
             ResetProgress();
-
+            StartInfiniteProgress("preparing...");
             await Prepare().ConfigureAwait(false);
+            if (aborted)
+            {
+                ResetProgress();
+
+                SetParagraphLook(checkParagrath, TextLook.Skipped);
+                SetParagraphLook(downloadParagrath, TextLook.Skipped);
+                SetParagraphLook(installParagrath, TextLook.Skipped);
+
+                FinishAndProceed();
+                return;
+            }
             //start with checking for updates right away
-            winUpdateManager = new WinUpdatesManager();
+            //winUpdateManager = new WinUpdatesManager();
+            winUpdateManager = new DummyWinUpdateManager();
+
             winUpdateManager.CheckCompleted += WinUpdateManager_CheckCompleted;
             winUpdateManager.ProgressChanged += WinUpdateManager_ProgressChanged;
 
-            this.Dispatcher.Invoke(() =>
-                 //checking reports no progress so indeterminate
-                 progressBar.IsIndeterminate = true
-            );
-
+            //checking reports no progress so indeterminate
+            StartInfiniteProgress("");
 
             SetParagraphLook(checkParagrath, TextLook.Processing);
             winUpdateManager.CheckForUpdates();
 
+        }
+
+        private void StartInfiniteProgress(string label)
+        {
+            this.Dispatcher.Invoke(() =>
+            {
+                progressBar.IsIndeterminate = true;
+                currentUpdateLblText.Text = label;
+            }
+            );
         }
 
         private void WinUpdateManager_ProgressChanged(int progress, string info)
@@ -65,7 +87,7 @@ namespace VMManagementTool.UI
             }
            );
 
-           
+
         }
 
         void ResetProgress()
@@ -84,7 +106,7 @@ namespace VMManagementTool.UI
         {
             ResetProgress();
             SetParagraphLook(checkParagrath, TextLook.Completed);
-            if (found)
+            if (found && !aborted)
             {
 
 
@@ -99,23 +121,30 @@ namespace VMManagementTool.UI
             }
             else
             {
+                if (aborted)
+                {
+                    SetParagraphLook(checkParagrath, TextLook.Skipped);
+
+                }
                 //SetParagraphLook(checkParagrath, TextLook.Completed);
                 SetParagraphLook(downloadParagrath, TextLook.Skipped);
                 SetParagraphLook(installParagrath, TextLook.Skipped);
 
                 //move on
-                Proceed("check failed or nothing to install");
+                FinishAndProceed();
+                //Proceed("check failed or nothing to install");
 
             }
         }
 
         private void WinUpdateManager_DownloadCompleted(bool success)
         {
-            SetParagraphLook(downloadParagrath, TextLook.Completed);
+
 
             ResetProgress();
-            if (success)
+            if (success && !aborted)
             {
+                SetParagraphLook(downloadParagrath, TextLook.Completed);
                 SetParagraphLook(installParagrath, TextLook.Processing);
 
                 //continue to Install
@@ -124,37 +153,56 @@ namespace VMManagementTool.UI
             }
             else
             {
+                SetParagraphLook(downloadParagrath, TextLook.Skipped);
                 SetParagraphLook(installParagrath, TextLook.Skipped);
 
+                FinishAndProceed();
                 //move on
-                Proceed("download failed!");
+                //Proceed("download failed!");
 
             }
         }
 
         private void WinUpdateManager_InstallationCompleted(bool success)
         {
-            
-            SetParagraphLook(installParagrath, TextLook.Completed);
+
+
             ResetProgress();
-            if (success)
+            if (success && !aborted)
             {
-                //check if reboot needed and move on to reboot
+                SetParagraphLook(installParagrath, TextLook.Completed);
+                //todo check if reboot needed and move on to reboot
                 //otherwise just move on
-                
-                Proceed("DONE!");
+
+
             }
             else
             {
+                SetParagraphLook(installParagrath, TextLook.Skipped);
                 //move on
-                Proceed("install failed!");
+                //Proceed("install failed!");
             }
+            FinishAndProceed();
         }
 
         private void abortButton_Click(object sender, RoutedEventArgs e)
         {
-            winUpdateManager.AbortAll();
-            Proceed("aborted!");
+            aborted = true;
+            Dispatcher.Invoke(() => abortButton.IsEnabled = false);
+
+            if (winUpdateManager != null)
+            {
+                //as we are aborting we do not want to be getting any more progress events
+                winUpdateManager.ProgressChanged -= WinUpdateManager_ProgressChanged;
+
+                winUpdateManager.AbortAll();
+            }
+            StartInfiniteProgress("aborting...");
+
+
+
+
+            //Proceed("aborted!");
         }
         void Proceed(string msg)
         {
@@ -163,7 +211,7 @@ namespace VMManagementTool.UI
                 MessageBox.Show(msg);
             }
            );
-           
+
         }
         async Task<bool> Prepare()
         {
@@ -175,7 +223,7 @@ namespace VMManagementTool.UI
             return await WinServiceUtils.StartServiceAsync(WinUpdatesManager.WUA_SERVICE_NAME, 5000).ConfigureAwait(false);
 
         }
-        async void Cleanup()
+        async Task Cleanup()
         {
             //unregister all events
             //todo is this really necessary: considering that 
@@ -241,6 +289,25 @@ namespace VMManagementTool.UI
             Completed,
             Skipped,
             ToProcess,
+
+        }
+        async void FinishAndProceed()
+        {
+            StartInfiniteProgress("finishing...");
+            await Cleanup();
+
+            //a delay for user to have the last look
+            await Task.Delay(500);
+            //todo save the state if not yet done by now
+            //open the next Page
+            Dispatcher.Invoke(() =>
+            {
+                var page = new RunOSOTTempaltePage();
+                NavigationService.Navigate(page);
+
+            }
+            );
+
 
         }
     }

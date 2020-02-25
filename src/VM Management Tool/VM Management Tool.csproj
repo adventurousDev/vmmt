@@ -92,6 +92,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Test\DummyWinUpdateManager.cs" />
     <Compile Include="UI\AdvanceConfigPage.xaml.cs">
       <DependentUpon>AdvanceConfigPage.xaml</DependentUpon>
     </Compile>
@@ -122,6 +123,9 @@
     <Compile Include="Services\WinOptimizationsManager.cs" />
     <Compile Include="Services\WinUpdatesManager.cs" />
     <Compile Include="Services\WinServiceUtils.cs" />
+    <Compile Include="UI\RunOSOTTempaltePage.xaml.cs">
+      <DependentUpon>RunOSOTTempaltePage.xaml</DependentUpon>
+    </Compile>
     <Compile Include="UI\RunWinUpdatesPage.xaml.cs">
       <DependentUpon>RunWinUpdatesPage.xaml</DependentUpon>
     </Compile>
@@ -141,6 +145,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="UI\RunOptimizationsPage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="UI\RunOSOTTempaltePage.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

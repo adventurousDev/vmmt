@@ -7,6 +7,8 @@ namespace VMManagementTool.Services
 {
     class WinUpdatesManager : ISearchCompletedCallback, IDownloadProgressChangedCallback, IDownloadCompletedCallback, IInstallationCompletedCallback, IInstallationProgressChangedCallback
     {
+        public const string WUA_SERVICE_NAME = "wuaserv";
+
         private static readonly object instancelock = new object();
         private static WinUpdatesManager instance = null;
 
@@ -76,7 +78,22 @@ namespace VMManagementTool.Services
                 Info(Dump(item));
             }
         }
-
+        public void AbortAll()
+        {
+            AbortChecking();
+            AbortDownload();
+            AbortInstall();
+            
+        }
+        //according to https://docs.microsoft.com/en-us/windows/win32/wua_sdk/guidelines-for-asynchronous-wua-operations,
+        //because we use the same object as a callback, that "has" the job objecs,
+        //we need to call cleanup to avoid circular references and leaks
+        public void CleanUp()
+        {
+            searchJob?.CleanUp();
+            downloadJob?.CleanUp();
+            installationJob?.CleanUp();
+        }
         internal void AbortChecking()
         {
             Info("Requesting abort...");
@@ -266,6 +283,7 @@ namespace VMManagementTool.Services
             return res.PadLeft(res.Length + depth * 4); ;
         }
 
+
         //for now this will be our callback 
         //This needs some testing because can be problematic accorting to: 
         //https://docs.microsoft.com/en-us/windows/win32/wua_sdk/guidelines-for-asynchronous-wua-operations
@@ -305,7 +323,7 @@ namespace VMManagementTool.Services
                 CheckCompleted?.Invoke(false);
             }
         }
-
+        //Downlaod Complete callback
         void IDownloadCompletedCallback.Invoke(IDownloadJob downloadJob, IDownloadCompletedCallbackArgs callbackArgs)
         {
             var downloadResult = updateDownloader.EndDownload(downloadJob);
@@ -329,7 +347,7 @@ namespace VMManagementTool.Services
                 Info($"Download status for update {downloadJob.Updates[i].Title}: {downloadResult.GetUpdateResult(i).ResultCode}");
             }
         }
-
+        //Download Progress callback
         void IDownloadProgressChangedCallback.Invoke(IDownloadJob downloadJob, IDownloadProgressChangedCallbackArgs callbackArgs)
         {
             Info($"Download progress: {callbackArgs.Progress.PercentComplete}%; " +
@@ -338,7 +356,7 @@ namespace VMManagementTool.Services
             ProgressChanged?.Invoke(callbackArgs.Progress.PercentComplete, installationJob.Updates[callbackArgs.Progress.CurrentUpdateIndex].Title);
 
         }
-
+        //Installation Complete callback
         void IInstallationCompletedCallback.Invoke(IInstallationJob installationJob, IInstallationCompletedCallbackArgs callbackArgs)
         {
             var installResult = updateInstaller.EndInstall(installationJob);
@@ -363,6 +381,7 @@ namespace VMManagementTool.Services
             Info($"Is reboot required? : {installResult.RebootRequired}");
         }
 
+        //Installation Progress callback
         void IInstallationProgressChangedCallback.Invoke(IInstallationJob installationJob, IInstallationProgressChangedCallbackArgs callbackArgs)
         {
             Info($"Install progress: {callbackArgs.Progress.PercentComplete}%; " +

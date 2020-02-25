@@ -32,23 +32,14 @@ namespace VMManagementTool.UI
 
         private void RunWinUpdatesPage_Unloaded(object sender, RoutedEventArgs e)
         {
-            //unregister all events
-            //todo is this really necessary: considering that 
-            //this reference lives here in the Page only
-            if (winUpdateManager != null)
-            {
-                winUpdateManager.CheckCompleted -= WinUpdateManager_CheckCompleted;
-                winUpdateManager.DownloadCompleted -= WinUpdateManager_DownloadCompleted;
-                winUpdateManager.InstallationCompleted -= WinUpdateManager_InstallationCompleted;
-                winUpdateManager.ProgressChanged -= WinUpdateManager_ProgressChanged;
-
-                winUpdateManager = null;
-            }
+            Cleanup();
         }
 
-        private void RunOptimizationsPage_Loaded(object sender, RoutedEventArgs e)
+        private async void RunOptimizationsPage_Loaded(object sender, RoutedEventArgs e)
         {
             ResetProgress();
+
+            await Prepare().ConfigureAwait(false);
             //start with checking for updates right away
             winUpdateManager = new WinUpdatesManager();
             winUpdateManager.CheckCompleted += WinUpdateManager_CheckCompleted;
@@ -125,12 +116,39 @@ namespace VMManagementTool.UI
 
         private void abortButton_Click(object sender, RoutedEventArgs e)
         {
-
-
+            winUpdateManager.AbortAll();
+            Proceed("aborted!");
         }
         void Proceed(string msg)
         {
             MessageBox.Show(msg);
+        }
+        async Task<bool> Prepare()
+        {
+            WinServiceUtils.EnableService(WinUpdatesManager.WUA_SERVICE_NAME);
+            return await WinServiceUtils.StartServiceAsync(WinUpdatesManager.WUA_SERVICE_NAME, 5000).ConfigureAwait(false);
+
+        }
+        async void Cleanup()
+        {
+            //unregister all events
+            //todo is this really necessary: considering that 
+            //this reference lives here in the Page only
+            if (winUpdateManager != null)
+            {
+                winUpdateManager.CheckCompleted -= WinUpdateManager_CheckCompleted;
+                winUpdateManager.DownloadCompleted -= WinUpdateManager_DownloadCompleted;
+                winUpdateManager.InstallationCompleted -= WinUpdateManager_InstallationCompleted;
+                winUpdateManager.ProgressChanged -= WinUpdateManager_ProgressChanged;
+
+                winUpdateManager.CleanUp();
+
+                winUpdateManager = null;
+
+                await WinServiceUtils.StopServiceAsync(WinUpdatesManager.WUA_SERVICE_NAME, 5000).ConfigureAwait(false);
+                WinServiceUtils.DisableService(WinUpdatesManager.WUA_SERVICE_NAME);
+                
+            }
         }
     }
 }

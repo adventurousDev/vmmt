@@ -7,7 +7,7 @@ namespace VMManagementTool.Services
 {
     class WinUpdatesManager : ISearchCompletedCallback, IDownloadProgressChangedCallback, IDownloadCompletedCallback, IInstallationCompletedCallback, IInstallationProgressChangedCallback
     {
-        public const string WUA_SERVICE_NAME = "wuaserv";
+        public const string WUA_SERVICE_NAME = "wuauserv";
 
         private static readonly object instancelock = new object();
         private static WinUpdatesManager instance = null;
@@ -33,13 +33,13 @@ namespace VMManagementTool.Services
 
         IUpdateSession3 updateSession;
 
-        ISearchJob searchJob;
+        ISearchJob searchJob_;
         IUpdateSearcher updateSearcher;
 
-        IDownloadJob downloadJob;
+        IDownloadJob downloadJob_;
         IUpdateDownloader updateDownloader;
 
-        IInstallationJob installationJob;
+        IInstallationJob installationJob_;
         IUpdateInstaller updateInstaller;
 
         UpdateCollection updateCollection;
@@ -90,20 +90,20 @@ namespace VMManagementTool.Services
         //we need to call cleanup to avoid circular references and leaks
         public void CleanUp()
         {
-            searchJob?.CleanUp();
-            downloadJob?.CleanUp();
-            installationJob?.CleanUp();
+            searchJob_?.CleanUp();
+            downloadJob_?.CleanUp();
+            installationJob_?.CleanUp();
         }
         internal void AbortChecking()
         {
             Info("Requesting abort...");
-            searchJob?.RequestAbort();
+            searchJob_?.RequestAbort();
 
         }
         internal void AbortDownload()
         {
             Info("Requesting abort downlaod...");
-            downloadJob.RequestAbort();
+            downloadJob_?.RequestAbort();
 
         }
 
@@ -121,13 +121,14 @@ namespace VMManagementTool.Services
 
 
             //todo, make this async
-            searchJob = updateSearcher.BeginSearch("IsInstalled=0", this, null);
+            searchJob_ = updateSearcher.BeginSearch("IsInstalled=0", this, null);
 
         }
 
         internal void AbortInstall()
         {
-            installationJob?.RequestAbort();
+            
+            installationJob_?.RequestAbort();
         }
 
         public void DownloadUpdates()
@@ -152,7 +153,7 @@ namespace VMManagementTool.Services
                 updateDownloader.Updates = updateCollection;
                 Info("Update downloader params are: " + Dump(updateDownloader));
 
-                downloadJob = updateDownloader.BeginDownload(this, this, null);
+                downloadJob_ = updateDownloader.BeginDownload(this, this, null);
             }
             else if (updateCollection.Count > 0)
             {
@@ -170,7 +171,7 @@ namespace VMManagementTool.Services
             Info("Starting update installation: " + Dump(updateInstaller));
             //var result = updateInstaller.RunWizard("Fucking hell!!!");
             //OnInstallationComplete(result);
-            installationJob = updateInstaller.BeginInstall(this, this, null);
+            installationJob_ = updateInstaller.BeginInstall(this, this, null);
         }
         private void Info(string text)
         {
@@ -294,6 +295,7 @@ namespace VMManagementTool.Services
             if (searchResult.ResultCode != OperationResultCode.orcSucceeded)
             {
                 Info($"Update search failed with code: {searchResult.ResultCode}");
+                CheckCompleted?.Invoke(false);
                 return;
             }
 
@@ -353,7 +355,7 @@ namespace VMManagementTool.Services
             Info($"Download progress: {callbackArgs.Progress.PercentComplete}%; " +
                 $"update {downloadJob.Updates[callbackArgs.Progress.CurrentUpdateIndex].Title}: {callbackArgs.Progress.CurrentUpdatePercentComplete}%");
             Info(Dump(callbackArgs.Progress));
-            ProgressChanged?.Invoke(callbackArgs.Progress.PercentComplete, installationJob.Updates[callbackArgs.Progress.CurrentUpdateIndex].Title);
+            ProgressChanged?.Invoke(callbackArgs.Progress.PercentComplete, downloadJob.Updates[callbackArgs.Progress.CurrentUpdateIndex].Title);
 
         }
         //Installation Complete callback
@@ -369,16 +371,18 @@ namespace VMManagementTool.Services
             if (installResult.ResultCode != OperationResultCode.orcSucceeded)
             {
                 Info($"Installation failed with code: {installResult.ResultCode}");
-                //return;
+                InstallationCompleted?.Invoke(false);
+                return;
             }
-            
 
+            InstallationCompleted?.Invoke(true);
 
             for (int i = 0; i < updateInstaller.Updates.Count; i++)
             {
                 Info($"Installation status for update {updateInstaller.Updates[i].Title}: {installResult.GetUpdateResult(i).ResultCode}");
             }
             Info($"Is reboot required? : {installResult.RebootRequired}");
+            
         }
 
         //Installation Progress callback

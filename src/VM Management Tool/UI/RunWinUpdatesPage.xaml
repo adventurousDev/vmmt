@@ -51,7 +51,8 @@
 
                     <List MarkerStyle="Disc" Margin="0" >
                         <ListItem>
-                            <Paragraph x:Name="checkParagrath" FontWeight="Bold">
+                            <Paragraph x:Name="checkParagrath" Foreground="{DynamicResource {x:Static SystemColors.GrayTextBrushKey}}">
+                                
                                 Checking for Updates
 
                             </Paragraph>
@@ -85,7 +86,7 @@
 
             </Label>
             <ProgressBar x:Name="progressBar" Width="355" Height="15"
-                        Value="1"
+                        Value="1" 
                          />
 
         </StackPanel>

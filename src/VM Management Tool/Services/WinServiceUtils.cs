@@ -149,9 +149,56 @@ namespace VMManagementTool.Services
             }
             catch (Exception e)
             {
-                throw new Exception("Could not change serice startup type" + e.Message);
+                throw new Exception("Could not change service startup type" + e.Message);
             }
 
+
+        }
+
+        public static async Task<bool> SetStartupTypeAsync(string serviceName, bool enabled, int timeout)
+        {
+            string startupType = "";
+            if (enabled)
+            {
+                startupType = "manual";
+            }
+            else
+            {
+                startupType = "disabled";
+            }
+
+            try
+            {
+                using (PowerShell shell = PowerShell.Create())
+                {
+                    shell.AddCommand("set-service").AddParameter("name", serviceName);
+                    shell.AddParameter("startuptype", startupType);
+
+                    var result = shell.BeginInvoke();
+                    DateTime utcNow = DateTime.UtcNow;
+                    
+                    while (!result.IsCompleted)
+                    {
+                        if ((DateTime.UtcNow.Ticks - utcNow.Ticks) / 10000 > timeout)
+                        {
+                            return false;
+                        }
+                        await Task.Delay(200).ConfigureAwait(false);
+                        
+
+                    }
+                    if (shell.HadErrors)
+                    {
+                        return false;
+                    }
+
+                    return true;
+                }
+            }
+            catch (Exception e)
+            {
+                return false;
+            }
 
         }
     }

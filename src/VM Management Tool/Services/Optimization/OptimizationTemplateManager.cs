@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Xml;
 using System.Xml.XPath;
@@ -23,6 +24,7 @@ namespace VMManagementTool.Services.Optimization
 
         public event Action<int, string> RunProgressChanged;
         public event Action<bool> RunCompleted;
+        volatile bool abortionsRequested = false;
 
         public void Load(string path)
         {
@@ -119,6 +121,10 @@ namespace VMManagementTool.Services.Optimization
 
         }
 
+        public void Abort()
+        {
+            abortionsRequested = true;
+        }
         public async Task RunDefaultStepsAsync()
         {
             await Task.Run(() => RunSteps((step) => (step.Category == Step.Categories.mandatory || step.Category == Step.Categories.recommended)));
@@ -129,6 +135,10 @@ namespace VMManagementTool.Services.Optimization
         }
         async void RunSteps(Func<Step, bool> conditionCheck = null)
         {
+            //initialize the abortion flag 
+            abortionsRequested = false;
+
+
             var stepsToRun = GetSteps(conditionCheck);
             int totalSteps = stepsToRun.Count;
             int currentStep = 1;
@@ -136,6 +146,12 @@ namespace VMManagementTool.Services.Optimization
 
             foreach (var step in stepsToRun)
             {
+                //allow abortion after each step
+                if (abortionsRequested)
+                {
+                    break;
+                }
+
                 currentStep++;
                 int percentage = (int)((currentStep * 1f / totalSteps) * 95);//95 for better visibility
 
@@ -146,7 +162,7 @@ namespace VMManagementTool.Services.Optimization
                 //throttling to allow visible and smooth progress
                 //await Task.Delay(100);
             }
-            RunCompleted?.Invoke(true);
+            RunCompleted?.Invoke(!abortionsRequested);
 
         }
         public async Task LoadAsync(string path)

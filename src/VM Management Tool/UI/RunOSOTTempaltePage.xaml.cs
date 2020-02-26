@@ -87,7 +87,8 @@ namespace VMManagementTool.UI
         }
         private void abortButton_Click(object sender, RoutedEventArgs e)
         {
-
+            SetProgress(INDEFINITE_PROGRESS, "aborting...");
+            optimizationTemplateManager.Abort();
         }
         async void FinishAndProceed()
         {

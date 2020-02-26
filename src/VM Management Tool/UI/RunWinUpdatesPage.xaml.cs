@@ -14,6 +14,7 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 using VMManagementTool.Test;
 using VMManagementTool.Services;
+using VMManagementTool.UIUtils;
 
 namespace VMManagementTool.UI
 {
@@ -287,14 +288,7 @@ namespace VMManagementTool.UI
             );
 
         }
-        private enum TextLook
-        {
-            Processing,
-            Completed,
-            Skipped,
-            ToProcess,
-
-        }
+       
         async void FinishAndProceed()
         {
             StartInfiniteProgress("finishing...");

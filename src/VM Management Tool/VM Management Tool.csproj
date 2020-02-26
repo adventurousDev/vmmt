@@ -95,6 +95,7 @@
     <Compile Include="Log.cs" />
     <Compile Include="Settings.cs" />
     <Compile Include="Test\DummyWinUpdateManager.cs" />
+    <Compile Include="UIUtils\TextLookEnum.cs" />
     <Compile Include="UI\AdvanceConfigPage.xaml.cs">
       <DependentUpon>AdvanceConfigPage.xaml</DependentUpon>
     </Compile>

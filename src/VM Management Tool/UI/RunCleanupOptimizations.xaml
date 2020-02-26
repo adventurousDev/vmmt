@@ -52,7 +52,7 @@
                         <ListItem>
                             <Paragraph x:Name="cleanmgrParagrath" Foreground="{DynamicResource {x:Static SystemColors.GrayTextBrushKey}}">
 
-                                Run Cleanmgr
+                                Run Disk Cleanup
 
                             </Paragraph>
                         </ListItem>

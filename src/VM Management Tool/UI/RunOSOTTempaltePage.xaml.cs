@@ -92,6 +92,13 @@ namespace VMManagementTool.UI
         }
         async void FinishAndProceed()
         {
+
+            if (optimizationTemplateManager != null)
+            {
+                optimizationTemplateManager.RunProgressChanged -= OptimizationTemplateManager_RunProgressChanged;
+                optimizationTemplateManager.RunCompleted -= OptimizationTemplateManager_RunCompleted;
+            }
+
             SetProgress(INDEFINITE_PROGRESS, "finishing...");
 
             await optimizationTemplateManager.CleanupAsync();

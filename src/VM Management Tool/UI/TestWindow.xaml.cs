@@ -213,7 +213,8 @@ namespace VMManagementTool
 
         private void hidewindow_Click(object sender, RoutedEventArgs e)
         {
-            WinOptimizationsManager.Instance.HideCleanMgrWndow();
+            //WinOptimizationsManager.Instance.HideCleanMgrWndow();
+            WinOptimizationsManager.Instance.Abort();
         }
 
         private void cleanmgrReg_Click(object sender, RoutedEventArgs e)

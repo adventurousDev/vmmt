@@ -10,7 +10,7 @@
          MinHeight="360"
         >
     <DockPanel>
-        <Menu Visibility="Hidden" DockPanel.Dock="Top" Background="White">
+        <Menu Visibility="Visible" DockPanel.Dock="Top" Background="White">
             <MenuItem Header="_File">                
                 <MenuItem Header="E_xit"/>
             </MenuItem>

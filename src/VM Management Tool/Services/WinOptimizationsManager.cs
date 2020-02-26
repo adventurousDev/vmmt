@@ -43,21 +43,37 @@ namespace VMManagementTool.Services
         public event Action<int> SDeleteExited;
         public event Action<string> SDeleteError;
         public event Action<string, int> SDeleteProgressChanged;
+
+
+        public event Action<bool> CleanmgrCompleted;
+        public event Action<bool> DefragCompleted;
+        public event Action<bool> SdeleteCompleted;
+
+        public event Action<int, string> ProgressChanged;
+
+
         public bool SDeleteRunning { get { return sDeleteProc != null; } }
         private const int SW_HIDE = 0;
         private const int CLEANMGR_STATEFLAGS_ID = 9999;
 
         volatile bool defragProcExited = false;
 
+        long lastSdeleteProgressTime = 0;
+        int lastProgress = 0;
+
         [DllImport("User32")]
         private static extern int ShowWindow(int hwnd, int nCmdShow);
 
-        public void HideCleanMgrWndow()
+        private void HideCleanMgrWndow()
         {
             var hWnd = cleanmgrProc.MainWindowHandle.ToInt32();
             ShowWindow(hWnd, SW_HIDE);
         }
 
+        public void StartSdelete()
+        {
+            Task.Run(RunSDelete);
+        }
         public void RunSDelete()
         {
             if (sDeleteProc != null)
@@ -69,7 +85,12 @@ namespace VMManagementTool.Services
             //todo deregister events before loosing reference
             sDeleteProc = new Process();
             var executable = Environment.Is64BitOperatingSystem ? "sdelete64.exe" : "sdelete.exe";
-            var path = Path.Combine(@"C:\SDelete", executable);
+            var path = Path.Combine(Settings.SDELETE_FOLDER, executable);
+            if (executable == "sdelete64.exe" && !File.Exists(path))
+            {
+                //try using 32 bit because it is more probable to be there 
+                path = Path.Combine(@"C:\bwLehrpool\SDelete", "sdelete.exe");
+            }
             sDeleteProc.StartInfo.FileName = path;
             sDeleteProc.StartInfo.Arguments = "-nobanner -z c:";
             sDeleteProc.StartInfo.UseShellExecute = false;
@@ -111,7 +132,19 @@ namespace VMManagementTool.Services
             volumeCahches.Close();
             root.Close();
         }
-        
+
+        public void Abort()
+        {
+            if (cleanmgrProc != null)
+            {
+                cleanmgrProc.Kill();
+            }
+        }
+
+        public void StartCleanmgr()
+        {
+            Task.Run(() => RunCleanmgr());
+        }
         public void RunCleanmgr()
         {
             if (cleanmgrProc != null)
@@ -271,13 +304,17 @@ namespace VMManagementTool.Services
         {
             var exitCode = cleanmgrProc.ExitCode;
             Info($"Finished execution. Exit code: {exitCode}");
+            CleanmgrCompleted?.Invoke(exitCode == 0);
             cleanmgrProc.Close();
             cleanmgrProc = null;
+
+
         }
 
         private void CleanmgrProc_ErrorDataReceived(object sender, DataReceivedEventArgs e)
         {
             Info($"cleanmgr process Error: {e.Data}");
+            //todo handle the error
         }
 
         private void CleanmgrProc_OutputDataReceived(object sender, DataReceivedEventArgs e)
@@ -301,6 +338,8 @@ namespace VMManagementTool.Services
             sDeleteProc = null;
 
             SDeleteExited?.Invoke(exitCode);
+
+            SdeleteCompleted?.Invoke(exitCode==0);
         }
 
         private void SDeleteProc_ErrorDataReceived(object sender, DataReceivedEventArgs e)
@@ -317,13 +356,13 @@ namespace VMManagementTool.Services
             }
             Info($"Sdelete process Info: {e.Data}");
             string stage = e.Data;
-            int progress = -1;//no progress
+            int progress = 0;//no progress
             var percentageIndex = e.Data.LastIndexOf('%');
             if (percentageIndex > 0)
             {
                 var spaceBeforePercentageIndex = e.Data.LastIndexOf(' ', percentageIndex);
                 var percentageString = e.Data.Substring(spaceBeforePercentageIndex + 1, percentageIndex - spaceBeforePercentageIndex - 1);
-                stage = e.Data.Substring(0, spaceBeforePercentageIndex);
+                stage = e.Data.Substring(0, spaceBeforePercentageIndex-1);
                 progress = int.Parse(percentageString);
             }
 
@@ -333,10 +372,27 @@ namespace VMManagementTool.Services
                 progress = -8;//indefinite progress
             }
 
-            //todo extract the stage and the progress
+            //throtle progress for smooth UI
+            var now = DateTime.UtcNow.Ticks;
+            long elapsed = ((now - lastSdeleteProgressTime) / 10000);
 
-            SDeleteProgressChanged?.Invoke(stage, progress);
+            //update progress no more often than 100 ms
+            //and only if the value changed: to avoid the indefinite
+            //if (progress != lastSdeleteProgressTime && elapsed >= 5)//disabled throttling 
+            {
+
+                lastProgress = progress;
+                lastSdeleteProgressTime = now;
+
+                ProgressChanged?.Invoke(progress, stage);
+                SDeleteProgressChanged?.Invoke(stage, progress);
+
+
+            }
+
         }
+
+
         private void Info(string text)
         {
             NewInfo?.Invoke(text);

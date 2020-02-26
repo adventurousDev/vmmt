@@ -37,7 +37,8 @@ namespace VMManagementTool
             else
             {
                 //var navTo = new RunWinUpdatesPage();
-                var navTo = new RunOSOTTempaltePage();
+                //var navTo = new RunOSOTTempaltePage();
+                var navTo = new RunCleanupOptimizations();
                 NavigationService.Navigate(navTo);
             }
             

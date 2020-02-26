@@ -11,7 +11,7 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProjectGuid>{99F20684-F517-4B8F-945B-514B52A1FF95}</ProjectGuid>
     <OutputType>WinExe</OutputType>
-    <RootNamespace>VM_Management_Tool</RootNamespace>
+    <RootNamespace>VMManagementTool</RootNamespace>
     <AssemblyName>VM Management Tool</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
@@ -92,6 +92,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Log.cs" />
     <Compile Include="Test\DummyWinUpdateManager.cs" />
     <Compile Include="UI\AdvanceConfigPage.xaml.cs">
       <DependentUpon>AdvanceConfigPage.xaml</DependentUpon>

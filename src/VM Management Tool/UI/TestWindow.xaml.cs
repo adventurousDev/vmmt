@@ -126,7 +126,7 @@ namespace VMManagementTool
 
         private void Abort_Click(object sender, RoutedEventArgs e)
         {
-            WinUpdatesManager.Instance.AbortChecking();
+            //WinUpdatesManager.Instance.AbortChecking();
         }
 
         private void Download_Click(object sender, RoutedEventArgs e)
@@ -136,7 +136,7 @@ namespace VMManagementTool
 
         private void abortD_Click(object sender, RoutedEventArgs e)
         {
-            WinUpdatesManager.Instance.AbortDownload();
+            //WinUpdatesManager.Instance.AbortDownload();
         }
 
         private void theConsole_TextChanged(object sender, TextChangedEventArgs e)
@@ -157,7 +157,7 @@ namespace VMManagementTool
 
         private void abortInstall_Click(object sender, RoutedEventArgs e)
         {
-            WinUpdatesManager.Instance.AbortInstall();
+            //WinUpdatesManager.Instance.AbortInstall();
         }
 
         private void enableService_Click(object sender, RoutedEventArgs e)

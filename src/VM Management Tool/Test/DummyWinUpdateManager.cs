@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace VM_Management_Tool.Test
+namespace VMManagementTool.Test
 {
     class DummyWinUpdateManager
     {
@@ -16,48 +16,50 @@ namespace VM_Management_Tool.Test
         int timeout = 5000;
         int stage = 0;
         CancellationTokenSource cts;
-        
+
         async Task SimualteProgress(string action)
         {
 
-            
-                DateTime utcNow = DateTime.UtcNow;
-                int showprogress = 0;
-                cts = new CancellationTokenSource();
 
-                while (true)
+            DateTime utcNow = DateTime.UtcNow;
+            int showprogress = 0;
+            cts = new CancellationTokenSource();
+
+            while (true)
+            {
+                long elapsed = ((DateTime.UtcNow.Ticks - utcNow.Ticks) / 10000);
+                if (elapsed > timeout)
                 {
-                    long elapsed = ((DateTime.UtcNow.Ticks - utcNow.Ticks) / 10000);
-                    if (elapsed > timeout)
-                    {
-                        ProgressChanged?.Invoke(100, "");
-                        await Task.Delay(500).ConfigureAwait(false);
-                        return;
-                    }
-
-                    int actualprogress = (int)((elapsed / (float)timeout) * 100);
-                    if (actualprogress - showprogress >= 10)
-                    {
-                        showprogress = actualprogress;
-                        string msg = "";
-                        if (action.Length != 0)
-                        {
-                            msg = $"{action} Something {showprogress} something update bla bla bla and somethign to make it very long ";
-                        }
-                        ProgressChanged?.Invoke(showprogress, msg);
-                    }
-
-                    await Task.Delay(200, cts.Token).ConfigureAwait(false);
-
+                    ProgressChanged?.Invoke(100, "");
+                    await Task.Delay(500).ConfigureAwait(false);
+                    cts?.Dispose();
+                    cts = null;
+                    return;
                 }
-           
+
+                int actualprogress = (int)((elapsed / (float)timeout) * 100);
+                if (actualprogress - showprogress >= 10)
+                {
+                    showprogress = actualprogress;
+                    string msg = "";
+                    if (action.Length != 0)
+                    {
+                        msg = $"{action} Something {showprogress} something update bla bla bla and somethign to make it very long ";
+                    }
+                    ProgressChanged?.Invoke(showprogress, msg);
+                }
+
+                await Task.Delay(200, cts.Token).ConfigureAwait(false);
+
+            }
+
 
         }
 
         internal async void CheckForUpdates()
         {
-            stage = 1;           
-            
+            stage = 1;
+
 
             try
             {
@@ -122,9 +124,10 @@ namespace VM_Management_Tool.Test
                 case 3:
                     InstallationCompleted?.Invoke(false);
                     break;
-            
+
             }
             cts?.Cancel();
+            cts?.Dispose();
         }
 
         internal void CleanUp()

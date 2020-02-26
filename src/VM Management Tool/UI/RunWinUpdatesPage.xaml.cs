@@ -12,7 +12,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
-using VM_Management_Tool.Test;
+using VMManagementTool.Test;
 using VMManagementTool.Services;
 
 namespace VMManagementTool.UI
@@ -234,6 +234,10 @@ namespace VMManagementTool.UI
                 winUpdateManager.DownloadCompleted -= WinUpdateManager_DownloadCompleted;
                 winUpdateManager.InstallationCompleted -= WinUpdateManager_InstallationCompleted;
                 winUpdateManager.ProgressChanged -= WinUpdateManager_ProgressChanged;
+
+                //in case there is still somehting going on at the moment
+                //todo can this cause problems?
+                winUpdateManager.AbortAll();
 
                 winUpdateManager.CleanUp();
 

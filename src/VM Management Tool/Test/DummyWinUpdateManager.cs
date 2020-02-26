@@ -13,7 +13,7 @@ namespace VMManagementTool.Test
         public event Action<bool> DownloadCompleted;
         public event Action<bool> InstallationCompleted;
         public event Action<int, string> ProgressChanged;
-        int timeout = 5000;
+        int timeout = 2000;
         int stage = 0;
         CancellationTokenSource cts;
 

@@ -93,6 +93,7 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="Log.cs" />
+    <Compile Include="Settings.cs" />
     <Compile Include="Test\DummyWinUpdateManager.cs" />
     <Compile Include="UI\AdvanceConfigPage.xaml.cs">
       <DependentUpon>AdvanceConfigPage.xaml</DependentUpon>
@@ -112,7 +113,7 @@
     <Compile Include="Services\Optimization\Condition.cs" />
     <Compile Include="Services\Optimization\Group.cs" />
     <Compile Include="Services\Optimization\IGroupChild.cs" />
-    <Compile Include="Services\Optimization\OptimizationTemplate.cs" />
+    <Compile Include="Services\Optimization\OptimizationTemplateManager.cs" />
     <Compile Include="Services\Optimization\Actions\RegistryAction.cs" />
     <Compile Include="Services\Optimization\Step.cs" />
     <Compile Include="Services\RegistryUtils.cs" />
@@ -121,6 +122,9 @@
     <Compile Include="Services\WinOptimizationsManager.cs" />
     <Compile Include="Services\WinUpdatesManager.cs" />
     <Compile Include="Services\WinServiceUtils.cs" />
+    <Compile Include="UI\RunCleanupOptimizations.xaml.cs">
+      <DependentUpon>RunCleanupOptimizations.xaml</DependentUpon>
+    </Compile>
     <Compile Include="UI\RunOSOTTempaltePage.xaml.cs">
       <DependentUpon>RunOSOTTempaltePage.xaml</DependentUpon>
     </Compile>
@@ -136,6 +140,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="UI\HomePage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="UI\RunCleanupOptimizations.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

@@ -10,7 +10,7 @@ using VMManagementTool.Services.Optimization.Actions;
 
 namespace VMManagementTool.Services.Optimization
 {
-    class OptimizationTemplate
+    class OptimizationTemplateManager
     {
 
         const string OS_REF_METADATA_KEY = "osdefinitions";
@@ -20,10 +20,10 @@ namespace VMManagementTool.Services.Optimization
 
         //events 
         public event Action<string> NewInfo;
-        public OptimizationTemplate()
-        {
 
-        }
+        public event Action<int, string> RunProgressChanged;
+        public event Action<bool> RunCompleted;
+
         public void Load(string path)
         {
             try
@@ -119,38 +119,81 @@ namespace VMManagementTool.Services.Optimization
 
         }
 
-        public List<Step> GetAllSteps()
+        public async Task RunDefaultStepsAsync()
+        {
+            await Task.Run(() => RunSteps((step) => (step.Category == Step.Categories.mandatory || step.Category == Step.Categories.recommended)));
+        }
+        public void RunDefaultSteps()
+        {
+            Task.Run(() => RunSteps((step) => (step.Category == Step.Categories.mandatory || step.Category == Step.Categories.recommended)));
+        }
+        async void RunSteps(Func<Step, bool> conditionCheck = null)
+        {
+            var stepsToRun = GetSteps(conditionCheck);
+            int totalSteps = stepsToRun.Count;
+            int currentStep = 1;
+
+
+            foreach (var step in stepsToRun)
+            {
+                currentStep++;
+                int percentage = (int)((currentStep * 1f / totalSteps) * 95);//95 for better visibility
+
+                step.Action.Execute();
+
+                RunProgressChanged?.Invoke(percentage, step.Name);
+
+                //throttling to allow visible and smooth progress
+                //await Task.Delay(100);
+            }
+            RunCompleted?.Invoke(true);
+
+        }
+        public async Task LoadAsync(string path)
+        {
+            //will execute the laoding on thread pool thread
+            await Task.Run(() => Load(path));
+
+        }
+
+        public async Task CleanupAsync()
+        {
+            //todo consider cleaning up resources
+
+        }
+        public List<Step> GetSteps(Func<Step, bool> conditionCheck = null)
         {
             var res = new List<Step>();
             if (RootGroups != null)
             {
                 foreach (Group rootGroup in RootGroups)
                 {
-                    RecursivelyAddSteps(res, rootGroup);
+                    RecursivelyAddSteps(res, rootGroup, conditionCheck);
                 };
             }
             return res;
         }
-        public void PrintAllShellCMDs()
-        {
-            var shellCmds = GetAllSteps().Where((s) => s.Action is ShellExecuteAction).Select((s) => (s.Action as ShellExecuteAction).ShellCommand);
-            foreach (var cmd in shellCmds)
-            {
-                Log(cmd);
-            }
 
+        public async Task<List<Step>> GetDefaultSelectedStepsAsync()
+        {
+            return await Task.Run<List<Step>>(() => GetSteps((step) => step.DefaultSelected));
         }
-        void RecursivelyAddSteps(List<Step> theList, Group group)
+
+        void RecursivelyAddSteps(List<Step> theList, Group group, Func<Step, bool> conditionCheck)
         {
             foreach (var child in group.Children)
             {
                 if (child is Step step)
                 {
-                    theList.Add(step);
+                    if (conditionCheck != null && conditionCheck(step))
+                    {
+                        theList.Add(step);
+                    }
+
                 }
                 else
                 {
-                    RecursivelyAddSteps(theList, child as Group);
+                    RecursivelyAddSteps(theList, child as Group, conditionCheck);
                 }
             }
         }
@@ -196,7 +239,7 @@ namespace VMManagementTool.Services.Optimization
         {
             var csvDelimiter = '`';
 
-            var allSteps = GetAllSteps();
+            var allSteps = GetSteps();
             Log($"Starting processing {allSteps.Count} steps");
             int lastPercentage = 0;
             int stepCounter = 0;
@@ -208,13 +251,13 @@ namespace VMManagementTool.Services.Optimization
             csvBuilder.AppendLine(csv);
             foreach (var step in allSteps)
             {
-                if (onlyRun != null && ! onlyRun.Contains(step.Name))
+                if (onlyRun != null && !onlyRun.Contains(step.Name))
                 {
                     continue;
                 }
                 stepCounter++;
-                int percentage = (int)((stepCounter*1f / allSteps.Count) * 100);
-                if(percentage - lastPercentage>=10)
+                int percentage = (int)((stepCounter * 1f / allSteps.Count) * 100);
+                if (percentage - lastPercentage >= 10)
                 {
                     Log($"Processing steps: {percentage}%");
                     lastPercentage = percentage;
@@ -254,7 +297,7 @@ namespace VMManagementTool.Services.Optimization
             string description = stepXNav.GetAttribute("description", "");
 
             Step.Categories category;
-            var categoryString = stepXNav.GetAttribute("name", "");
+            var categoryString = stepXNav.GetAttribute("category", "");
             switch (categoryString)
             {
                 case "recommended":

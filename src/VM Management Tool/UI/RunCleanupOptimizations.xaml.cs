@@ -13,26 +13,21 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 
-namespace VMManagementTool
+namespace VMManagementTool.UI
 {
     /// <summary>
-    /// Interaction logic for AdvanceConfigPage.xaml
+    /// Interaction logic for RunCleanupOptimizations.xaml
     /// </summary>
-    public partial class AdvanceConfigPage : Page
+    public partial class RunCleanupOptimizations : Page
     {
-        public AdvanceConfigPage()
+        public RunCleanupOptimizations()
         {
             InitializeComponent();
         }
 
-        private void Button_Click(object sender, RoutedEventArgs e)
+        private void abortButton_Click(object sender, RoutedEventArgs e)
         {
-            //NavigationService.Navigate(new RunOptimizationsPage());
-        }
 
-        private void Button_Click_1(object sender, RoutedEventArgs e)
-        {
-            NavigationService.GoBack();
         }
     }
 }

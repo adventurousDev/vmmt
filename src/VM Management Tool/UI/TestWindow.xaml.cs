@@ -229,7 +229,7 @@ namespace VMManagementTool
 
         private void loadButton_Click(object sender, RoutedEventArgs e)
         {
-            var template = new OptimizationTemplate();
+            var template = new OptimizationTemplateManager();
             template.NewInfo += LogUpdateInto;
             string path = @"C:\Users\Student\Desktop\VMwareOSOptimizationTool_b1140_15488330\bwlp_Windows_10.xml";
             //string path = @"C:\Users\Student\Desktop\VMwareOSOptimizationTool_b1140_15488330\Hayk_Windows 10 1507-1803-Server 2016_comp.xml";

@@ -1,0 +1,3445 @@
+<sequence name="bwlp_Windows 10" description="Optimization template for bwLehrpool&#xD;&#xA;- Windows 10" author="" authorEmail="" website="" version="1.0" runOnOs="16" uid="376710">
+  <globalVarList>
+    <autoLogin>
+      <alUserName>Admin</alUserName>
+      <alPassword>
+      </alPassword>
+    </autoLogin>
+    <osCollection>
+      <osEntry osId="1" name="Windows 7">
+        <Version>6.1.*</Version>
+        <ProductType>1</ProductType>
+        <osEntry osId="2" name="Windows 7 32-bit">
+          <OSArchitecture>32-bit</OSArchitecture>
+        </osEntry>
+        <osEntry osId="3" name="Windows 7 64-bit">
+          <OSArchitecture>64-bit</OSArchitecture>
+        </osEntry>
+      </osEntry>
+      <osEntry osId="4" name="Windows 8">
+        <Version>6.2.*</Version>
+        <ProductType>1</ProductType>
+        <osEntry osId="5" name="Windows 8 32-bit">
+          <OSArchitecture>32-bit</OSArchitecture>
+        </osEntry>
+        <osEntry osId="6" name="Windows 8 64-bit">
+          <OSArchitecture>64-bit</OSArchitecture>
+        </osEntry>
+      </osEntry>
+      <osEntry osId="13" name="Windows 8.1">
+        <Version>6.3.*</Version>
+        <ProductType>1</ProductType>
+        <osEntry osId="14" name="Windows 8.1 32-bit">
+          <OSArchitecture>32-bit</OSArchitecture>
+        </osEntry>
+        <osEntry osId="15" name="Windows 8.1 64-bit">
+          <OSArchitecture>64-bit</OSArchitecture>
+        </osEntry>
+      </osEntry>
+      <osEntry osId="16" name="Windows 10">
+        <Version>10.0.*</Version>
+        <ProductType>1</ProductType>
+        <osEntry osId="17" name="Windows 10 32-bit">
+          <OSArchitecture>32-bit</OSArchitecture>
+        </osEntry>
+        <osEntry osId="18" name="Windows 10 64-bit">
+          <OSArchitecture>64-bit</OSArchitecture>
+        </osEntry>
+      </osEntry>
+      <osEntry osId="10" name="Windows Server 2008">
+        <Version>6.0.*</Version>
+        <ProductType>3</ProductType>
+        <osEntry osId="11" name="Windows Server 2008 32-bit">
+          <OSArchitecture>32-bit</OSArchitecture>
+        </osEntry>
+        <osEntry osId="12" name="Windows Server 2008 64-bit">
+          <OSArchitecture>64-bit</OSArchitecture>
+        </osEntry>
+      </osEntry>
+      <osEntry osId="7" name="Windows Server 2008 R2">
+        <Version>6.1.*</Version>
+        <ProductType>3</ProductType>
+        <osEntry osId="8" name="Windows Server 2008 R2 32-bit">
+          <OSArchitecture>32-bit</OSArchitecture>
+        </osEntry>
+        <osEntry osId="9" name="Windows Server 2008 R2 64-bit">
+          <OSArchitecture>64-bit</OSArchitecture>
+        </osEntry>
+      </osEntry>
+      <osEntry osId="19" name="Windows Server 2012">
+        <Version>6.0.*</Version>
+        <ProductType>3</ProductType>
+        <osEntry osId="20" name="Windows Server 2012 32-bit">
+          <OSArchitecture>32-bit</OSArchitecture>
+        </osEntry>
+        <osEntry osId="21" name="Windows Server 2012 64-bit">
+          <OSArchitecture>64-bit</OSArchitecture>
+        </osEntry>
+      </osEntry>
+      <osEntry osId="22" name="Windows Server 2012 R2">
+        <Version>6.1.*</Version>
+        <ProductType>3</ProductType>
+        <osEntry osId="23" name="Windows Server 2012 R2 32-bit">
+          <OSArchitecture>32-bit</OSArchitecture>
+        </osEntry>
+        <osEntry osId="24" name="Windows Server 2012 R2 64-bit">
+          <OSArchitecture>64-bit</OSArchitecture>
+        </osEntry>
+      </osEntry>
+      <osEntry osId="25" name="Windows Server 2016">
+        <Version>10.0.*</Version>
+        <ProductType>3</ProductType>
+      </osEntry>
+    </osCollection>
+  </globalVarList>
+  <changeLog>
+    <log version="1.0">Based on 'Windows 10' Template v5.17
+- Removed several steps which we may need. 
+- Scheduled Tasks\Microsoft\Windows\rempl disabled which reactivates Windows Updates</log>
+  </changeLog>
+  <group name="Modifications to Standard Image" description="Select &quot;Disable&quot; in the Options tab of any Task to bypass processing.  Disable this entire section in the same manner.">
+    <group name="Apply HKCU Settings to Registry" description="Apply HKCU Settings to Registry">
+      <step name="Load HKCU for editing" description="Open HKey Users (Default User Profile) for Editing" category="mandatory" defaultSelected="true">
+        <action optimization="true">
+          <!--reg load "hku\temp" "%USERPROFILE%\..\Default User\NTUSER.DAT" -->
+          <type>Registry</type>
+          <command>LOAD</command>
+          <params>
+            <keyName>hku\temp</keyName>
+            <fileName>%USERPROFILE%\..\Default User\NTUSER.DAT</fileName>
+          </params>
+        </action>
+      </step>
+      <step name="Change Explorer Default View" description="Change explorer default view to Thic PC. Don't optimize the item when you use VMware User Environment Manager(UEM) folder redirection." category="recommended" defaultSelected="true" runOnOs="16">
+        <action>
+          <!-- reg ADD "hku\temp\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" /v LaunchTo /t REG_DWORD /d 0x00000001 /f -->
+          <type>Registry</type>
+          <command>ADD</command>
+          <params>
+            <keyName>hku\temp\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced</keyName>
+            <valueName>LaunchTo</valueName>
+            <type>REG_DWORD</type>
+            <data>1</data>
+          </params>
+        </action>
+      </step>
+      <step name="Group policy - Do not add shares of recently opened documents to Network Locations" description="Enable this policy, shared folders are not added to Network Locations automatically when you open a document in the shared folder." category="recommended" defaultSelected="true">
+        <action>
+          <type>Registry</type>
+          <command>ADD</command>
+          <params>
+            <keyName>hku\temp\Software\Microsoft\Windows\CurrentVersion\Policies\Explorer</keyName>
+            <valueName>NoRecentDocsNetHood</valueName>
+            <type>REG_DWORD</type>
+            <data>1</data>
+          </params>
+        </action>
+      </step>
+      <step name="Group policy - Turn off all Windows spotlight features" description="Enable this policy, Windows spotlight on lock screen, Windows tips, Microsoft consumer features and other related features will be turned off." category="recommended" defaultSelected="true">
+        <action>
+          <type>Registry</type>
+          <command>ADD</command>
+          <params>
+            <keyName>hku\temp\Software\Policies\Microsoft\Windows\CloudContent</keyName>
+            <valueName>DisableWindowsSpotlightFeatures</valueName>
+            <type>REG_DWORD</type>
+            <data>1</data>
+          </params>
+        </action>
+      </step>
+      <step name="On Screen Keyboard - Key Stroke Delay" description="Disable key stroke delay." category="recommended" defaultSelected="true">
+        <action>
+          <!-- reg ADD "hku\temp\SOFTWARE\Microsoft\Osk" /v KeystrokeDelay /t REG_DWORD /d 0 /f -->
+          <type>Registry</type>
+          <command>ADD</command>
+          <params>
+            <keyName>hku\temp\SOFTWARE\Microsoft\Osk</keyName>
+            <valueName>KeystrokeDelay</valueName>
+            <type>REG_DWORD</type>
+            <data>0</data>
+          </params>
+        </action>
+      </step>
+      <step name="On Screen Keyboard - First Repeat Delay" description="Disable first repeat delay." category="recommended" defaultSelected="true">
+        <action>
+          <!-- reg ADD "hku\temp\SOFTWARE\Microsoft\Osk" /v FirstRepeatDelay /t REG_DWORD /d 0 /f -->
+          <type>Registry</type>
+          <command>ADD</command>
+          <params>
+            <keyName>hku\temp\SOFTWARE\Microsoft\Osk</keyName>
+            <valueName>FirstRepeatDelay</valueName>
+            <type>REG_DWORD</type>
+            <data>0</data>
+          </params>
+        </action>
+      </step>
+      <step name="On Screen Keyboard - Next Repeat Delay" description="Disable next repeat delay." category="recommended" defaultSelected="true">
+        <action>
+          <!-- reg ADD "hku\temp\SOFTWARE\Microsoft\Osk" /v NextRepeatDelay /t REG_DWORD /d 0 /f -->
+          <type>Registry</type>
+          <command>ADD</command>
+          <params>
+            <keyName>hku\temp\SOFTWARE\Microsoft\Osk</keyName>
+            <valueName>NextRepeatDelay</valueName>
+            <type>REG_DWORD</type>
+            <data>0</data>
+          </params>
+        </action>
+      </step>
+      <step name="Reduce Menu Show Delay" description="Delay Show the Reduce Menu" category="recommended" defaultSelected="true">
+        <action>
+          <!-- reg Add "hku\temp\Control Panel\Desktop" /v MenuShowDelay /t REG_SZ /d 120 /f -->
+          <type>Registry</type>
+          <command>ADD</command>
+          <params>
+            <keyName>hku\temp\Control Panel\Desktop</keyName>
+            <valueName>MenuShowDelay</valueName>
+            <type>REG_SZ</type>
+            <data>120</data>
+          </params>
+        </action>
+      </step>
+      <step name="RSS Feeds - Disable" description="Peform this task to disable RSS feed capability and potentially improve performance and reduce requirements for disk space growth related to this service." category="mandatory" defaultSelected="true">
+        <action>
+          <!-- reg ADD "hku\temp\Software\Microsoft\Feeds" /v SyncStatus /t REG_DWORD /d 0x0 /f -->
+          <type>Registry</type>
+          <command>ADD</command>
+          <params>
+            <keyName>hku\temp\Software\Microsoft\Feeds</keyName>
+            <valueName>SyncStatus</valueName>
+            <type>REG_DWORD</type>
+            <data>0</data>
+          </params>
+        </action>
+      </step>
+      <step name="Search Engine - Disable" description="Disable Bing Search." category="recommended" defaultSelected="true">
+        <action>
+          <!-- reg ADD "hku\temp\SOFTWARE\Microsoft\Windows\CurrentVersion\Search" /v BingSearchEnabled /t REG_DWORD /d 0x00000000 /f -->
+          <type>Registry</type>
+          <command>ADD</command>
+          <params>
+            <keyName>hku\temp\SOFTWARE\Microsoft\Windows\CurrentVersion\Search</keyName>
+            <valueName>BingSearchEnabled</valueName>
+            <type>REG_DWORD</type>
+            <data>0</data>
+          </params>
+        </action>
+      </step>
+      <step name="SmartScreen " description="Disable SmartScreen Filter for Store Apps" category="recommended" defaultSelected="false" runOnOs="16">
+        <action>
+          <!-- reg ADD "hku\temp\SOFTWARE\Microsoft\Windows\CurrentVersion\AppHost" /v EnableWebContentEvaluation /t REG_DWORD /d 0 /f -->
+          <type>Registry</type>
+          <command>ADD</command>
+          <params>
+            <keyName>hku\temp\SOFTWARE\Microsoft\Windows\CurrentVersion\AppHost</keyName>
+            <valueName>EnableWebContentEvaluation</valueName>
+            <type>REG_DWORD</type>
+            <data>0</data>
+          </params>
+        </action>
+      </step>
+      <step name="Sync Language" description="Disable sync language" category="recommended" defaultSelected="true">
+        <action>
+          <!-- reg Add "hku\temp\SOFTWARE\Microsoft\Windows\CurrentVersion\SettingSync\Groups\Language" /v Enabled /t REG_DWORD /d 0 /f -->
+          <type>Registry</type>
+          <command>ADD</command>
+          <params>
+            <keyName>hku\temp\SOFTWARE\Microsoft\Windows\CurrentVersion\SettingSync\Groups\Language</keyName>
+            <valueName>Enabled</valueName>
+            <type>REG_DWORD</type>
+            <data>0</data>
+          </params>
+        </action>
+      </step>
+      <step name="Taskbar buttons" description="Taskbar buttons combine when full." category="optional" defaultSelected="true">
+        <action messageOnly="False">
+          <type>Registry</type>
+          <command>ADD</command>
+          <params>
+            <keyName>hku\temp\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Advanced</keyName>
+            <valueName>TaskbarGlomLevel</valueName>
+            <type>REG_DWORD</type>
+            <data>1</data>
+          </params>
+        </action>
+      </step>
+      <step name="Taskbar Navigation" description="Not replace Command Prompt with Windows PowerShell in the menu when I press Windows key+X" category="optional" defaultSelected="true">
+        <action>
+          <!-- reg ADD "hku\temp\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Advanced" /v DontUsePowerShellOnWinX /t REG_DWORD /d 1 /f -->
+          <type>Registry</type>
+          <command>ADD</command>
+          <params>
+            <keyName>hku\temp\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Advanced</keyName>
+            <valueName>DontUsePowerShellOnWinX</valueName>
+            <type>REG_DWORD</type>
+            <data>1</data>
+          </params>
+        </action>
+      </step>
+      <step name="Taskbar Size" description="Lock the Size and Position of the Taskbar." category="optional" defaultSelected="true">
+        <action>
+          <!-- reg ADD "hku\temp\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Advanced" /v TaskbarSizeMove /t REG_DWORD /d 0x0 /f -->
+          <type>Registry</type>
+          <command>ADD</command>
+          <params>
+            <keyName>hku\temp\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Advanced</keyName>
+            <valueName>TaskbarSizeMove</valueName>
+            <type>REG_DWORD</type>
+            <data>0</data>
+          </params>
+        </action>
+      </step>
+      <step name="Windows Settings - Show alarms,reminders,and incoming VoIP calls on the lock screen" description="Turn off Show alarms,reminders,and incoming VoIP calls on the lock screen." category="recommended" defaultSelected="true">
+        <action>
+          <type>Registry</type>
+          <command>ADD</command>
+          <params>
+            <keyName>hku\temp\SOFTWARE\Microsoft\Windows\CurrentVersion\Notifications\Settings</keyName>
+            <valueName>NOC_GLOBAL_SETTING_ALLOW_CRITICAL_TOASTS_ABOVE_LOCK</valueName>
+            <type>REG_DWORD</type>
+            <data>0</data>
+          </params>
+        </action>
+      </step>
+      <step name="Windows Settings - Get tips, tricks, and suggestions as you use Windows" description="Turn off Get tips, tricks, and suggestions as you use Windows." category="recommended" defaultSelected="true">
+        <action>
+          <type>Registry</type>
+          <command>ADD</command>
+          <params>
+            <keyName>hku\temp\SOFTWARE\Microsoft\Windows\CurrentVersion\ContentDeliveryManager</keyName>
+            <valueName>SoftLandingEnabled</valueName>
+            <type>REG_DWORD</type>
+            <data>0</data>
+          </params>
+        </action>
+      </step>
+      <step name="Windows Settings - When I sign in" description="Use desktop mode When I sign in." category="recommended" defaultSelected="true">
+        <action>
+          <type>Registry</type>
+          <command>ADD</command>
+          <params>
+            <keyName>hku\temp\SOFTWARE\Microsoft\Windows\CurrentVersion\ImmersiveShell</keyName>
+            <valueName>SignInMode</valueName>
+            <type>REG_DWORD</type>
+            <data>1</data>
+          </params>
+        </action>
+      </step>
+      <step name="Windows Settings - Let apps use advertising ID to make ads more interesting to you based on your app usage" description="Turn off Let apps use advertising ID." category="recommended" defaultSelected="true">
+        <action>
+          <type>Registry</type>
+          <command>ADD</command>
+          <params>
+            <keyName>hku\temp\SOFTWARE\Microsoft\Windows\CurrentVersion\AdvertisingInfo</keyName>
+            <valueName>Enabled</valueName>
+            <type>REG_DWORD</type>
+            <data>0</data>
+          </params>
+        </action>
+      </step>
+      <step name="Windows Settings - Let websites provide locally relevant content by accessing my language list" description="Turn off Let websites provide locally relevant content by accessing my language list." category="recommended" defaultSelected="true">
+        <action>
+          <type>Registry</type>
+          <command>ADD</command>
+          <params>
+            <keyName>hku\temp\Control Panel\International\User Profile</keyName>
+            <valueName>HttpAcceptLanguageOptout</valueName>
+            <type>REG_DWORD</type>
+            <data>1</data>
+          </params>
+        </action>
+      </step>
+      <step name="Windows Settings - Let apps on my other devices open apps and continue experiences on this device" description="Turn off Let apps on my other devices open apps and continue experiences on this device." category="recommended" defaultSelected="true">
+        <action>
+          <type>Registry</type>
+          <command>ADD</command>
+          <params>
+            <keyName>hku\temp\SOFTWARE\Microsoft\Windows\CurrentVersion\SmartGlass</keyName>
+            <valueName>UserAuthPolicy</valueName>
+            <type>REG_DWORD</type>
+            <data>0</data>
+          </params>
+        </action>
+      </step>
+      <step name="Windows Settings - Let apps use my camera" description="Turn off Let apps use my camera." category="recommended" defaultSelected="true">
+        <action>
+          <type>Registry</type>
+          <command>ADD</command>
+          <params>
+            <keyName>hku\temp\SOFTWARE\Microsoft\Windows\CurrentVersion\DeviceAccess\Global\{E5323777-F976-4f5b-9B55-B94699C46E44}</keyName>
+            <valueName>Value</valueName>
+            <type>REG_SZ</type>
+            <data>Deny</data>
+          </params>
+        </action>
+      </step>
+      <step name="Windows Settings - Let apps use my microphone" description="Turn off Let apps use my microphone." category="recommended" defaultSelected="true">
+        <action>
+          <type>Registry</type>
+          <command>ADD</command>
+          <params>
+            <keyName>hku\temp\SOFTWARE\Microsoft\Windows\CurrentVersion\DeviceAccess\Global\{2EEF81BE-33FA-4800-9670-1CD474972C3F}</keyName>
+            <valueName>Value</valueName>
+            <type>REG_SZ</type>
+            <data>Deny</data>
+          </params>
+        </action>
+      </step>
+      <step name="Windows Settings - Let apps access my notifications" description="Turn off Let apps access my notifications." category="recommended" defaultSelected="true">
+        <action>
+          <type>Registry</type>
+          <command>ADD</command>
+          <params>
+            <keyName>hku\temp\SOFTWARE\Microsoft\Windows\CurrentVersion\DeviceAccess\Global\{52079E78-A92B-413F-B213-E8FE35712E72}</keyName>
+            <valueName>Value</valueName>
+            <type>REG_SZ</type>
+            <data>Deny</data>
+          </params>
+        </action>
+      </step>
+      <step name="Windows Settings - Let apps access my contacts" description="Turn off Let apps access my contacts." category="recommended" defaultSelected="true">
+        <action>
+          <type>Registry</type>
+          <command>ADD</command>
+          <params>
+            <keyName>hku\temp\SOFTWARE\Microsoft\Windows\CurrentVersion\DeviceAccess\Global\{7D7E8402-7C54-4821-A34E-AEEFD62DED93}</keyName>
+            <valueName>Value</valueName>
+            <type>REG_SZ</type>
+            <data>Deny</data>
+          </params>
+        </action>
+      </step>
+      <step name="Windows Settings - Let apps access my calendar" description="Turn off Let apps access my calendar." category="recommended" defaultSelected="true">
+        <action>
+          <type>Registry</type>
+          <command>ADD</command>
+          <params>
+            <keyName>hku\temp\SOFTWARE\Microsoft\Windows\CurrentVersion\DeviceAccess\Global\{D89823BA-7180-4B81-B50C-7E471E6121A3}</keyName>
+            <valueName>Value</valueName>
+            <type>REG_SZ</type>
+            <data>Deny</data>
+          </params>
+        </action>
+      </step>
+      <step name="Windows Settings - Let apps access my call history" description="Turn off Let apps access my call history." category="recommended" defaultSelected="true">
+        <action>
+          <type>Registry</type>
+          <command>ADD</command>
+          <params>
+            <keyName>hku\temp\SOFTWARE\Microsoft\Windows\CurrentVersion\DeviceAccess\Global\{8BC668CF-7728-45BD-93F8-CF2B3B41D7AB}</keyName>
+            <valueName>Value</valueName>
+            <type>REG_SZ</type>
+            <data>Deny</data>
+          </params>
+        </action>
+      </step>
+      <step name="Windows Settings - Let apps access and send email" description="Turn off Let apps access and send email." category="recommended" defaultSelected="true">
+        <action>
+          <type>Registry</type>
+          <command>ADD</command>
+          <params>
+            <keyName>hku\temp\SOFTWARE\Microsoft\Windows\CurrentVersion\DeviceAccess\Global\{9231CB4C-BF57-4AF3-8C55-FDA7BFCC04C5}</keyName>
+            <valueName>Value</valueName>
+            <type>REG_SZ</type>
+            <data>Deny</data>
+          </params>
+        </action>
+      </step>
+      <step name="Windows Settings - Let apps read or send messages (text or MMS)" description="Turn off Let apps read or send messages (text or MMS)." category="recommended" defaultSelected="true">
+        <action>
+          <type>Registry</type>
+          <command>ADD</command>
+          <params>
+            <keyName>hku\temp\SOFTWARE\Microsoft\Windows\CurrentVersion\DeviceAccess\Global\{992AFA70-6F47-4148-B3E9-3003349C1548}</keyName>
+            <valueName>Value</valueName>
+            <type>REG_SZ</type>
+            <data>Deny</data>
+          </params>
+        </action>
+      </step>
+      <step name="Windows Settings - Let apps control radios" description="Turn off Let apps control radios." category="recommended" defaultSelected="true">
+        <action>
+          <type>Registry</type>
+          <command>ADD</command>
+          <params>
+            <keyName>hku\temp\SOFTWARE\Microsoft\Windows\CurrentVersion\DeviceAccess\Global\{A8804298-2D5F-42E3-9531-9C8C39EB29CE}</keyName>
+            <valueName>Value</valueName>
+            <type>REG_SZ</type>
+            <data>Deny</data>
+          </params>
+        </action>
+      </step>
+      <step name="Windows Settings - Let your apps automatically share and sync info with wireless devices that don’t explicitly pair with your PC, tablet, or phone" description="Turn off Let your apps automatically share and sync info with wireless devices that don’t explicitly pair with your PC, tablet, or phone." category="recommended" defaultSelected="true">
+        <action>
+          <type>Registry</type>
+          <command>ADD</command>
+          <params>
+            <keyName>hku\temp\SOFTWARE\Microsoft\Windows\CurrentVersion\DeviceAccess\Global\LooselyCoupled</keyName>
+            <valueName>Value</valueName>
+            <type>REG_SZ</type>
+            <data>Deny</data>
+          </params>
+        </action>
+      </step>
+      <step name="Windows Settings - Windows should ask for my feedback" description="Never let windows ask for my feedback." category="recommended" defaultSelected="true">
+        <action>
+          <type>Registry</type>
+          <command>ADD</command>
+          <params>
+            <keyName>hku\temp\SOFTWARE\Microsoft\Siuf\Rules</keyName>
+            <valueName>NumberOfSIUFInPeriod</valueName>
+            <type>REG_DWORD</type>
+            <data>0</data>
+          </params>
+        </action>
+      </step>
+      <step name="Unload HKCU for editing" description="Very Important Step!  Need to close the ntuser.dat file to save changes." category="mandatory" defaultSelected="true">
+        <action>
+          <!-- reg unload "hku\temp" -->
+          <type>Registry</type>
+          <command>UNLOAD</command>
+          <params>
+            <keyName>hku\temp</keyName>
+          </params>
+        </action>
+      </step>
+    </group>
+    <group name="Apply HKLM Settings" description="Apply HKLM Settings">
+      <step name="Background Image" description="Disable Logon BackgroundImage" category="recommended" defaultSelected="true" runOnOs="16">
+        <action>
+          <!-- reg ADD "HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows\System" /v DisableLogonBackgroundImage  /t REG_DWORD /d 0x00000001 /f -->
+          <type>Registry</type>
+          <command>ADD</command>
+          <params>
+            <keyName>HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows\System</keyName>
+            <valueName>DisableLogonBackgroundImage</valueName>
+            <type>REG_DWORD</type>
+            <data>1</data>
+          </params>
+        </action>
+      </step>
+      <step name="Background Layout Service - Disable" description="Disable Background Layout Service" category="recommended" defaultSelected="true">
+        <action>
+          <!-- reg ADD "HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\OptimalLayout" /v EnableAutoLayout /t reg_dword /d 0 /f -->
+          <type>Registry</type>
+          <command>ADD</command>
+          <params>
+            <keyName>HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\OptimalLayout</keyName>
+            <valueName>EnableAutoLayout</valueName>
+            <type>REG_DWORD</type>
+            <data>0</data>
+          </params>
+        </action>
+      </step>
+      <step name="Boot Optimize Function" description="Disable windows automatically optimizes the file location for boot optimization." category="recommended" defaultSelected="true">
+        <action>
+          <!-- reg ADD "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Dfrg\BootOptimizeFunction" /v Enable /t reg_sz /d N /f -->
+          <type>Registry</type>
+          <command>ADD</command>
+          <params>
+            <keyName>HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Dfrg\BootOptimizeFunction</keyName>
+            <valueName>Enable</valueName>
+            <type>REG_SZ</type>
+            <data>N</data>
+          </params>
+        </action>
+      </step>
+      <step name="Crash Control - Sending alert - Disable" description="Disable sending alert for the Crash Control" category="recommended" defaultSelected="true">
+        <action>
+          <!-- reg ADD "HKLM\SYSTEM\CurrentControlSet\Control\CrashControl" /v SendAlert /t REG_DWORD /d 0x0 /f -->
+          <type>Registry</type>
+          <command>ADD</command>
+          <params>
+            <keyName>HKLM\SYSTEM\CurrentControlSet\Control\CrashControl</keyName>
+            <valueName>SendAlert</valueName>
+            <type>REG_DWORD</type>
+            <data>0</data>
+          </params>
+        </action>
+      </step>
+      <step name="Find My Device" description="Turn off find my device." category="recommended" defaultSelected="true">
+        <action>
+          <!-- reg ADD "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Settings\FindMyDevice" /v LocationSyncEnabled  /t REG_DWORD /d 0 /f -->
+          <type>Registry</type>
+          <command>ADD</command>
+          <params>
+            <keyName>HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Settings\FindMyDevice</keyName>
+            <valueName>LocationSyncEnabled </valueName>
+            <type>REG_DWORD</type>
+            <data>0</data>
+          </params>
+        </action>
+      </step>
+      <step name="IE Wizard - Disable" description="Removes the customization wizard upon first launch of Internet Explorer" category="recommended" defaultSelected="true">
+        <action>
+          <!-- reg ADD "HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Internet Explorer\Main" /v DisableFirstRunCustomize /t REG_DWORD /d 0x1 /f -->
+          <type>Registry</type>
+          <command>ADD</command>
+          <params>
+            <keyName>HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Internet Explorer\Main</keyName>
+            <valueName>DisableFirstRunCustomize</valueName>
+            <type>REG_DWORD</type>
+            <data>1</data>
+          </params>
+        </action>
+      </step>
+      <step name="Increase Service Startup Timeout" description="Allows up to 120 seconds before timing out waiting for a service" category="recommended" defaultSelected="true">
+        <action>
+          <!-- reg Add "HKLM\System\CurrentControlSet\Control" /v ServicesPipeTimeout /t REG_DWORD /d 120000 /f -->
+          <type>Registry</type>
+          <command>ADD</command>
+          <params>
+            <keyName>HKLM\System\CurrentControlSet\Control</keyName>
+            <valueName>ServicesPipeTimeout</valueName>
+            <type>REG_DWORD</type>
+            <data>120000</data>
+          </params>
+        </action>
+      </step>
+      <step name="IPv6 - Disable " description="Disable IPv6" category="optional" defaultSelected="true">
+        <action>
+          <!-- reg Add "HKLM\SYSTEM\CurrentControlSet\Services\Tcpip6\Parameters" /v DisabledComponents /t REG_DWORD /d 0xff /f -->
+          <type>Registry</type>
+          <command>ADD</command>
+          <params>
+            <keyName>HKLM\SYSTEM\CurrentControlSet\Services\Tcpip6\Parameters</keyName>
+            <valueName>DisabledComponents</valueName>
+            <type>REG_DWORD</type>
+            <data>255</data>
+          </params>
+        </action>
+      </step>
+      <step name="Lock Screen" description="Disable new lock screen" category="optional" defaultSelected="true" runOnOs="16">
+        <action>
+          <!-- reg ADD "HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows\Personalization" /v NoLockScreen /t REG_DWORD /d 0x00000001 /f -->
+          <type>Registry</type>
+          <command>ADD</command>
+          <params>
+            <keyName>HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows\Personalization</keyName>
+            <valueName>NoLockScreen</valueName>
+            <type>REG_DWORD</type>
+            <data>1</data>
+          </params>
+        </action>
+      </step>
+      <step name="Network Location" description="Creates a blank key that disables the &quot;Choose default network location&quot; prompt." category="recommended" defaultSelected="true">
+        <action>
+          <!-- reg ADD "HKEY_LOCAL_MACHINE\System\CurrentControlSet\Control\Network\NewNetworkWindowOff" /f -->
+          <type>Registry</type>
+          <command>ADD</command>
+          <params>
+            <keyName>HKEY_LOCAL_MACHINE\System\CurrentControlSet\Control\Network\NewNetworkWindowOff</keyName>
+          </params>
+        </action>
+      </step>
+      <step name="Notification Center" description="Disable Notification Center" category="recommended" defaultSelected="true" runOnOs="16">
+        <action>
+          <!-- reg ADD "HKEY_LOCAL_MACHINE\Software\Microsoft\Windows\CurrentVersion\ImmersiveShell" /v UseActionCenterExperience /t REG_DWORD /d 0x00000000 /f -->
+          <type>Registry</type>
+          <command>ADD</command>
+          <params>
+            <keyName>HKEY_LOCAL_MACHINE\Software\Microsoft\Windows\CurrentVersion\ImmersiveShell</keyName>
+            <valueName>UseActionCenterExperience</valueName>
+            <type>REG_DWORD</type>
+            <data>0</data>
+          </params>
+        </action>
+      </step>
+      <step name="Previous Versions Capability" description="Remove previous versions capability" category="optional" defaultSelected="false">
+        <action>
+          <!-- reg ADD "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer" /v NoPreviousVersionsPage /t REG_DWORD /d 0x00000001 /f -->
+          <type>Registry</type>
+          <command>ADD</command>
+          <params>
+            <keyName>HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer</keyName>
+            <valueName>NoPreviousVersionsPage</valueName>
+            <type>REG_DWORD</type>
+            <data>1</data>
+          </params>
+        </action>
+      </step>
+      <step name="Send Settings To Cloud" description="Disable send settings to cloud" category="recommended" defaultSelected="true" runOnOs="16">
+        <action>
+          <!-- reg ADD "HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows\SettingSync" /v DisableSettingSync /t REG_DWORD /d 0x00000002 /f -->
+          <type>Registry</type>
+          <command>ADD</command>
+          <params>
+            <keyName>HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows\SettingSync</keyName>
+            <valueName>DisableSettingSync</valueName>
+            <type>REG_DWORD</type>
+            <data>2</data>
+          </params>
+        </action>
+      </step>
+      <step name="Send Windows Updates" description="Disable using your machine for sending windows updates to others" category="recommended" defaultSelected="true" runOnOs="16">
+        <action>
+          <!-- reg ADD "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\DeliveryOptimization\Config" /v DownloadMode /t REG_DWORD /d 0x00000000 /f -->
+          <type>Registry</type>
+          <command>ADD</command>
+          <params>
+            <keyName>HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\DeliveryOptimization\Config</keyName>
+            <valueName>DownloadMode</valueName>
+            <type>REG_DWORD</type>
+            <data>0</data>
+          </params>
+        </action>
+      </step>
+      <step name="Sync Files To OneDrive" description="Disable synchronizing files to onedrive" category="recommended" defaultSelected="true" runOnOs="16">
+        <action>
+          <!-- reg ADD "HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows\OneDrive" /v DisableFileSyncNGSC /t REG_DWORD /d 0x00000001 /f -->
+          <type>Registry</type>
+          <command>ADD</command>
+          <params>
+            <keyName>HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows\OneDrive</keyName>
+            <valueName>DisableFileSyncNGSC</valueName>
+            <type>REG_DWORD</type>
+            <data>1</data>
+          </params>
+        </action>
+      </step>
+      <step name="Synchronizing Files" description="Disable synchronizing files to cloud" category="recommended" defaultSelected="true" runOnOs="16">
+        <action>
+          <!-- reg ADD "HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows\SettingSync" /v DisableSettingSyncUserOverride /t REG_DWORD /d 0x00000001 /f -->
+          <type>Registry</type>
+          <command>ADD</command>
+          <params>
+            <keyName>HKEY_LOCAL_MACHINE\SOFTWARE\SOFTWARE\Policies\Microsoft\Windows\SettingSync</keyName>
+            <valueName>DisableSettingSyncUserOverride</valueName>
+            <type>REG_DWORD</type>
+            <data>1</data>
+          </params>
+        </action>
+      </step>
+      <step name="Telemetry Collection" description="Disable Telemetry Collection" category="recommended" defaultSelected="true" runOnOs="16">
+        <action>
+          <!-- reg ADD "HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows\DataCollection" /v AllowTelemetry /t REG_DWORD /d 0x00000000 /f -->
+          <type>Registry</type>
+          <command>ADD</command>
+          <params>
+            <keyName>HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows\DataCollection</keyName>
+            <valueName>AllowTelemetry</valueName>
+            <type>REG_DWORD</type>
+            <data>0</data>
+          </params>
+        </action>
+      </step>
+      <step name="Turn off hard disk after" description="Remove turn off hard disk after" category="recommended" defaultSelected="true">
+        <action>
+          <!-- reg ADD "HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\Power\PowerSettings\0012ee47-9041-4b5d-9b77-535fba8b1442\6738e2c4-e8a5-4a42-b16a-e040e769756e" /v Attributes  /t REG_DWORD /d 0x00000001 /f -->
+          <type>Registry</type>
+          <command>ADD</command>
+          <params>
+            <keyName>HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\Power\PowerSettings\0012ee47-9041-4b5d-9b77-535fba8b1442\6738e2c4-e8a5-4a42-b16a-e040e769756e</keyName>
+            <valueName>Attributes</valueName>
+            <type>REG_DWORD</type>
+            <data>1</data>
+          </params>
+        </action>
+      </step>
+      <step name="Wi-Fi Sense" description="Turn off Automatically connect to suggested open hotspots." category="recommended" defaultSelected="true" runOnOs="16">
+        <action>
+          <!-- reg ADD "HKLM\Software\Microsoft\wcmsvc\wifinetworkmanager\config" /v AutoConnectAllowedOEM /t REG_DWORD /d 0 /f -->
+          <type>Registry</type>
+          <command>ADD</command>
+          <params>
+            <keyName>HKLM\Software\Microsoft\wcmsvc\wifinetworkmanager\config</keyName>
+            <valueName>AutoConnectAllowedOEM</valueName>
+            <type>REG_DWORD</type>
+            <data>0</data>
+          </params>
+        </action>
+      </step>
+      <step name="Windows Error Reports" description="Disable send additional info with error reports" category="recommended" defaultSelected="true">
+        <action>
+          <!-- reg ADD "HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows\Windows Error Reporting" /v DontSendAdditionalData /t REG_DWORD /d 0x00000001 /f -->
+          <type>Registry</type>
+          <command>ADD</command>
+          <params>
+            <keyName>HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows\Windows Error Reporting</keyName>
+            <valueName>DontSendAdditionalData</valueName>
+            <type>REG_DWORD</type>
+            <data>1</data>
+          </params>
+        </action>
+      </step>
+      <step name="Windows Update - Disable" description="Disable Automatic Update - important for non persistent VMs" category="recommended" defaultSelected="true">
+        <action>
+          <!-- reg ADD "HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate\AU" /v NoAutoUpdate /t REG_DWORD /d 0x1 /f -->
+          <type>Registry</type>
+          <command>ADD</command>
+          <params>
+            <keyName>HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate\AU</keyName>
+            <valueName>NoAutoUpdate</valueName>
+            <type>REG_DWORD</type>
+            <data>1</data>
+          </params>
+        </action>
+      </step>
+    </group>
+    <group name="Disable Features" description="Disable Features">
+      <step name="Hard disk timeouts on ac power" description="Disable hard disk timeouts on ac power." category="recommended" defaultSelected="true">
+        <action>
+          <!-- ShellExecute powercfg -change -disk-timeout-ac 0 -->
+          <type>ShellExecute</type>
+          <command>powercfg -change -disk-timeout-ac 0</command>
+        </action>
+      </step>
+      <step name="Hard disk timeouts on dc power" description="Disable hard disk timeouts on dc power." category="recommended" defaultSelected="true">
+        <action>
+          <!-- ShellExecute powercfg -change -disk-timeout-dc 0 -->
+          <type>ShellExecute</type>
+          <command>powercfg -change -disk-timeout-dc 0</command>
+        </action>
+      </step>
+      <step name="Hibernation for Power Config" description="Disable Hibernation for Power Config" category="recommended" defaultSelected="true">
+        <action>
+          <!-- ShellExecute powercfg /h off -->
+          <type>ShellExecute</type>
+          <command>powercfg -H OFF</command>
+        </action>
+      </step>
+      <step name="Last Access Timestamp" description="Disable Last Access Timestamp" category="optional" defaultSelected="true">
+        <action>
+          <!-- ShellExecute fsutil behavior set DisableLastAccess 1 -->
+          <type>ShellExecute</type>
+          <command>fsutil behavior set DisableLastAccess 1</command>
+        </action>
+      </step>
+      <step name="Monitor timeouts on ac power" description="Disable Monitor timeouts on ac power." category="recommended" defaultSelected="true">
+        <action>
+          <!-- ShellExecute powercfg -change -monitor-timeout-ac 0 -->
+          <type>ShellExecute</type>
+          <command>powercfg -change -monitor-timeout-ac 0</command>
+        </action>
+      </step>
+      <step name="Monitor timeouts on dc power" description="Disable monitor timeouts on dc power." category="recommended" defaultSelected="true">
+        <action>
+          <!-- ShellExecute powercfg -change -monitor-timeout-dc 0 -->
+          <type>ShellExecute</type>
+          <command>powercfg -change -monitor-timeout-dc 0</command>
+        </action>
+      </step>
+      <step name="System Restore" description="Powershell command to immediately disable system restore" category="recommended" defaultSelected="true">
+        <action>
+          <!-- ShellExecute Powershell disable-computerrestore -drive c:\ -->
+          <type>ShellExecute</type>
+          <command>Powershell disable-computerrestore -drive c:\</command>
+        </action>
+      </step>
+      <step name="Windows Store" description="Disable Windows Store" category="recommended" defaultSelected="true">
+        <action>
+          <!-- reg ADD "HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\WindowsStore" /v RemoveWindowsStore /t REG_DWORD /d 0x1 /f -->
+          <type>Registry</type>
+          <command>ADD</command>
+          <params>
+            <keyName>HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\WindowsStore</keyName>
+            <valueName>RemoveWindowsStore</valueName>
+            <type>REG_DWORD</type>
+            <data>1</data>
+          </params>
+        </action>
+      </step>
+      <step name="Xps-Foundation" description="Powershell command to immediately disable Xps-Foundation" category="optional" defaultSelected="true">
+        <action>
+          <!-- ShellExecute Powershell Dism /online /Disable-Feature /FeatureName:Xps-Foundation-Xps-Viewer /NoRestart -->
+          <type>ShellExecute</type>
+          <command>Powershell Dism /online /Disable-Feature /FeatureName:Xps-Foundation-Xps-Viewer /NoRestart</command>
+        </action>
+      </step>
+    </group>
+    <group name="Disable Scheduled Tasks" description="Disable Scheduled Tasks">
+      <step name="AppID - SmartScreenSpecific" description="Disable AppID - SmartScreenSpecific" category="recommended" defaultSelected="true" runOnOs="16">
+        <action>
+          <!-- schtasks /change /tn "Microsoft\Windows\AppID\SmartScreenSpecific" /disable -->
+          <type>SchTasks</type>
+          <params>
+            <taskName>Microsoft\Windows\AppID\SmartScreenSpecific</taskName>
+            <status>DISABLED</status>
+          </params>
+        </action>
+      </step>
+      <step name="Application Experience - Microsoft Compatibility Appraiser" description="Disable Application Experience - Microsoft Compatibility Appraiser" category="recommended" defaultSelected="true">
+        <action>
+          <!-- schtasks /change /tn "Microsoft\Windows\Application Experience\Microsoft Compatibility Appraiser" /disable -->
+          <type>SchTasks</type>
+          <params>
+            <taskName>Microsoft\Windows\Application Experience\Microsoft Compatibility Appraiser</taskName>
+            <status>DISABLED</status>
+          </params>
+        </action>
+      </step>
+      <step name="Application Experience - ProgramDataUpdator" description="Disable Application Experience - ProgramDataUpdator" category="recommended" defaultSelected="true">
+        <action>
+          <!-- schtasks /change /tn "Microsoft\Windows\Application Experience\ProgramDataUpdater" /disable -->
+          <type>SchTasks</type>
+          <params>
+            <taskName>Microsoft\Windows\Application Experience\ProgramDataUpdater</taskName>
+            <status>DISABLED</status>
+          </params>
+        </action>
+      </step>
+      <step name="Application Experience - StartupAppTask" description="Disable Application Experience - StartupAppTask" category="recommended" defaultSelected="true">
+        <action>
+          <!-- schtasks /change /tn "Microsoft\Windows\Application Experience\StartupAppTask" /disable -->
+          <type>SchTasks</type>
+          <params>
+            <taskName>Microsoft\Windows\Application Experience\StartupAppTask</taskName>
+            <status>DISABLED</status>
+          </params>
+        </action>
+      </step>
+      <step name="Autochk - Proxy" description="Disable Autochk - Proxy" category="recommended" defaultSelected="true">
+        <action>
+          <!-- schtasks /change /tn "Microsoft\Windows\Autochk\Proxy" /disable -->
+          <type>SchTasks</type>
+          <params>
+            <taskName>Microsoft\Windows\Autochk\Proxy</taskName>
+            <status>DISABLED</status>
+          </params>
+        </action>
+      </step>
+      <step name="Chkdsk - ProactiveScan" description="Disable Chkdsk - ProactiveScan" category="recommended" defaultSelected="true">
+        <action>
+          <!-- schtasks /change /tn "Microsoft\Windows\Chkdsk\ProactiveScan" /disable -->
+          <type>SchTasks</type>
+          <params>
+            <taskName>Microsoft\Windows\Chkdsk\ProactiveScan</taskName>
+            <status>DISABLED</status>
+          </params>
+        </action>
+      </step>
+      <step name="CloudExperienceHost - CreateObjectTask" description="Disable CloudExperienceHost - CreateObjectTask" category="recommended" defaultSelected="false" runOnOs="16">
+        <action>
+          <!-- schtasks /change /tn "Microsoft\Windows\CloudExperienceHost\CreateObjectTask" /disable -->
+          <type>SchTasks</type>
+          <params>
+            <taskName>Microsoft\Windows\CloudExperienceHost\CreateObjectTask</taskName>
+            <status>DISABLED</status>
+          </params>
+        </action>
+      </step>
+      <step name="CEIP Consolidator" description="Disable Customer Exeprience Improvement Program (CEIP) scheduled task" category="recommended" defaultSelected="true">
+        <action>
+          <!-- schtasks /change /tn "Microsoft\Windows\Customer Experience Improvement Program\Consolidator" /disable -->
+          <type>SchTasks</type>
+          <params>
+            <taskName>Microsoft\Windows\Customer Experience Improvement Program\Consolidator</taskName>
+            <status>DISABLED</status>
+          </params>
+        </action>
+      </step>
+      <step name="CEIP Kernel" description="Disable Customer Exeprience Improvement Program (CEIP) scheduled task" category="recommended" defaultSelected="true">
+        <action>
+          <!-- schtasks /change /tn "Microsoft\Windows\Customer Experience Improvement Program\KernelCeipTask" /disable -->
+          <type>SchTasks</type>
+          <params>
+            <taskName>Microsoft\Windows\Customer Experience Improvement Program\KernelCeipTask</taskName>
+            <status>DISABLED</status>
+          </params>
+        </action>
+      </step>
+      <step name="CEIP Usb" description="Disable Customer Exeprience Improvement Program (CEIP) scheduled task" category="recommended" defaultSelected="true">
+        <action>
+          <!-- schtasks /change /tn "Microsoft\Windows\Customer Experience Improvement Program\UsbCeip" /disable -->
+          <type>SchTasks</type>
+          <params>
+            <taskName>Microsoft\Windows\Customer Experience Improvement Program\UsbCeip</taskName>
+            <status>DISABLED</status>
+          </params>
+        </action>
+      </step>
+      <step name="Defrag Schedule" description="Disable Defrag Schedule" category="recommended" defaultSelected="true">
+        <action>
+          <!-- schtasks /change /TN "\Microsoft\Windows\Defrag\ScheduledDefrag" /Disable -->
+          <type>SchTasks</type>
+          <params>
+            <taskName>Microsoft\Windows\Defrag\ScheduledDefrag</taskName>
+            <status>DISABLED</status>
+          </params>
+        </action>
+      </step>
+      <step name="Diagnosis - Scheduled" description="Disable Diagnosis - Scheduled" category="recommended" defaultSelected="true">
+        <action>
+          <!-- schtasks /change /TN "\Microsoft\Windows\Diagnosis\Scheduled" /Disable -->
+          <type>SchTasks</type>
+          <params>
+            <taskName>Microsoft\Windows\Diagnosis\Scheduled</taskName>
+            <status>DISABLED</status>
+          </params>
+        </action>
+      </step>
+      <step name="DiskCleanup - SilentCleanup" description="Disable DiskCleanup - SilentCleanup" category="recommended" defaultSelected="true">
+        <action>
+          <!-- schtasks /change /TN "\Microsoft\Windows\DiskCleanup\SilentCleanup" /Disable -->
+          <type>SchTasks</type>
+          <params>
+            <taskName>Microsoft\Windows\DiskCleanup\SilentCleanup</taskName>
+            <status>DISABLED</status>
+          </params>
+        </action>
+      </step>
+      <step name="DiskDiagnostic - DataCollector" description="Disable DiskDiagnostic - DataCollector" category="recommended" defaultSelected="true">
+        <action>
+          <!-- schtasks /change /TN "\Microsoft\Windows\DiskDiagnostic\Microsoft-Windows-DiskDiagnosticDataCollector" /Disable -->
+          <type>SchTasks</type>
+          <params>
+            <taskName>Microsoft\Windows\DiskDiagnostic\Microsoft-Windows-DiskDiagnosticDataCollector</taskName>
+            <status>DISABLED</status>
+          </params>
+        </action>
+      </step>
+      <step name="DiskDiagnostic - Resolver" description="Disable DiskDiagnostic - Resolver" category="recommended" defaultSelected="true">
+        <action>
+          <!-- schtasks /change /TN "\Microsoft\Windows\DiskDiagnostic\Microsoft-Windows-DiskDiagnosticResolver" /Disable -->
+          <type>SchTasks</type>
+          <params>
+            <taskName>Microsoft\Windows\DiskDiagnostic\Microsoft-Windows-DiskDiagnosticResolver</taskName>
+            <status>DISABLED</status>
+          </params>
+        </action>
+      </step>
+      <step name="DmClient" description="Disable DmClient" category="recommended" defaultSelected="true" runOnOs="16">
+        <action>
+          <!-- schtasks /change /TN "\Microsoft\Windows\Feedback\Siuf\DmClient" /Disable -->
+          <type>SchTasks</type>
+          <params>
+            <taskName>Microsoft\Windows\Feedback\Siuf\DmClient</taskName>
+            <status>DISABLED</status>
+          </params>
+        </action>
+      </step>
+      <step name="FileHistory - File History" description="Disable FileHistory - File History" category="recommended" defaultSelected="true">
+        <action>
+          <!-- schtasks /change /TN "\Microsoft\Windows\FileHistory\File History (maintenance mode)" /Disable -->
+          <type>SchTasks</type>
+          <params>
+            <taskName>Microsoft\Windows\FileHistory\File History (maintenance mode)</taskName>
+            <status>DISABLED</status>
+          </params>
+        </action>
+      </step>
+      <step name="Location - Notifications" description="Disable Location - Notifications" category="recommended" defaultSelected="true">
+        <action>
+          <!-- schtasks /change /TN "\Microsoft\Windows\Location\Notifications" /Disable -->
+          <type>SchTasks</type>
+          <params>
+            <taskName>Microsoft\Windows\Location\Notifications</taskName>
+            <status>DISABLED</status>
+          </params>
+        </action>
+      </step>
+      <step name="Location - WindowsActionDialog " description="Disable Location - WindowsActionDialog " category="recommended" defaultSelected="true">
+        <action>
+          <!-- schtasks /change /TN "\Microsoft\Windows\Location\WindowsActionDialog" /Disable -->
+          <type>SchTasks</type>
+          <params>
+            <taskName>Microsoft\Windows\Location\WindowsActionDialog</taskName>
+            <status>DISABLED</status>
+          </params>
+        </action>
+      </step>
+      <step name="Maintenance - WinSAT" description="Disable Maintenance - WinSAT" category="recommended" defaultSelected="true">
+        <action>
+          <!-- schtasks /change /TN "\Microsoft\Windows\Maintenance\WinSAT" /Disable -->
+          <type>SchTasks</type>
+          <params>
+            <taskName>Microsoft\Windows\Maintenance\WinSAT</taskName>
+            <status>DISABLED</status>
+          </params>
+        </action>
+      </step>
+      <step name="Maps - MapsToastTask" description="Disable Maps - MapsToastTask" category="recommended" defaultSelected="true" runOnOs="16">
+        <action>
+          <!-- schtasks /change /TN "\Microsoft\Windows\Maps\MapsToastTask" /Disable -->
+          <type>SchTasks</type>
+          <params>
+            <taskName>Microsoft\Windows\Maps\MapsToastTask</taskName>
+            <status>DISABLED</status>
+          </params>
+        </action>
+      </step>
+      <step name="Maps - MapsUpdateTask" description="Disable Maps - MapsUpdateTask" category="recommended" defaultSelected="true" runOnOs="16">
+        <action>
+          <!-- schtasks /change /TN "\Microsoft\Windows\Maps\MapsUpdateTask" /Disable -->
+          <type>SchTasks</type>
+          <params>
+            <taskName>Microsoft\Windows\Maps\MapsUpdateTask</taskName>
+            <status>DISABLED</status>
+          </params>
+        </action>
+      </step>
+      <step name="MemoryDiagnostic - ProcessMemoryDiagnosticEvents" description="Disable MemoryDiagnostic - ProcessMemoryDiagnosticEvents" category="recommended" defaultSelected="true" runOnOs="16">
+        <action>
+          <!-- schtasks /change /TN "\Microsoft\Windows\MemoryDiagnostic\ProcessMemoryDiagnosticEvents" /Disable -->
+          <type>SchTasks</type>
+          <params>
+            <taskName>Microsoft\Windows\MemoryDiagnostic\ProcessMemoryDiagnosticEvents</taskName>
+            <status>DISABLED</status>
+          </params>
+        </action>
+      </step>
+      <step name="MemoryDiagnostic - RunFullMemoryDiagnostic" description="Disable MemoryDiagnostic - RunFullMemoryDiagnostic" category="recommended" defaultSelected="true" runOnOs="16">
+        <action>
+          <!-- schtasks /change /TN "\Microsoft\Windows\MemoryDiagnostic\RunFullMemoryDiagnostic" /Disable -->
+          <type>SchTasks</type>
+          <params>
+            <taskName>Microsoft\Windows\MemoryDiagnostic\RunFullMemoryDiagnostic</taskName>
+            <status>DISABLED</status>
+          </params>
+        </action>
+      </step>
+      <step name="Mobile Broadband Accounts - MNO Metadata Parser" description="Disable Mobile Broadband Accounts - MNO Metadata Parser" category="recommended" defaultSelected="true">
+        <action>
+          <!-- schtasks /change /TN "\Microsoft\Windows\Mobile Broadband Accounts\MNO Metadata Parse" /Disable -->
+          <type>SchTasks</type>
+          <params>
+            <taskName>Microsoft\Windows\Mobile Broadband Accounts\MNO Metadata Parser</taskName>
+            <status>DISABLED</status>
+          </params>
+        </action>
+      </step>
+      <step name="Power Efficiency Diagnostics - AnalyzeSystem" description="Disable Power Efficiency Diagnostics - AnalyzeSystem" category="recommended" defaultSelected="true">
+        <action>
+          <!-- schtasks /change /TN "\Microsoft\Windows\Power Efficiency Diagnostics\AnalyzeSystem" /Disable -->
+          <type>SchTasks</type>
+          <params>
+            <taskName>Microsoft\Windows\Power Efficiency Diagnostics\AnalyzeSystem</taskName>
+            <status>DISABLED</status>
+          </params>
+        </action>
+      </step>
+      <step name="Ras - MobilityManager" description="Disable Ras - MobilityManager" category="recommended" defaultSelected="true">
+        <action>
+          <!-- schtasks /change /TN "\Microsoft\Windows\Ras\MobilityManager" /Disable -->
+          <type>SchTasks</type>
+          <params>
+            <taskName>Microsoft\Windows\Ras\MobilityManager</taskName>
+            <status>DISABLED</status>
+          </params>
+        </action>
+      </step>
+      <step name="RecoveryEnvironment - VerifyWinRE" description="Disable RecoveryEnvironment - VerifyWinRE" category="recommended" defaultSelected="true">
+        <action>
+          <!-- schtasks /change /TN "\Microsoft\Windows\RecoveryEnvironment\VerifyWinRE" /Disable -->
+          <type>SchTasks</type>
+          <params>
+            <taskName>Microsoft\Windows\RecoveryEnvironment\VerifyWinRE</taskName>
+            <status>DISABLED</status>
+          </params>
+        </action>
+      </step>
+      <step name="Registry Idle Backup Task" description="Disable Registry Idle Backup Task" category="recommended" defaultSelected="true">
+        <action>
+          <!-- schtasks /change /TN "\Microsoft\Windows\Registry\RegIdleBackup" /Disable -->
+          <type>SchTasks</type>
+          <params>
+            <taskName>Microsoft\Windows\Registry\RegIdleBackup</taskName>
+            <status>DISABLED</status>
+          </params>
+        </action>
+      </step>
+      <step name="RetailDemo - CleanupOfflineContent" description="Disable RetailDemo - CleanupOfflineContent" category="recommended" defaultSelected="true">
+        <action>
+          <!-- schtasks /change /TN "\Microsoft\Windows\RetailDemo\CleanupOfflineContent" /Disable -->
+          <type>SchTasks</type>
+          <params>
+            <taskName>Microsoft\Windows\RetailDemo\CleanupOfflineContent</taskName>
+            <status>DISABLED</status>
+          </params>
+        </action>
+      </step>
+      <step name="Servicing - StartComponentCleanup" description="Disable Servicing - StartComponentCleanup" category="recommended" defaultSelected="true">
+        <action>
+          <!-- schtasks /change /TN "\Microsoft\Windows\Servicing\StartComponentCleanup" /Disable -->
+          <type>SchTasks</type>
+          <params>
+            <taskName>Microsoft\Windows\Servicing\StartComponentCleanup</taskName>
+            <status>DISABLED</status>
+          </params>
+        </action>
+      </step>
+      <step name="Shell - FamilySafetyMonitor" description="Disable Shell - FamilySafetyMonitor" category="recommended" defaultSelected="true">
+        <action>
+          <!-- schtasks /change /TN "\Microsoft\Windows\Shell\FamilySafetyMonitor" /Disable -->
+          <type>SchTasks</type>
+          <params>
+            <taskName>Microsoft\Windows\Shell\FamilySafetyMonitor</taskName>
+            <status>DISABLED</status>
+          </params>
+        </action>
+      </step>
+      <step name="Shell - FamilySafetyRefreshTask" description="Disable Shell - FamilySafetyRefreshTask" category="recommended" defaultSelected="true">
+        <action>
+          <!-- schtasks /change /TN "\Microsoft\Windows\Shell\FamilySafetyRefreshTask" /Disable -->
+          <type>SchTasks</type>
+          <params>
+            <taskName>Microsoft\Windows\Shell\FamilySafetyRefreshTask</taskName>
+            <status>DISABLED</status>
+          </params>
+        </action>
+      </step>
+      <step name="Shell - IndexerAutomaticMaintenance" description="Disable Shell - IndexerAutomaticMaintenance" category="recommended" defaultSelected="true">
+        <action>
+          <!-- schtasks /change /TN "\Microsoft\Windows\Shell\IndexerAutomaticMaintenance" /Disable -->
+          <type>SchTasks</type>
+          <params>
+            <taskName>Microsoft\Windows\Shell\IndexerAutomaticMaintenance</taskName>
+            <status>DISABLED</status>
+          </params>
+        </action>
+      </step>
+      <step name="System Restore Schedule" description="Disable System Restore Schedule" category="optional" defaultSelected="true">
+        <action>
+          <!-- schtasks /change /TN "\Microsoft\Windows\SystemRestore\SR" /Disable -->
+          <type>SchTasks</type>
+          <params>
+            <taskName>Microsoft\Windows\SystemRestore\SR</taskName>
+            <status>DISABLED</status>
+          </params>
+        </action>
+      </step>
+      <step name="TPM - Tpm-Maintenance" description="Disable TPM - Tpm-Maintenance" category="recommended" defaultSelected="true">
+        <action>
+          <!-- schtasks /change /TN "\Microsoft\Windows\TPM\Tpm-Maintenance" /Disable -->
+          <type>SchTasks</type>
+          <params>
+            <taskName>Microsoft\Windows\TPM\Tpm-Maintenance</taskName>
+            <status>DISABLED</status>
+          </params>
+        </action>
+      </step>
+      <step name="UPnP - UPnPHostConfig" description="Disable UPnP - UPnPHostConfig" category="recommended" defaultSelected="true">
+        <action>
+          <!-- schtasks /change /TN "\Microsoft\Windows\UPnP\UPnPHostConfig" /Disable -->
+          <type>SchTasks</type>
+          <params>
+            <taskName>Microsoft\Windows\UPnP\UPnPHostConfig</taskName>
+            <status>DISABLED</status>
+          </params>
+        </action>
+      </step>
+      <step name="WDI - ResolutionHost" description="Disable WDI - ResolutionHost" category="recommended" defaultSelected="true">
+        <action>
+          <!-- schtasks /change /TN "\Microsoft\Windows\WDI\ResolutionHost" /Disable -->
+          <type>SchTasks</type>
+          <params>
+            <taskName>Microsoft\Windows\WDI\ResolutionHost</taskName>
+            <status>DISABLED</status>
+          </params>
+        </action>
+      </step>
+      <step name="Windows Defender Cache Maintenance" description="Disable Windows Defender Cache Maintenance" category="recommended" defaultSelected="true">
+        <action>
+          <!-- schtasks /change /TN "\Microsoft\Windows\Windows Defender\Windows Defender Cache Maintenance" /Disable -->
+          <type>SchTasks</type>
+          <params>
+            <taskName>Microsoft\Windows\Windows Defender\Windows Defender Cache Maintenance</taskName>
+            <status>DISABLED</status>
+          </params>
+        </action>
+      </step>
+      <step name="Windows Defender Cleanup" description="Disable Windows Defender Cleanup" category="recommended" defaultSelected="true">
+        <action>
+          <!-- schtasks /change /TN "\Microsoft\Windows\Windows Defender\Windows Defender Cleanup" /Disable -->
+          <type>SchTasks</type>
+          <params>
+            <taskName>Microsoft\Windows\Windows Defender\Windows Defender Cleanup</taskName>
+            <status>DISABLED</status>
+          </params>
+        </action>
+      </step>
+      <step name="Windows Defender Scheduled Scan" description="Disable Windows Defender Scheduled Scan" category="recommended" defaultSelected="true">
+        <action>
+          <!-- schtasks /change /TN "\Microsoft\Windows\Windows Defender\Windows Defender Scheduled Scan" /Disable -->
+          <type>SchTasks</type>
+          <params>
+            <taskName>Microsoft\Windows\Windows Defender\Windows Defender Scheduled Scan</taskName>
+            <status>DISABLED</status>
+          </params>
+        </action>
+      </step>
+      <step name="Windows Defender Verification" description="Disable Windows Defender Verification" category="recommended" defaultSelected="true">
+        <action>
+          <!-- schtasks /change /TN "\Microsoft\Windows\Windows Defender\Windows Defender Verification" /Disable -->
+          <type>SchTasks</type>
+          <params>
+            <taskName>Microsoft\Windows\Windows Defender\Windows Defender Verification</taskName>
+            <status>DISABLED</status>
+          </params>
+        </action>
+      </step>
+      <step name="Windows Error Reporting" description="Disable Windows Error Reporting" category="recommended" defaultSelected="true">
+        <action>
+          <!-- schtasks /change /TN "\Microsoft\Windows\Windows Error Reporting\QueueReporting" /Disable -->
+          <type>SchTasks</type>
+          <params>
+            <taskName>Microsoft\Windows\Windows Error Reporting\QueueReporting</taskName>
+            <status>DISABLED</status>
+          </params>
+        </action>
+      </step>
+      <step name="Windows Filtering Platform - BfeonServiceStartTypeChange" description="Disable BfeonServiceStartTypeChange" category="recommended" defaultSelected="true">
+        <action>
+          <!-- schtasks /change /TN "\Microsoft\Windows\Windows Filtering Platform\BfeonServiceStartTypeChange" /Disable -->
+          <type>SchTasks</type>
+          <params>
+            <taskName>Microsoft\Windows\Windows Filtering Platform\BfeonServiceStartTypeChange</taskName>
+            <status>DISABLED</status>
+          </params>
+        </action>
+      </step>
+      <step name="Windows Media Sharing - UpdateLibrary" description="Disable Windows Media Sharing - UpdateLibrary" category="recommended" defaultSelected="true">
+        <action>
+          <!-- schtasks /change /TN "\Microsoft\Windows\Windows Media Sharing\UpdateLibrary" /Disable -->
+          <type>SchTasks</type>
+          <params>
+            <taskName>Microsoft\Windows\Windows Media Sharing\UpdateLibrary</taskName>
+            <status>DISABLED</status>
+          </params>
+        </action>
+      </step>
+      <step name="WIM-Hash-Management" description="Disable WIM-Hash-Management" category="recommended" defaultSelected="true" runOnOs="16">
+        <action>
+          <!-- schtasks /change /TN "\Microsoft\Windows\WOF\WIM-Hash-Management" /Disable -->
+          <type>SchTasks</type>
+          <params>
+            <taskName>Microsoft\Windows\WOF\WIM-Hash-Management</taskName>
+            <status>DISABLED</status>
+          </params>
+        </action>
+      </step>
+      <step name="WIM-Hash-Validation" description="Disable WIM-Hash-Validation" category="recommended" defaultSelected="true" runOnOs="16">
+        <action>
+          <!-- schtasks /change /TN "\Microsoft\Windows\WOF\WIM-Hash-Validation" /Disable -->
+          <type>SchTasks</type>
+          <params>
+            <taskName>Microsoft\Windows\WOF\WIM-Hash-Validation</taskName>
+            <status>DISABLED</status>
+          </params>
+        </action>
+      </step>
+      <step name="rempl - shell" description="Disable rem.sh which reactivates Windows Updates" category="recommended" defaultSelected="true">
+        <action>
+          <type>SchTasks</type>
+          <params>
+            <taskName>Microsoft\Windows\rempl\shell</taskName>
+            <status>DISABLED</status>
+          </params>
+        </action>
+      </step>
+      <step name="rempl - shell-unlock" description="Disable rem.sh which reactivates Windows Updates" category="recommended" defaultSelected="true">
+        <action>
+          <type>SchTasks</type>
+          <params>
+            <taskName>Microsoft\Windows\rempl\shell-unlock</taskName>
+            <status>DISABLED</status>
+          </params>
+        </action>
+      </step>
+    </group>
+    <group name="Disable Services" description="Disable Services">
+      <step name="AllJoyn Router Service" description="Used for WiFi" category="recommended" defaultSelected="true" runOnOs="16">
+        <action>
+          <!-- Powershell Set-Service 'AJRouter' -startuptype "Disabled" -->
+          <type>Service</type>
+          <params>
+            <serviceName>AJRouter</serviceName>
+            <startMode>DISABLED</startMode>
+          </params>
+        </action>
+      </step>
+      <step name="Application Layer Gateway Service" description="Provides support for 3rd party protocol plug-ins for Internet Connection Sharing." category="optional" defaultSelected="false">
+        <action>
+          <!-- Powershell Set-Service 'ALG' -startuptype "Disabled" -->
+          <type>Service</type>
+          <params>
+            <serviceName>ALG</serviceName>
+            <startMode>DISABLED</startMode>
+          </params>
+        </action>
+      </step>
+      <step name="Background Intelligent Transfer Service" description="Transfers files in the background using idle network bandwidth. If the service is disabled, Windows Update and MSN Explorer cannot automatically download programs and other information." category="optional" defaultSelected="true">
+        <action>
+          <!-- Powershell Set-Service 'bits' -startuptype "Disabled" -->
+          <type>Service</type>
+          <params>
+            <serviceName>bits</serviceName>
+            <startMode>MANUAL</startMode>
+          </params>
+        </action>
+      </step>
+      <step name="Block Level Backup Engine Service" description="Used by Windows Backup" category="optional" defaultSelected="true">
+        <action>
+          <!-- Powershell Set-Service 'wbengine' -startuptype "Disabled" -->
+          <type>Service</type>
+          <params>
+            <serviceName>wbengine</serviceName>
+            <startMode>DISABLED</startMode>
+          </params>
+        </action>
+      </step>
+      <step name="Bluetooth Handsfree Service" description="Enables wireless Bluetooth headsets to run on this computer. If this service is stopped or disabled, then Bluetooth headsets will not function properly with this machine." category="optional" defaultSelected="true">
+        <action>
+          <!-- Powershell Set-Service 'BthHFSrv' -startuptype "Disabled" -->
+          <type>Service</type>
+          <params>
+            <serviceName>BthHFSrv</serviceName>
+            <startMode>DISABLED</startMode>
+          </params>
+        </action>
+      </step>
+      <step name="Bluetooth Support Service" description="The Bluetooth service supports discovery and association of remote Bluetooth devices." category="optional" defaultSelected="true">
+        <action>
+          <!-- Powershell Set-Service 'bthserv' -startuptype "Disabled" -->
+          <type>Service</type>
+          <params>
+            <serviceName>bthserv</serviceName>
+            <startMode>DISABLED</startMode>
+          </params>
+        </action>
+      </step>
+      <step name="Bitlocker Drive Encryption Service" description="Bitlocker service for drive encryption. Not recommended to encrypt VDI virtual machines." category="recommended" defaultSelected="true">
+        <action>
+          <!-- Powershell Set-Service 'BDESVC' -startuptype "Disabled" -->
+          <type>Service</type>
+          <params>
+            <serviceName>BDESVC</serviceName>
+            <startMode>DISABLED</startMode>
+          </params>
+        </action>
+      </step>
+      <step name="BranchCache" description="Used for caching files on server in a branch office." category="recommended" defaultSelected="true">
+        <action>
+          <!-- Powershell Set-Service 'PeerDistSvc' -startuptype "Disabled" -->
+          <type>Service</type>
+          <params>
+            <serviceName>PeerDistSvc</serviceName>
+            <startMode>DISABLED</startMode>
+          </params>
+        </action>
+      </step>
+      <step name="Delivery Optimization" description="Performs content delivery optimization tasks." category="recommended" defaultSelected="true">
+        <action>
+          <!-- Powershell Set-Service 'DoSvc' -startuptype "Disabled" -->
+          <type>Service</type>
+          <params>
+            <serviceName>DoSvc</serviceName>
+            <startMode>DISABLED</startMode>
+          </params>
+        </action>
+      </step>
+      <step name="Device Association Service" description="Enables pairing between the system and wired or wireless devices. Set it startup type to manual." category="recommended" defaultSelected="true">
+        <action>
+          <!-- Powershell Set-Service 'DeviceAssociationService' -startuptype "manual" -->
+          <type>Service</type>
+          <params>
+            <serviceName>DeviceAssociationService</serviceName>
+            <startMode>MANUAL</startMode>
+          </params>
+        </action>
+      </step>
+      <step name="Diagnostic Policy Service" description="Disable Diagnostic Policy Service" category="recommended" defaultSelected="true">
+        <action>
+          <!-- Powershell Set-Service 'DPS' -startuptype "Disabled" -->
+          <type>Service</type>
+          <params>
+            <serviceName>DPS</serviceName>
+            <startMode>DISABLED</startMode>
+          </params>
+        </action>
+      </step>
+      <step name="Diagnostic Service Host" description="Problem detection and troubleshooting resolution." category="recommended" defaultSelected="true">
+        <action>
+          <!-- Powershell Set-Service 'WdiServiceHost' -startuptype "Disabled" -->
+          <type>Service</type>
+          <params>
+            <serviceName>WdiServiceHost</serviceName>
+            <startMode>DISABLED</startMode>
+          </params>
+        </action>
+      </step>
+      <step name="Diagnostic System Host" description="Problem detection and troubleshooting resolution." category="recommended" defaultSelected="true">
+        <action>
+          <!-- Powershell Set-Service 'WdiSystemHost' -startuptype "Disabled" -->
+          <type>Service</type>
+          <params>
+            <serviceName>WdiSystemHost</serviceName>
+            <startMode>DISABLED</startMode>
+          </params>
+        </action>
+      </step>
+      <step name="Diagnostics Tracking Service" description="Data collection about functional issues in Windows components. Enabled with update https://support.microsoft.com/en-us/kb/3080149" category="recommended" defaultSelected="true">
+        <action>
+          <!-- Powershell Set-Service 'DiagTrack' -startuptype "Disabled" -->
+          <type>Service</type>
+          <params>
+            <serviceName>DiagTrack</serviceName>
+            <startMode>DISABLED</startMode>
+          </params>
+        </action>
+      </step>
+      <step name="Downloaded Maps Manager" description="Windows service for application access to downloaded maps. This service is started on-demand by application accessing downloaded maps. Disabling this service will prevent apps from accessing maps." category="recommended" defaultSelected="true">
+        <action>
+          <!-- Powershell Set-Service 'MapsBroker' -startuptype "Disabled" -->
+          <type>Service</type>
+          <params>
+            <serviceName>MapsBroker</serviceName>
+            <startMode>DISABLED</startMode>
+          </params>
+        </action>
+      </step>
+      <step name="Fax" description="Enables you to send and receive faxes, utilizing fax resources available on this computer or on the network." category="optional" defaultSelected="true">
+        <action>
+          <!-- Powershell Set-Service 'Fax' -startuptype "Disabled" -->
+          <type>Service</type>
+          <params>
+            <serviceName>Fax</serviceName>
+            <startMode>DISABLED</startMode>
+          </params>
+        </action>
+      </step>
+      <step name="Function Discovery Resource Publication" description="Publishes his computer and resources attached to this computer so they can be discovered over the network." category="recommended" defaultSelected="true">
+        <action>
+          <!-- Powershell Set-Service 'FDResPub' -startuptype "Disabled" -->
+          <type>Service</type>
+          <params>
+            <serviceName>FDResPub</serviceName>
+            <startMode>DISABLED</startMode>
+          </params>
+        </action>
+      </step>
+      <step name="HomeGroup Listener" description="Used for Homegroup services - N/A for VDI" category="recommended" defaultSelected="true">
+        <action>
+          <!-- Powershell Set-Service 'HomeGroupListener' -startuptype "Disabled" -->
+          <type>Service</type>
+          <params>
+            <serviceName>HomeGroupListener</serviceName>
+            <startMode>DISABLED</startMode>
+          </params>
+        </action>
+      </step>
+      <step name="HomeGroup Provider" description="Used for Homegroup services - N/A for VDI" category="mandatory" defaultSelected="true">
+        <action>
+          <!-- Powershell Set-Service 'HomeGroupProvider' -startuptype "Disabled" -->
+          <type>Service</type>
+          <params>
+            <serviceName>HomeGroupProvider</serviceName>
+            <startMode>DISABLED</startMode>
+          </params>
+        </action>
+      </step>
+      <step name="Internet Connection Sharing (ICS)" description="Provides network address translation, addressing, name resolution and/or intrusion prevention services for a home or small office network." category="optional" defaultSelected="true">
+        <action>
+          <!-- Powershell Set-Service 'SharedAccess' -startuptype "Disabled" -->
+          <type>Service</type>
+          <params>
+            <serviceName>SharedAccess</serviceName>
+            <startMode>DISABLED</startMode>
+          </params>
+        </action>
+      </step>
+      <step name="IP Helper" description="Disable if IPv6 is not a factor in VDI" category="optional" defaultSelected="true">
+        <action>
+          <!-- Powershell Set-Service 'iphlpsvc' -startuptype "Disabled" -->
+          <type>Service</type>
+          <params>
+            <serviceName>iphlpsvc</serviceName>
+            <startMode>DISABLED</startMode>
+          </params>
+        </action>
+      </step>
+      <step name="Microsoft (R) Diagnostics Hub Standard Collector Service" description="Diagnostics Hub Standard Collector Service. When running, this service collects real time ETW events and processes them." category="optional" defaultSelected="true">
+        <action>
+          <!-- Powershell Set-Service 'diagnosticshub.standardcollector.service' -startuptype "Disabled" -->
+          <type>Service</type>
+          <params>
+            <serviceName>diagnosticshub.standardcollector.service</serviceName>
+            <startMode>DISABLED</startMode>
+          </params>
+        </action>
+      </step>
+      <step name="Microsoft iSCSI Initiator Service" description="Not leveraged in a VDI" category="optional" defaultSelected="true">
+        <action>
+          <!-- Powershell Set-Service 'MSiSCSI' -startuptype "Disabled" -->
+          <type>Service</type>
+          <params>
+            <serviceName>MSiSCSI</serviceName>
+            <startMode>DISABLED</startMode>
+          </params>
+        </action>
+      </step>
+      <step name="Microsoft Software Shadow Copy Provider" description="Leveraged by Windows Backup and System Restore." category="recommended" defaultSelected="true">
+        <action>
+          <!-- Powershell Set-Service 'swprv' -startuptype "disabled" -->
+          <type>Service</type>
+          <params>
+            <serviceName>swprv</serviceName>
+            <startMode>DISABLED</startMode>
+          </params>
+        </action>
+      </step>
+      <step name="Offline Files" description="Disable Offline Files" category="optional" defaultSelected="true">
+        <action>
+          <!-- Powershell Set-Service 'CscService' -startuptype "Disabled" -->
+          <type>Service</type>
+          <params>
+            <serviceName>CscService</serviceName>
+            <startMode>DISABLED</startMode>
+          </params>
+        </action>
+      </step>
+      <step name="Optimize Drives" description="Provides Drive Optimization Capabilities." category="optional" defaultSelected="true">
+        <action>
+          <!-- Powershell Set-Service 'defragsvc' -startuptype "Disabled" -->
+          <type>Service</type>
+          <params>
+            <serviceName>defragsvc</serviceName>
+            <startMode>DISABLED</startMode>
+          </params>
+        </action>
+      </step>
+      <step name="Program Compatibility Assistant Service" description="This service provides support for the Program Compatibility Assistant (PCA)." category="optional" defaultSelected="true">
+        <action>
+          <!-- Powershell Set-Service 'PcaSvc' -startuptype "Disabled" -->
+          <type>Service</type>
+          <params>
+            <serviceName>PcaSvc</serviceName>
+            <startMode>DISABLED</startMode>
+          </params>
+        </action>
+      </step>
+      <step name="Reports and Solutions Control Panel Support" description="Provides support for viewing, sending and deletion of system-level problem reports for the Problem Reports and Solutions control panel." category="recommended" defaultSelected="true">
+        <action>
+          <!-- Powershell Set-Service 'wercplsupport' -startuptype "Disabled" -->
+          <type>Service</type>
+          <params>
+            <serviceName>wercplsupport</serviceName>
+            <startMode>DISABLED</startMode>
+          </params>
+        </action>
+      </step>
+      <step name="Retail Demo Service" description="The Retail Demo service controls device activity while the device is in retail demo mode." category="recommended" defaultSelected="true" runOnOs="16">
+        <action>
+          <!-- Powershell Set-Service 'RetailDemo' -startuptype "Disabled" -->
+          <type>Service</type>
+          <params>
+            <serviceName>RetailDemo</serviceName>
+            <startMode>DISABLED</startMode>
+          </params>
+        </action>
+      </step>
+      <step name="Sensor Data Service" description="Delivers data from a variety of sensors." category="optional" defaultSelected="true">
+        <action>
+          <!-- Powershell Set-Service 'SensorDataService' -startuptype "Disabled" -->
+          <type>Service</type>
+          <params>
+            <serviceName>SensorDataService</serviceName>
+            <startMode>DISABLED</startMode>
+          </params>
+        </action>
+      </step>
+      <step name="Sensor Monitoring Service" description="If this service is stopped or disabled, the display brightness will not adapt to lighting conditions." category="optional" defaultSelected="true">
+        <action>
+          <!-- Powershell Set-Service 'SensrSvc' -startuptype "Disabled" -->
+          <type>Service</type>
+          <params>
+            <serviceName>SensrSvc</serviceName>
+            <startMode>DISABLED</startMode>
+          </params>
+        </action>
+      </step>
+      <step name="Sensor Service" description="If this service is stopped or disabled, the SDO sensor will not be loaded and so auto-rotation will not occur. History collection from Sensors will also be stopped." category="optional" defaultSelected="true" runOnOs="16">
+        <action>
+          <!-- Powershell Set-Service 'SensorService' -startuptype "Disabled" -->
+          <type>Service</type>
+          <params>
+            <serviceName>SensorService</serviceName>
+            <startMode>DISABLED</startMode>
+          </params>
+        </action>
+      </step>
+      <step name="SNMP Trap" description="If this service is stopped, SNMP-based programs on this computer will not receive SNMP trap messages. If this service is disabled, any services that explicitly depend on it will fail to start." category="optional" defaultSelected="true">
+        <action>
+          <!-- Powershell Set-Service 'SNMPTRAP' -startuptype "Disabled" -->
+          <type>Service</type>
+          <params>
+            <serviceName>SNMPTRAP</serviceName>
+            <startMode>DISABLED</startMode>
+          </params>
+        </action>
+      </step>
+      <step name="Spot Verifier" description="Verifies potential file system corruptions." category="optional" defaultSelected="true">
+        <action>
+          <!-- Powershell Set-Service 'svsvc' -startuptype "Disabled" -->
+          <type>Service</type>
+          <params>
+            <serviceName>svsvc</serviceName>
+            <startMode>DISABLED</startMode>
+          </params>
+        </action>
+      </step>
+      <step name="SSDP Discovery" description="Disable SSDP Discovery" category="mandatory" defaultSelected="false">
+        <action>
+          <!-- Powershell Set-Service 'SSDPSRV' -startuptype "Disabled" -->
+          <type>Service</type>
+          <params>
+            <serviceName>SSDPSRV</serviceName>
+            <startMode>DISABLED</startMode>
+          </params>
+        </action>
+      </step>
+      <step name="Still Image Acquisition Events" description="Launches applications associated with still image acquisition events." category="optional" defaultSelected="true">
+        <action>
+          <!-- Powershell Set-Service 'WiaRpc' -startuptype "Disabled" -->
+          <type>Service</type>
+          <params>
+            <serviceName>WiaRpc</serviceName>
+            <startMode>DISABLED</startMode>
+          </params>
+        </action>
+      </step>
+      <step name="Store Storage Service" description="Provides enabling services for storage settings and external storage expansion." category="optional" defaultSelected="true">
+        <action>
+          <!-- Powershell Set-Service 'StorSvc' -startuptype "Disabled" -->
+          <type>Service</type>
+          <params>
+            <serviceName>StorSvc</serviceName>
+            <startMode>DISABLED</startMode>
+          </params>
+        </action>
+      </step>
+      <step name="Superfetch" description="Service is leveraged to optimize loading of applications over time.  In a non persistent or commodity based VDI environment this service may impact performance.  Depends on use and organization." category="recommended" defaultSelected="true">
+        <action>
+          <!-- Powershell Set-Service 'SysMain' -startuptype "Disabled" -->
+          <type>Service</type>
+          <params>
+            <serviceName>SysMain</serviceName>
+            <startMode>DISABLED</startMode>
+          </params>
+        </action>
+      </step>
+      <step name="Telephony" description="Provides Telephony API (TAPI) support for programs that control telephony devices on the local computer and, through the LAN." category="optional" defaultSelected="true">
+        <action>
+          <!-- Powershell Set-Service 'TapiSrv' -startuptype "Disabled" -->
+          <type>Service</type>
+          <params>
+            <serviceName>TapiSrv</serviceName>
+            <startMode>DISABLED</startMode>
+          </params>
+        </action>
+      </step>
+      <step name="Universal PnP Host Service" description="Dependent on the SSDP Service." category="recommended" defaultSelected="true">
+        <action>
+          <!-- Powershell Set-Service 'upnphost' -startuptype "Disabled" -->
+          <type>Service</type>
+          <params>
+            <serviceName>upnphost</serviceName>
+            <startMode>DISABLED</startMode>
+          </params>
+        </action>
+      </step>
+      <step name="Volume Shadow Copy Service" description="Used for System Restore and Backup Operations. (VMware product compatibility: Do not disable if Persona Management is in use.)" category="recommended" defaultSelected="true">
+        <action>
+          <!-- Powershell Set-Service 'VSS' -startuptype "Disabled" -->
+          <type>Service</type>
+          <params>
+            <serviceName>VSS</serviceName>
+            <startMode>DISABLED</startMode>
+          </params>
+        </action>
+      </step>
+      <step name="WAP Push Message Routing Service" description="WAP Push Message Routing Service." category="optional" defaultSelected="true">
+        <action>
+          <!-- Powershell Set-Service 'dmwappushsvc' -startuptype "Disabled" -->
+          <type>Service</type>
+          <params>
+            <serviceName>dmwappushsvc</serviceName>
+            <startMode>DISABLED</startMode>
+          </params>
+        </action>
+      </step>
+      <step name="Windows Backup" description="Windows Backup service used by System Restore and Windows Backups." category="optional" defaultSelected="true">
+        <action>
+          <!-- Powershell Set-Service 'SDRSVC' -startuptype "Disabled" -->
+          <type>Service</type>
+          <params>
+            <serviceName>SDRSVC</serviceName>
+            <startMode>DISABLED</startMode>
+          </params>
+        </action>
+      </step>
+      <step name="Windows Biometric Service" description="If Fingerprint devices will be used, don't optimize the item." category="optional" defaultSelected="false">
+        <action>
+          <!-- Powershell Set-Service 'WbioSrvc' -startuptype "Disabled" -->
+          <type>Service</type>
+          <params>
+            <serviceName>WbioSrvc</serviceName>
+            <startMode>DISABLED</startMode>
+          </params>
+        </action>
+      </step>
+      <step name="Windows Connect Now - Config Registrar" description="This is used to configure Wireless LAN settings for an Access Point (AP) or a Wi-Fi Device." category="recommended" defaultSelected="true">
+        <action>
+          <!-- Powershell Set-Service 'wcncsvc' -startuptype "Disabled" -->
+          <type>Service</type>
+          <params>
+            <serviceName>wcncsvc</serviceName>
+            <startMode>DISABLED</startMode>
+          </params>
+        </action>
+      </step>
+      <step name="Windows Error Reporting Service" description="Error reporting services leveraged by Applications when they crash to send reports to Microsoft.  If using DER within VDI consider alternate configuration." category="recommended" defaultSelected="true">
+        <action>
+          <!-- Powershell Set-Service 'WerSvc' -startuptype "Disabled" -->
+          <type>Service</type>
+          <params>
+            <serviceName>WerSvc</serviceName>
+            <startMode>DISABLED</startMode>
+          </params>
+        </action>
+      </step>
+      <step name="Windows Media Center Network Sharing Service" description="Used by Media Center" category="recommended" defaultSelected="true">
+        <action>
+          <!-- Powershell Set-Service 'WMPNetworkSvc' -startuptype "Disabled" -->
+          <type>Service</type>
+          <params>
+            <serviceName>WMPNetworkSvc</serviceName>
+            <startMode>DISABLED</startMode>
+          </params>
+        </action>
+      </step>
+      <step name="Windows Mobile Hotspot Service" description="Provides the ability to share a cellular data connection with another device." category="optional" defaultSelected="true" runOnOs="16">
+        <action>
+          <!-- Powershell Set-Service 'icssvc' -startuptype "Disabled" -->
+          <type>Service</type>
+          <params>
+            <serviceName>icssvc</serviceName>
+            <startMode>DISABLED</startMode>
+          </params>
+        </action>
+      </step>
+      <step name="Windows Update" description="If this is a non persistent VM, Windows Update should be handled differently via standard image maintenance practices." category="optional" defaultSelected="true">
+        <action>
+          <!-- Powershell Set-Service 'wuauserv' -startuptype "Disabled" -->
+          <type>Service</type>
+          <params>
+            <serviceName>wuauserv</serviceName>
+            <startMode>DISABLED</startMode>
+          </params>
+        </action>
+      </step>
+      <step name="WLAN AutoConfig" description="Wireless LAN Configuration - N/A for VDI environments." category="optional" defaultSelected="true">
+        <action>
+          <!-- Powershell Set-Service 'Wlansvc' -startuptype "Disabled" -->
+          <type>Service</type>
+          <params>
+            <serviceName>Wlansvc</serviceName>
+            <startMode>DISABLED</startMode>
+          </params>
+        </action>
+      </step>
+      <step name="WWAN AutoConfig" description="Service related to Mobile Broadband Devices" category="optional" defaultSelected="true">
+        <action>
+          <!-- Powershell Set-Service 'WwanSvc' -startuptype "Disabled" -->
+          <type>Service</type>
+          <params>
+            <serviceName>WwanSvc</serviceName>
+            <startMode>DISABLED</startMode>
+          </params>
+        </action>
+      </step>
+      <step name="Xbox Live Auth Manager" description="Provides the ability to share a cellular data connection with another device." category="optional" defaultSelected="true" runOnOs="16">
+        <action>
+          <!-- Powershell Set-Service 'XblAuthManager' -startuptype "Disabled" -->
+          <type>Service</type>
+          <params>
+            <serviceName>XblAuthManager</serviceName>
+            <startMode>DISABLED</startMode>
+          </params>
+        </action>
+      </step>
+      <step name="Xbox Live Game Save" description="This service syncs save data for Xbox Live save enabled games." category="optional" defaultSelected="true" runOnOs="16">
+        <action>
+          <!-- Powershell Set-Service 'XblGameSave' -startuptype "Disabled" -->
+          <type>Service</type>
+          <params>
+            <serviceName>XblGameSave</serviceName>
+            <startMode>DISABLED</startMode>
+          </params>
+        </action>
+      </step>
+      <step name="Xbox Live Networking Service" description="This service supports the Windows.Networking.XboxLive applicationprogramming interface." category="optional" defaultSelected="true" runOnOs="16">
+        <action>
+          <!-- Powershell Set-Service 'XboxNetApiSvc' -startuptype "Disabled" -->
+          <type>Service</type>
+          <params>
+            <serviceName>XboxNetApiSvc</serviceName>
+            <startMode>DISABLED</startMode>
+          </params>
+        </action>
+      </step>
+    </group>
+    <group name="Disable Startup Run" description="Disable application startup run.">
+      <step name="OneDrive" description="Disable Microsoft OneDrive startup run" category="recommended" defaultSelected="true" runOnOs="16">
+        <action>
+          <!-- reg ADD "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\StartupApproved\Run" /v OneDrive  /t REG_BINARY /d 0300000064A102EF4C3ED101 /f -->
+          <type>Registry</type>
+          <command>ADD</command>
+          <params>
+            <keyName>HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\StartupApproved\Run</keyName>
+            <valueName>OneDrive</valueName>
+            <type>REG_BINARY</type>
+            <data>0300000064A102EF4C3ED101</data>
+          </params>
+        </action>
+      </step>
+    </group>
+    <group name="Group Policy" description="Group Policy setting.">
+      <group name="Administrative Templates (Computers)" description="Administrative Templates (Computers).">
+        <group name="Network" description="Network.">
+          <group name="Background Intelligent Transfer Service (BITS)" description="Background Intelligent Transfer Service (BITS).">
+            <step name="Do not allow the BITS client to use Windows Branch Cache" description="Enable this policy, BITS client does not use Windows Branch Cache." category="recommended" defaultSelected="true" runOnOs="16">
+              <action>
+                <type>Registry</type>
+                <command>ADD</command>
+                <params>
+                  <keyName>HKLM\Software\Policies\Microsoft\Windows\BITS</keyName>
+                  <valueName>DisableNotificationCenter</valueName>
+                  <type>REG_DWORD</type>
+                  <data>1</data>
+                </params>
+              </action>
+            </step>
+            <step name="Do not allow the computer to act as a BITS Peercaching client" description="Enable this policy, the computer no longer use the BITS peer caching feature to download files." category="recommended" defaultSelected="true" runOnOs="16">
+              <action>
+                <type>Registry</type>
+                <command>ADD</command>
+                <params>
+                  <keyName>HKLM\Software\Policies\Microsoft\Windows\BITS</keyName>
+                  <valueName>DisablePeerCachingClient</valueName>
+                  <type>REG_DWORD</type>
+                  <data>1</data>
+                </params>
+              </action>
+            </step>
+            <step name="Do not allow the computer to act as a BITS Peercaching server" description="Enable this policy, the computer no longer cache downloaded files and offer them to its peers." category="recommended" defaultSelected="true" runOnOs="16">
+              <action>
+                <type>Registry</type>
+                <command>ADD</command>
+                <params>
+                  <keyName>HKLM\Software\Policies\Microsoft\Windows\BITS</keyName>
+                  <valueName>DisablePeerCachingServer</valueName>
+                  <type>REG_DWORD</type>
+                  <data>1</data>
+                </params>
+              </action>
+            </step>
+            <step name="Allow BITS Peercaching" description="Disable this policy, BITS will download files directly from the origin server." category="recommended" defaultSelected="true" runOnOs="16">
+              <action>
+                <type>Registry</type>
+                <command>ADD</command>
+                <params>
+                  <keyName>HKLM\Software\Policies\Microsoft\Windows\BITS</keyName>
+                  <valueName>EnablePeercaching</valueName>
+                  <type>REG_DWORD</type>
+                  <data>0</data>
+                </params>
+              </action>
+            </step>
+          </group>
+          <group name="BranchCache" description="BranchCache.">
+            <step name="Turn on BranchCache" description="Disable this policy, turn off BranchCache for all client computers where the policy is applied." category="recommended" defaultSelected="true" runOnOs="16">
+              <action>
+                <type>Registry</type>
+                <command>ADD</command>
+                <params>
+                  <keyName>HKLM\SOFTWARE\Policies\Microsoft\PeerDist\Service</keyName>
+                  <valueName>Enable</valueName>
+                  <type>REG_DWORD</type>
+                  <data>0</data>
+                </params>
+              </action>
+            </step>
+          </group>
+          <group name="Hotspot Authentication" description="Hotspot Authentication.">
+            <step name="Enable Hotspot Authentication" description="Disable this policy, WLAN hotspots are not probed for WISPr protocol support, and users can only authenticate with WLAN hotspots using a web browser." category="recommended" defaultSelected="true" runOnOs="16">
+              <action>
+                <type>Registry</type>
+                <command>ADD</command>
+                <params>
+                  <keyName>HKLM\Software\Policies\Microsoft\Windows\HotspotAuthentication</keyName>
+                  <valueName>Enable</valueName>
+                  <type>REG_DWORD</type>
+                  <data>0</data>
+                </params>
+              </action>
+            </step>
+          </group>
+          <group name="Offline Files" description="Offline Files.">
+            <step name="Allow or Disallow use of the Offline Files feature" description="Disable this policy, Offline Files is disabled ,users cannot enable it." category="recommended" defaultSelected="true" runOnOs="16">
+              <action>
+                <type>Registry</type>
+                <command>ADD</command>
+                <params>
+                  <keyName>HKLM\Software\Policies\Microsoft\Windows\NetCache</keyName>
+                  <valueName>Enabled</valueName>
+                  <type>REG_DWORD</type>
+                  <data>0</data>
+                </params>
+              </action>
+            </step>
+          </group>
+        </group>
+        <group name="System" description="System.">
+          <group name="Device Installation" description="Device Installation.">
+            <step name="Do not send a Windows error report when a generic driver is installed on a device" description="Enable this policy, an error report is not sent  when a generic driver is installed." category="recommended" defaultSelected="true" runOnOs="16">
+              <action>
+                <type>Registry</type>
+                <command>ADD</command>
+                <params>
+                  <keyName>HKLM\Software\Policies\Microsoft\Windows\DeviceInstall\Settings</keyName>
+                  <valueName>DisableSendGenericDriverNotFoundToWER</valueName>
+                  <type>REG_DWORD</type>
+                  <data>1</data>
+                </params>
+              </action>
+            </step>
+            <step name="Prevent creation of a system restore point during device activity that would normally prompt creation of a restore point" description="Enable this policy, Windows does not create a system restore point when one would normally be created." category="recommended" defaultSelected="true" runOnOs="16">
+              <action>
+                <type>Registry</type>
+                <command>ADD</command>
+                <params>
+                  <keyName>HKLM\Software\Policies\Microsoft\Windows\DeviceInstall\Settings</keyName>
+                  <valueName>DisableSystemRestore</valueName>
+                  <type>REG_DWORD</type>
+                  <data>1</data>
+                </params>
+              </action>
+            </step>
+            <step name="Prevent device metadata retrieval from the Internet" description="Enable this policy, Windows does not retrieve device metadata for installed devices from the Internet." category="recommended" defaultSelected="true" runOnOs="16">
+              <action>
+                <type>Registry</type>
+                <command>ADD</command>
+                <params>
+                  <keyName>HKLM\SOFTWARE\Policies\Microsoft\Windows\Device Metadata</keyName>
+                  <valueName>PreventDeviceMetadataFromNetwork</valueName>
+                  <type>REG_DWORD</type>
+                  <data>1</data>
+                </params>
+              </action>
+            </step>
+            <step name="Turn off &quot;Found New Hardware&quot; balloons during device installation" description="Enable this policy, &quot;Found New Hardware&quot; balloons do not appear while a device is being installed." category="recommended" defaultSelected="true" runOnOs="16">
+              <action>
+                <type>Registry</type>
+                <command>ADD</command>
+                <params>
+                  <keyName>HKLM\Software\Policies\Microsoft\Windows\DeviceInstall\Settings</keyName>
+                  <valueName>DisableBalloonTips</valueName>
+                  <type>REG_DWORD</type>
+                  <data>1</data>
+                </params>
+              </action>
+            </step>
+          </group>
+          <group name="Filesystem" description="Filesystem.">
+            <group name="NTFS" description="NTFS.">
+              <step name="Short name creation options" description="Enable this policy, Enable short names on all volumes then short names will always be generated." category="recommended" defaultSelected="true" runOnOs="16">
+                <action>
+                  <type>Registry</type>
+                  <command>ADD</command>
+                  <params>
+                    <keyName>HKLM\System\CurrentControlSet\Policies</keyName>
+                    <valueName>NtfsDisable8dot3NameCreation</valueName>
+                    <type>REG_DWORD</type>
+                    <data>0</data>
+                  </params>
+                </action>
+              </step>
+            </group>
+          </group>
+          <group name="Internet Communication Management" description="Internet Communication Management.">
+            <group name="Internet Communication settings" description="Internet Communication settings.">
+              <step name="Turn off handwriting personalization data sharing" description="Enable this policy, Tablet PC users cannot choose to share writing samples from the handwriting recognition personalization tool with Microsoft." category="recommended" defaultSelected="true" runOnOs="16">
+                <action>
+                  <type>Registry</type>
+                  <command>ADD</command>
+                  <params>
+                    <keyName>HKLM\Software\Policies\Microsoft\Windows\TabletPC</keyName>
+                    <valueName>PreventHandwritingDataSharing</valueName>
+                    <type>REG_DWORD</type>
+                    <data>1</data>
+                  </params>
+                </action>
+              </step>
+              <step name="Turn off handwriting recognition error reporting" description="Enable this policy, users cannot start the handwriting recognition error reporting tool or send error reports to Microsoft." category="recommended" defaultSelected="true" runOnOs="16">
+                <action>
+                  <type>Registry</type>
+                  <command>ADD</command>
+                  <params>
+                    <keyName>HKLM\Software\Policies\Microsoft\Windows\HandwritingErrorReports</keyName>
+                    <valueName>PreventHandwritingErrorReports</valueName>
+                    <type>REG_DWORD</type>
+                    <data>1</data>
+                  </params>
+                </action>
+              </step>
+              <step name="Turn off Help and Support Center &quot;Did you know?&quot; content" description="Enable this policy, Help and Support Center no longer retrieves nor displays &quot;Did you know?&quot; content. " category="recommended" defaultSelected="true" runOnOs="16">
+                <action>
+                  <type>Registry</type>
+                  <command>ADD</command>
+                  <params>
+                    <keyName>HKLM\Software\Policies\Microsoft\PCHealth\HelpSvc</keyName>
+                    <valueName>Headlines</valueName>
+                    <type>REG_DWORD</type>
+                    <data>0</data>
+                  </params>
+                </action>
+              </step>
+              <step name="Turn off Help and Support Center Microsoft Knowledge Base search" description="Enable this policy, it removes the Knowledge Base section from the Help and Support Center &quot;Set search options&quot; page, and only Help content on the local computer is searched." category="recommended" defaultSelected="true" runOnOs="16">
+                <action>
+                  <type>Registry</type>
+                  <command>ADD</command>
+                  <params>
+                    <keyName>HKLM\Software\Policies\Microsoft\PCHealth\HelpSvc</keyName>
+                    <valueName>MicrosoftKBSearch</valueName>
+                    <type>REG_DWORD</type>
+                    <data>0</data>
+                  </params>
+                </action>
+              </step>
+              <step name="Turn off the &quot;Order Prints&quot; picture task" description="Enable this policy, the task &quot;Order Prints Online&quot; is removed from Picture Tasks in File Explorer folders." category="recommended" defaultSelected="true" runOnOs="16">
+                <action>
+                  <type>Registry</type>
+                  <command>ADD</command>
+                  <params>
+                    <keyName>HKLM\Software\Microsoft\Windows\CurrentVersion\Policies\Explorer</keyName>
+                    <valueName>NoOnlinePrintsWizard</valueName>
+                    <type>REG_DWORD</type>
+                    <data>1</data>
+                  </params>
+                </action>
+              </step>
+              <step name="Turn off the Windows Messenger Customer Experience Improvement Program" description="Enable this policy, these tasks are removed from the File and Folder tasks in Windows folders." category="recommended" defaultSelected="true" runOnOs="16">
+                <action>
+                  <type>Registry</type>
+                  <command>ADD</command>
+                  <params>
+                    <keyName>HKLM\Software\Policies\Microsoft\Messenger\Client</keyName>
+                    <valueName>CEIP</valueName>
+                    <type>REG_DWORD</type>
+                    <data>2</data>
+                  </params>
+                </action>
+              </step>
+              <step name="Turn off Windows Customer Experience Improvement Program" description="Enable this policy, all users are opted out of the Windows Customer Experience Improvement Program." category="recommended" defaultSelected="true" runOnOs="16">
+                <action>
+                  <type>Registry</type>
+                  <command>ADD</command>
+                  <params>
+                    <keyName>HKLM\Software\Policies\Microsoft\SQMClient\Windows</keyName>
+                    <valueName>CEIPEnable</valueName>
+                    <type>REG_DWORD</type>
+                    <data>0</data>
+                  </params>
+                </action>
+              </step>
+              <step name="Turn off Windows Error Reporting" description="Enable this policy, users are not given the option to report errors." category="recommended" defaultSelected="true" runOnOs="16">
+                <action>
+                  <type>Registry</type>
+                  <command>ADD</command>
+                  <params>
+                    <keyName>HKLM\Software\Policies\Microsoft\PCHealth\ErrorReporting</keyName>
+                    <valueName>DoReport</valueName>
+                    <type>REG_DWORD</type>
+                    <data>0</data>
+                  </params>
+                </action>
+              </step>
+            </group>
+          </group>
+          <group name="Power Management" description="Power Management.">
+            <step name="Select an active power plan" description="Enable this policy, specify the High Performance power plan." category="recommended" defaultSelected="true" runOnOs="16">
+              <action>
+                <type>Registry</type>
+                <command>ADD</command>
+                <params>
+                  <keyName>HKLM\Software\Policies\Microsoft\Power\PowerSettings</keyName>
+                  <valueName>ActivePowerScheme</valueName>
+                  <type>REG_SZ</type>
+                  <data>8c5e7fda-e8bf-4a96-9a85-a6e23a8c635c</data>
+                </params>
+              </action>
+            </step>
+          </group>
+          <group name="Troubleshooting and Diagnostics" description="Troubleshooting and Diagnostics.">
+            <group name="Scheduled Maintenance" description="Scheduled Maintenance.">
+              <step name="Configure Scheduled Maintenance Behavior" description="Disable this policy, Windows will not be able to detect, troubleshoot or resolve problems on a scheduled basis." category="recommended" defaultSelected="true" runOnOs="16">
+                <action>
+                  <type>Registry</type>
+                  <command>ADD</command>
+                  <params>
+                    <keyName>HKLM\SOFTWARE\Policies\Microsoft\Windows\ScheduledDiagnostics</keyName>
+                    <valueName>EnabledExecution</valueName>
+                    <type>REG_DWORD</type>
+                    <data>0</data>
+                  </params>
+                </action>
+              </step>
+            </group>
+            <group name="Windows Boot Performance Diagnostics" description="Windows Boot Performance Diagnostics.">
+              <step name="Configure Scenario Execution Level" description="Disable this policy, Windows will not be able to detect, troubleshoot or resolve any Windows Boot Performance problems that are handled by the DPS." category="recommended" defaultSelected="true" runOnOs="16">
+                <action>
+                  <type>Registry</type>
+                  <command>ADD</command>
+                  <params>
+                    <keyName>HKLM\SOFTWARE\Policies\Microsoft\Windows\WDI\{86432a0b-3c7d-4ddf-a89c-172faa90485d}</keyName>
+                    <valueName>ScenarioExecutionEnabled</valueName>
+                    <type>REG_DWORD</type>
+                    <data>0</data>
+                  </params>
+                </action>
+              </step>
+            </group>
+            <group name="Windows Memory Leak Diagnosis" description="Windows Memory Leak Diagnosis.">
+              <step name="Configure Scenario Execution Level" description="Disable this policy, the DPS is not able to diagnose memory leak problems." category="recommended" defaultSelected="true" runOnOs="16">
+                <action>
+                  <type>Registry</type>
+                  <command>ADD</command>
+                  <params>
+                    <keyName>HKLM\SOFTWARE\Policies\Microsoft\Windows\WDI\{eb73b633-3f4e-4ba0-8f60-8f3c6f53168f}</keyName>
+                    <valueName>ScenarioExecutionEnabled</valueName>
+                    <type>REG_DWORD</type>
+                    <data>0</data>
+                  </params>
+                </action>
+              </step>
+            </group>
+            <group name="Windows Resource Exhaustion Detection and Resolution" description="Windows Resource Exhaustion Detection and Resolution.">
+              <step name="Configure Scenario Execution Level" description="Disable this policy, Windows will not be able to detect, troubleshoot or resolve any Windows Resource Exhaustion problems that are handled by the DPS." category="recommended" defaultSelected="true" runOnOs="16">
+                <action>
+                  <type>Registry</type>
+                  <command>ADD</command>
+                  <params>
+                    <keyName>HKLM\SOFTWARE\Policies\Microsoft\Windows\WDI\{3af8b24a-c441-4fa4-8c5c-bed591bfa867}</keyName>
+                    <valueName>ScenarioExecutionEnabled</valueName>
+                    <type>REG_DWORD</type>
+                    <data>0</data>
+                  </params>
+                </action>
+              </step>
+            </group>
+            <group name="Windows Shutdown Performance Diagnostics" description="Windows Shutdown Performance Diagnostics.">
+              <step name="Configure Scenario Execution Level" description="Disable this policy, Windows will not be able to detect, troubleshoot or resolve any Windows Shutdown Performance problems that are handled by the DPS." category="recommended" defaultSelected="true" runOnOs="16">
+                <action>
+                  <type>Registry</type>
+                  <command>ADD</command>
+                  <params>
+                    <keyName>HKLM\SOFTWARE\Policies\Microsoft\Windows\WDI\{2698178D-FDAD-40AE-9D3C-1371703ADC5B}</keyName>
+                    <valueName>ScenarioExecutionEnabled</valueName>
+                    <type>REG_DWORD</type>
+                    <data>0</data>
+                  </params>
+                </action>
+              </step>
+            </group>
+            <group name="Windows Standby/Resume Performance Diagnostics" description="Windows Standby/Resume Performance Diagnostics.">
+              <step name="Configure Scenario Execution Level" description="Disable this policy, Windows will not be able to detect, troubleshoot or resolve any Windows Standby/Resume Performance problems that are handled by the DPS." category="recommended" defaultSelected="true" runOnOs="16">
+                <action>
+                  <type>Registry</type>
+                  <command>ADD</command>
+                  <params>
+                    <keyName>HKLM\SOFTWARE\Policies\Microsoft\Windows\WDI\{ffc42108-4920-4acf-a4fc-8abdcc68ada4}</keyName>
+                    <valueName>ScenarioExecutionEnabled</valueName>
+                    <type>REG_DWORD</type>
+                    <data>0</data>
+                  </params>
+                </action>
+              </step>
+            </group>
+            <group name="Windows System Responsiveness Performance Diagnostics" description="Windows System Responsiveness Performance Diagnostics.">
+              <step name="Configure Scenario Execution Level" description="Disable this policy, Windows will not be able to detect, troubleshoot or resolve any Windows Standby/Resume Performance problems that are handled by the DPS." category="recommended" defaultSelected="true" runOnOs="16">
+                <action>
+                  <type>Registry</type>
+                  <command>ADD</command>
+                  <params>
+                    <keyName>HKLM\SOFTWARE\Policies\Microsoft\Windows\WDI\{ffc42108-4920-4acf-a4fc-8abdcc68ada4}</keyName>
+                    <valueName>ScenarioExecutionEnabled</valueName>
+                    <type>REG_DWORD</type>
+                    <data>0</data>
+                  </params>
+                </action>
+              </step>
+            </group>
+          </group>
+        </group>
+        <group name="Windows Components" description="Windows Components.">
+          <group name="Cloud Content" description="Cloud Content.">
+            <step name="Do not show Windows tips" description="Enable this policy, users will no longer see Windows tips." category="recommended" defaultSelected="true" runOnOs="16">
+              <action>
+                <type>Registry</type>
+                <command>ADD</command>
+                <params>
+                  <keyName>HKLM\Software\Policies\Microsoft\Windows\CloudContent</keyName>
+                  <valueName>DisableSoftLanding</valueName>
+                  <type>REG_DWORD</type>
+                  <data>1</data>
+                </params>
+              </action>
+            </step>
+            <step name="Turn off Microsoft consumer experiences" description="Enable this policy, users will no longer see personalized recommendations from Microsoft and notifications about their Microsoft account." category="recommended" defaultSelected="true" runOnOs="16">
+              <action>
+                <type>Registry</type>
+                <command>ADD</command>
+                <params>
+                  <keyName>HKLM\Software\Policies\Microsoft\Windows\CloudContent</keyName>
+                  <valueName>DisableWindowsConsumerFeatures</valueName>
+                  <type>REG_DWORD</type>
+                  <data>1</data>
+                </params>
+              </action>
+            </step>
+          </group>
+          <group name="Data Collection and Preview Builds" description="Data Collection and Preview Builds.">
+            <step name="Allow Telemetry" description="Enable this policy" category="recommended" defaultSelected="true" runOnOs="16">
+              <action>
+                <type>Registry</type>
+                <command>ADD</command>
+                <params>
+                  <keyName>HKLM\Software\Policies\Microsoft\Windows\DataCollection</keyName>
+                  <valueName>AllowTelemetry</valueName>
+                  <type>REG_DWORD</type>
+                  <data>1</data>
+                </params>
+              </action>
+            </step>
+            <step name="Disable pre-release features or settings" description="Disable this policy, all experimentations will be turned off." category="recommended" defaultSelected="true" runOnOs="16">
+              <action>
+                <type>Registry</type>
+                <command>ADD</command>
+                <params>
+                  <keyName>HKLM\Software\Policies\Microsoft\Windows\PreviewBuilds</keyName>
+                  <valueName>EnableConfigFlighting</valueName>
+                  <type>REG_DWORD</type>
+                  <data>0</data>
+                </params>
+              </action>
+            </step>
+            <step name="Do not show feedback notifications" description="Enable this policy, users will no longer see feedback notifications through the Windows Feedback app." category="recommended" defaultSelected="true" runOnOs="16">
+              <action>
+                <type>Registry</type>
+                <command>ADD</command>
+                <params>
+                  <keyName>HKLM\Software\Policies\Microsoft\Windows\DataCollection</keyName>
+                  <valueName>DoNotShowFeedbackNotifications</valueName>
+                  <type>REG_DWORD</type>
+                  <data>1</data>
+                </params>
+              </action>
+            </step>
+            <step name="Toggle user control over Insider builds" description="Disable this policy, Windows Insider Program settings will be unavailable to users through the Settings app." category="recommended" defaultSelected="true" runOnOs="16">
+              <action>
+                <type>Registry</type>
+                <command>ADD</command>
+                <params>
+                  <keyName>HKLM\Software\Policies\Microsoft\Windows\PreviewBuilds</keyName>
+                  <valueName>AllowBuildPreview</valueName>
+                  <type>REG_DWORD</type>
+                  <data>0</data>
+                </params>
+              </action>
+            </step>
+          </group>
+          <group name="Edge UI" description="Edge UI.">
+            <step name="Disable help tips" description="Enable this policy, Windows will not show any help tips to the user." category="recommended" defaultSelected="true" runOnOs="16">
+              <action>
+                <type>Registry</type>
+                <command>ADD</command>
+                <params>
+                  <keyName>HKLM\Software\Policies\Microsoft\Windows\EdgeUI</keyName>
+                  <valueName>DisableHelpSticker</valueName>
+                  <type>REG_DWORD</type>
+                  <data>1</data>
+                </params>
+              </action>
+            </step>
+          </group>
+          <group name="Game Explorer" description="Edge UI.">
+            <step name="Turn off downloading of game information" description="Enable this policy, game information including box art and ratings will not be downloaded." category="recommended" defaultSelected="true" runOnOs="16">
+              <action>
+                <type>Registry</type>
+                <command>ADD</command>
+                <params>
+                  <keyName>HKLM\Software\Policies\Microsoft\Windows\GameUX</keyName>
+                  <valueName>DownloadGameInfo</valueName>
+                  <type>REG_DWORD</type>
+                  <data>0</data>
+                </params>
+              </action>
+            </step>
+            <step name="Turn off game updates" description="Enable this policy, game update information will not be downloaded." category="recommended" defaultSelected="true" runOnOs="16">
+              <action>
+                <type>Registry</type>
+                <command>ADD</command>
+                <params>
+                  <keyName>HKLM\Software\Policies\Microsoft\Windows\GameUX</keyName>
+                  <valueName>GameUpdateOptions</valueName>
+                  <type>REG_DWORD</type>
+                  <data>0</data>
+                </params>
+              </action>
+            </step>
+            <step name="Turn off tracking of last play time of games in the Games folder" description="Enable this policy, the last played time of games will not be recorded in Games folder. This setting only affects the Games folder." category="recommended" defaultSelected="true" runOnOs="16">
+              <action>
+                <type>Registry</type>
+                <command>ADD</command>
+                <params>
+                  <keyName>HKLM\Software\Policies\Microsoft\Windows\GameUX</keyName>
+                  <valueName>ListRecentlyPlayed</valueName>
+                  <type>REG_DWORD</type>
+                  <data>1</data>
+                </params>
+              </action>
+            </step>
+          </group>
+          <group name="Homegroup" description="Homegroup.">
+            <step name="Prevent the computer from joining a homegroup" description="Enable this policy, users cannot add computers to a homegroup. This policy setting does not affect other network sharing features." category="recommended" defaultSelected="true" runOnOs="16">
+              <action>
+                <type>Registry</type>
+                <command>ADD</command>
+                <params>
+                  <keyName>HKLM\Software\Policies\Microsoft\Windows\HomeGroup</keyName>
+                  <valueName>DisableHomeGroup</valueName>
+                  <type>REG_DWORD</type>
+                  <data>1</data>
+                </params>
+              </action>
+            </step>
+          </group>
+          <group name="Internet Explorer" description="Internet Explorer.">
+            <step name="Allow Microsoft services to provide enhanced suggestions as the user types in the Address bar" description="Disable this policy, users won't receive enhanced suggestions while typing in the Address bar. In addition, users won't be able to change the Suggestions setting on the Settings charm." category="recommended" defaultSelected="true" runOnOs="16">
+              <action>
+                <type>Registry</type>
+                <command>ADD</command>
+                <params>
+                  <keyName>HKLM\Software\Policies\Microsoft\Internet Explorer</keyName>
+                  <valueName>AllowServicePoweredQSA</valueName>
+                  <type>REG_DWORD</type>
+                  <data>0</data>
+                </params>
+              </action>
+            </step>
+            <step name="Disable Periodic Check for Internet Explorer software updates" description="Enable this policy, it prevents Internet Explorer from checking to see whether it is the latest available browser version and notifying users if a new version is available." category="recommended" defaultSelected="true" runOnOs="16">
+              <action>
+                <type>Registry</type>
+                <command>ADD</command>
+                <params>
+                  <keyName>HKLM\Software\Policies\Microsoft\Internet Explorer\Infodelivery\Restrictions</keyName>
+                  <valueName>NoUpdateCheck</valueName>
+                  <type>REG_DWORD</type>
+                  <data>1</data>
+                </params>
+              </action>
+            </step>
+            <step name="Disable showing the splash screen" description="Enable this policy, the splash screen, which displays the program name, licensing, and copyright information, is not displayed." category="recommended" defaultSelected="true" runOnOs="16">
+              <action>
+                <type>Registry</type>
+                <command>ADD</command>
+                <params>
+                  <keyName>HKLM\Software\Policies\Microsoft\Internet Explorer\Infodelivery\Restrictions</keyName>
+                  <valueName>NoSplash</valueName>
+                  <type>REG_DWORD</type>
+                  <data>1</data>
+                </params>
+              </action>
+            </step>
+            <step name="Install new versions of Internet Explorer automatically" description="Disable this policy, automatic upgrade of Internet Explorer will be turned off." category="recommended" defaultSelected="true" runOnOs="16">
+              <action>
+                <type>Registry</type>
+                <command>ADD</command>
+                <params>
+                  <keyName>HKLM\Software\Policies\Microsoft\Internet Explorer\Main</keyName>
+                  <valueName>EnableAutoUpgrade</valueName>
+                  <type>REG_DWORD</type>
+                  <data>0</data>
+                </params>
+              </action>
+            </step>
+            <step name="Prevent participation in the Customer Experience Improvement Program" description="Enable this policy, the user cannot participate in the CEIP, and the Customer Feedback Options command does not appear on the Help menu." category="recommended" defaultSelected="true" runOnOs="16">
+              <action>
+                <type>Registry</type>
+                <command>ADD</command>
+                <params>
+                  <keyName>HKLM\Software\Policies\Microsoft\Internet Explorer\SQM</keyName>
+                  <valueName>DisableCustomerImprovementProgram</valueName>
+                  <type>REG_DWORD</type>
+                  <data>0</data>
+                </params>
+              </action>
+            </step>
+            <step name="Prevent running First Run wizard" description="Enable this policy, Skip the First Run wizard, and go directly to the user's home page." category="recommended" defaultSelected="true" runOnOs="16">
+              <action>
+                <type>Registry</type>
+                <command>ADD</command>
+                <params>
+                  <keyName>HKLM\Software\Policies\Microsoft\Internet Explorer\Main</keyName>
+                  <valueName>DisableFirstRunCustomize</valueName>
+                  <type>REG_DWORD</type>
+                  <data>1</data>
+                </params>
+              </action>
+            </step>
+            <step name="Set tab process growth" description="Enable this policy, set the rate at which Internet Explorer creates new tab processes to low." category="recommended" defaultSelected="true" runOnOs="16">
+              <action>
+                <type>Registry</type>
+                <command>ADD</command>
+                <params>
+                  <keyName>HKLM\Software\Policies\Microsoft\Internet Explorer\Main</keyName>
+                  <valueName>TabProcGrowth</valueName>
+                  <type>REG_SZ</type>
+                  <data>low</data>
+                </params>
+              </action>
+            </step>
+            <step name="Specify default behavior for a new tab" description="Enable this policy, display the new tab page when the user opens a new tab." category="recommended" defaultSelected="true" runOnOs="16">
+              <action>
+                <type>Registry</type>
+                <command>ADD</command>
+                <params>
+                  <keyName>HKLM\Software\Policies\Microsoft\Internet Explorer\TabbedBrowsing</keyName>
+                  <valueName>NewTabPageShow</valueName>
+                  <type>REG_DWORD</type>
+                  <data>2</data>
+                </params>
+              </action>
+            </step>
+            <step name="Turn off add-on performance notifications" description="Enable this policy, users are not notified when the average time to load all the user's enabled add-ons exceeds the threshold." category="recommended" defaultSelected="true" runOnOs="16">
+              <action>
+                <type>Registry</type>
+                <command>ADD</command>
+                <params>
+                  <keyName>HKLM\Software\Microsoft\Windows\CurrentVersion\Policies\Ext</keyName>
+                  <valueName>DisableAddonLoadTimePerformanceNotifications</valueName>
+                  <type>REG_DWORD</type>
+                  <data>1</data>
+                </params>
+              </action>
+            </step>
+            <step name="Turn off browser geolocation" description="Enable this policy, browser geolocation support is turned off." category="recommended" defaultSelected="true" runOnOs="16">
+              <action>
+                <type>Registry</type>
+                <command>ADD</command>
+                <params>
+                  <keyName>HKLM\Software\Policies\Microsoft\Internet Explorer\Geolocation</keyName>
+                  <valueName>PolicyDisableGeolocation</valueName>
+                  <type>REG_DWORD</type>
+                  <data>1</data>
+                </params>
+              </action>
+            </step>
+            <step name="Turn off Reopen Last Browsing Session" description="Enable this policy, the user cannot use the Reopen Last Browsing Session feature." category="recommended" defaultSelected="true" runOnOs="16">
+              <action>
+                <type>Registry</type>
+                <command>ADD</command>
+                <params>
+                  <keyName>HKLM\Software\Policies\Microsoft\Internet Explorer\Recovery</keyName>
+                  <valueName>NoReopenLastSession</valueName>
+                  <type>REG_DWORD</type>
+                  <data>1</data>
+                </params>
+              </action>
+            </step>
+            <step name="Turn off suggestions for all user-installed providers" description="Enable this policy, the user cannot view suggestions for user-installed search providers." category="recommended" defaultSelected="true" runOnOs="16">
+              <action>
+                <type>Registry</type>
+                <command>ADD</command>
+                <params>
+                  <keyName>HKLM\Software\Policies\Microsoft\Internet Explorer\SearchScopes</keyName>
+                  <valueName>ShowSearchSuggestionsGlobal</valueName>
+                  <type>REG_DWORD</type>
+                  <data>1</data>
+                </params>
+              </action>
+            </step>
+            <step name="Turn on Suggested Sites" description="Disable this policy, the entry points and functionality associated with this feature are turned off." category="recommended" defaultSelected="true" runOnOs="16">
+              <action>
+                <type>Registry</type>
+                <command>ADD</command>
+                <params>
+                  <keyName>HKLM\Software\Policies\Microsoft\Internet Explorer\Suggested Sites</keyName>
+                  <valueName>Enabled</valueName>
+                  <type>REG_DWORD</type>
+                  <data>0</data>
+                </params>
+              </action>
+            </step>
+            <step name="Internet Settings - Advanced settings - Browsing - Turn off phone number detection" description="Enable this policy, phone number detection is turned off. Users won't be able to modify this settin." category="recommended" defaultSelected="true" runOnOs="16">
+              <action>
+                <type>Registry</type>
+                <command>ADD</command>
+                <params>
+                  <keyName>HKLM\Software\Policies\Microsoft\Internet Explorer\Main\FormatDetection</keyName>
+                  <valueName>PhoneNumberEnabled</valueName>
+                  <type>REG_DWORD</type>
+                  <data>0</data>
+                </params>
+              </action>
+            </step>
+            <step name="Internet Settings - AutoComplete - Turn off Windows Search AutoComplete" description="Enable this policy, Internet Explorer does not use Windows Search AutoComplete for providing relevant results in the Address bar. The user cannot change this setting." category="recommended" defaultSelected="true" runOnOs="16">
+              <action>
+                <type>Registry</type>
+                <command>ADD</command>
+                <params>
+                  <keyName>HKLM\Software\Policies\Microsoft\Internet Explorer\Main\WindowsSearch</keyName>
+                  <valueName>EnabledScopes</valueName>
+                  <type>REG_DWORD</type>
+                  <data>0</data>
+                </params>
+              </action>
+            </step>
+          </group>
+          <group name="Location and Sensors" description="Location and Sensors.">
+            <step name="Windows Location Provider - Turn off Windows Location Provider" description="Enable this policy, the Windows Location Provider feature will be turned off, and all programs on this computer will not be able to use the Windows Location Provider feature." category="recommended" defaultSelected="true" runOnOs="16">
+              <action>
+                <type>Registry</type>
+                <command>ADD</command>
+                <params>
+                  <keyName>HKLM\Software\Policies\Microsoft\Windows\LocationAndSensors</keyName>
+                  <valueName>DisableWindowsLocationProvider</valueName>
+                  <type>REG_DWORD</type>
+                  <data>1</data>
+                </params>
+              </action>
+            </step>
+          </group>
+          <group name="Maps" description="Maps.">
+            <step name="Turn off Automatic Download and Update of Map Data" description="Enable this policy, the automatic download and update of map data is turned off." category="recommended" defaultSelected="true" runOnOs="16">
+              <action>
+                <type>Registry</type>
+                <command>ADD</command>
+                <params>
+                  <keyName>HKLM\Software\Policies\Microsoft\Windows\Maps</keyName>
+                  <valueName>AutoDownloadAndUpdateMapData</valueName>
+                  <type>REG_DWORD</type>
+                  <data>0</data>
+                </params>
+              </action>
+            </step>
+            <step name="Turn off unsolicited network traffic on the Offline Maps settings page" description="Enable this policy, features that generate network traffic on the Offline Maps settings page are turned off. Note: This may turn off the entire settings page." category="recommended" defaultSelected="true" runOnOs="16">
+              <action>
+                <type>Registry</type>
+                <command>ADD</command>
+                <params>
+                  <keyName>HKLM\Software\Policies\Microsoft\Windows\Maps</keyName>
+                  <valueName>AllowUntriggeredNetworkTrafficOnSettingsPage</valueName>
+                  <type>REG_DWORD</type>
+                  <data>0</data>
+                </params>
+              </action>
+            </step>
+          </group>
+          <group name="OneDrive" description="OneDrive.">
+            <step name="Prevent the usage of OneDrive for file storage" description="Enable this policy, apps and features can not work with OneDrive file storage." category="recommended" defaultSelected="true" runOnOs="16">
+              <action>
+                <type>Registry</type>
+                <command>ADD</command>
+                <params>
+                  <keyName>HKLM\Software\Policies\Microsoft\Windows\OneDrive</keyName>
+                  <valueName>DisableFileSyncNGSC</valueName>
+                  <type>REG_DWORD</type>
+                  <data>1</data>
+                </params>
+              </action>
+            </step>
+            <step name="Save documents to OneDrive by default" description="Disable this policy, files will be saved locally by default." category="recommended" defaultSelected="true" runOnOs="16">
+              <action>
+                <type>Registry</type>
+                <command>ADD</command>
+                <params>
+                  <keyName>HKLM\Software\Policies\Microsoft\Windows\OneDrive</keyName>
+                  <valueName>DisableLibrariesDefaultSaveToOneDrive</valueName>
+                  <type>REG_DWORD</type>
+                  <data>0</data>
+                </params>
+              </action>
+            </step>
+          </group>
+          <group name="RSS Feeds" description="RSS Feeds.">
+            <step name="Prevent automatic discovery of feeds and Web Slices" description="Enable this policy, the user does not receive a notification on the toolbar that a feed or Web Slice is available." category="recommended" defaultSelected="true" runOnOs="16">
+              <action>
+                <type>Registry</type>
+                <command>ADD</command>
+                <params>
+                  <keyName>HKLM\Software\Policies\Microsoft\Internet Explorer\Feed Discovery</keyName>
+                  <valueName>Enabled</valueName>
+                  <type>REG_DWORD</type>
+                  <data>0</data>
+                </params>
+              </action>
+            </step>
+          </group>
+          <group name="Search" description="Search.">
+            <step name="Allow Cortana" description="Disable this policy, Cortana will be turned off." category="recommended" defaultSelected="true" runOnOs="16">
+              <action>
+                <type>Registry</type>
+                <command>ADD</command>
+                <params>
+                  <keyName>HKLM\SOFTWARE\Policies\Microsoft\Windows\Windows Search</keyName>
+                  <valueName>AllowCortana</valueName>
+                  <type>REG_DWORD</type>
+                  <data>0</data>
+                </params>
+              </action>
+            </step>
+            <step name="Allow Cortana above lock screen" description="Disable this policy, the system will need to be unlocked for the user to interact with Cortana using speech." category="recommended" defaultSelected="true" runOnOs="16">
+              <action>
+                <type>Registry</type>
+                <command>ADD</command>
+                <params>
+                  <keyName>HKLM\SOFTWARE\Policies\Microsoft\Windows\Windows Search</keyName>
+                  <valueName>AllowCortanaAboveLock</valueName>
+                  <type>REG_DWORD</type>
+                  <data>0</data>
+                </params>
+              </action>
+            </step>
+            <step name="Allow search and Cortana to use location" description="Disable this policy, search and Cortana can not access location information." category="recommended" defaultSelected="true" runOnOs="16">
+              <action>
+                <type>Registry</type>
+                <command>ADD</command>
+                <params>
+                  <keyName>HKLM\SOFTWARE\Policies\Microsoft\Windows\Windows Search</keyName>
+                  <valueName>AllowSearchToUseLocation</valueName>
+                  <type>REG_DWORD</type>
+                  <data>0</data>
+                </params>
+              </action>
+            </step>
+            <step name="Do not allow web search" description="Enable this policy, search and Cortana can not access location information." category="recommended" defaultSelected="true" runOnOs="16">
+              <action>
+                <type>Registry</type>
+                <command>ADD</command>
+                <params>
+                  <keyName>HKLM\SOFTWARE\Policies\Microsoft\Windows\Windows Search</keyName>
+                  <valueName>DisableWebSearch</valueName>
+                  <type>REG_DWORD</type>
+                  <data>0</data>
+                </params>
+              </action>
+            </step>
+            <step name="Don't search the web or display web results in Search" description="Enable this policy, queries won't be performed on the web and web results won't be displayed when a user performs a query in Search." category="recommended" defaultSelected="true" runOnOs="16">
+              <action>
+                <type>Registry</type>
+                <command>ADD</command>
+                <params>
+                  <keyName>HKLM\SOFTWARE\Policies\Microsoft\Windows\Windows Search</keyName>
+                  <valueName>ConnectedSearchUseWeb</valueName>
+                  <type>REG_DWORD</type>
+                  <data>0</data>
+                </params>
+              </action>
+            </step>
+            <step name="Prevent indexing files in offline files cache" description="Enable this policy, files on network shares made available offline are not indexed." category="recommended" defaultSelected="true" runOnOs="16">
+              <action>
+                <type>Registry</type>
+                <command>ADD</command>
+                <params>
+                  <keyName>HKLM\SOFTWARE\Policies\Microsoft\Windows\Windows Search</keyName>
+                  <valueName>PreventIndexingOfflineFiles</valueName>
+                  <type>REG_DWORD</type>
+                  <data>1</data>
+                </params>
+              </action>
+            </step>
+          </group>
+          <group name="Store" description="Store.">
+            <step name="Turn off the offer to update to the latest version of Windows" description="Enable this policy, the Store application will not offer updates to the latest version of Windows." category="recommended" defaultSelected="true" runOnOs="16">
+              <action>
+                <type>Registry</type>
+                <command>ADD</command>
+                <params>
+                  <keyName>HKLM\Software\Policies\Microsoft\WindowsStore</keyName>
+                  <valueName>DisableOSUpgrade</valueName>
+                  <type>REG_DWORD</type>
+                  <data>1</data>
+                </params>
+              </action>
+            </step>
+          </group>
+          <group name="Windows Error Reporting" description="Windows Error Reporting.">
+            <step name="Automatically send memory dumps for OS-generated error reports" description="Disable this policy, then all memory dumps are uploaded according to the default consent and notification settings." category="recommended" defaultSelected="true" runOnOs="16">
+              <action>
+                <type>Registry</type>
+                <command>ADD</command>
+                <params>
+                  <keyName>HKLM\SOFTWARE\Policies\Microsoft\Windows\Windows Error Reporting</keyName>
+                  <valueName>AutoApproveOSDumps</valueName>
+                  <type>REG_DWORD</type>
+                  <data>0</data>
+                </params>
+              </action>
+            </step>
+            <step name="Disable Windows Error Reporting" description="Enable this policy, Windows Error Reporting does not send any problem information to Microsoft. Additionally, solution information is not available in Security and Maintenance in Control Panel." category="recommended" defaultSelected="true" runOnOs="16">
+              <action>
+                <type>Registry</type>
+                <command>ADD</command>
+                <params>
+                  <keyName>HKLM\SOFTWARE\Policies\Microsoft\Windows\Windows Error Reporting</keyName>
+                  <valueName>Disabled</valueName>
+                  <type>REG_DWORD</type>
+                  <data>1</data>
+                </params>
+              </action>
+            </step>
+          </group>
+          <group name="Windows Installer" description="Windows Installer.">
+            <step name="Control maximum size of baseline file cache" description="Enable this policy, set the maximum size of the Windows Installer baseline file cache to 5." category="recommended" defaultSelected="true" runOnOs="16">
+              <action>
+                <type>Registry</type>
+                <command>ADD</command>
+                <params>
+                  <keyName>HKLM\Software\Policies\Microsoft\Windows\Installer</keyName>
+                  <valueName>MaxPatchCacheSize</valueName>
+                  <type>REG_DWORD</type>
+                  <data>5</data>
+                </params>
+              </action>
+            </step>
+            <step name="Turn off creation of System Restore checkpoints" description="Enable this policy, the Windows Installer does not generate System Restore checkpoints when installing applications." category="recommended" defaultSelected="true" runOnOs="16">
+              <action>
+                <type>Registry</type>
+                <command>ADD</command>
+                <params>
+                  <keyName>HKLM\Software\Policies\Microsoft\Windows\Installer</keyName>
+                  <valueName>LimitSystemRestoreCheckpointing</valueName>
+                  <type>REG_DWORD</type>
+                  <data>1</data>
+                </params>
+              </action>
+            </step>
+          </group>
+          <group name="Windows Mail" description="Windows Mail.">
+            <step name="Turn off the communities features" description="Enable this policy, Windows Mail will not check your newsgroup servers for Communities support." category="recommended" defaultSelected="true" runOnOs="16">
+              <action>
+                <type>Registry</type>
+                <command>ADD</command>
+                <params>
+                  <keyName>HKLM\SOFTWARE\Policies\Microsoft\Windows Mail</keyName>
+                  <valueName>DisableCommunities</valueName>
+                  <type>REG_DWORD</type>
+                  <data>1</data>
+                </params>
+              </action>
+            </step>
+          </group>
+          <group name="Windows Media Player" description="Windows Media Player.">
+            <step name="Do Not Show First Use Dialog Boxes" description="Enable this policy, the anchor window is hidden when the Player is in skin mode." category="recommended" defaultSelected="true" runOnOs="16">
+              <action>
+                <type>Registry</type>
+                <command>ADD</command>
+                <params>
+                  <keyName>HKLM\Software\Policies\Microsoft\WindowsMediaPlayer</keyName>
+                  <valueName>GroupPrivacyAcceptance</valueName>
+                  <type>REG_DWORD</type>
+                  <data>1</data>
+                </params>
+              </action>
+            </step>
+            <step name="Prevent Media Sharing" description="Enable this policy, any user on this computer is prevented from sharing digital media content from Windows Media Player with other computers and devices that are on the same network." category="recommended" defaultSelected="true" runOnOs="16">
+              <action>
+                <type>Registry</type>
+                <command>ADD</command>
+                <params>
+                  <keyName>HKLM\Software\Policies\Microsoft\WindowsMediaPlayer</keyName>
+                  <valueName>PreventLibrarySharing</valueName>
+                  <type>REG_DWORD</type>
+                  <data>1</data>
+                </params>
+              </action>
+            </step>
+          </group>
+          <group name="Windows Mobility Center" description="Windows Mobility Center.">
+            <step name="Turn off Windows Mobility Center" description="Enable this policy, the user is unable to invoke Windows Mobility Center. The Windows Mobility Center UI is removed from all shell entry points and the .exe file does not launch it." category="recommended" defaultSelected="true" runOnOs="16">
+              <action>
+                <type>Registry</type>
+                <command>ADD</command>
+                <params>
+                  <keyName>HKLM\Software\Microsoft\Windows\CurrentVersion\Policies\MobilityCenter</keyName>
+                  <valueName>NoMobilityCenter</valueName>
+                  <type>REG_DWORD</type>
+                  <data>1</data>
+                </params>
+              </action>
+            </step>
+          </group>
+          <group name="Windows Reliability Analysis" description="Windows Reliability Analysis.">
+            <step name="Configure Reliability WMI Providers" description="Disable this policy, Reliability Monitor will not display system reliability information, and WMI-capable applications will be unable to access reliability information from the listed providers." category="recommended" defaultSelected="true" runOnOs="16">
+              <action>
+                <type>Registry</type>
+                <command>ADD</command>
+                <params>
+                  <keyName>HKLM\SOFTWARE\Policies\Microsoft\Windows\Reliability Analysis\WMI</keyName>
+                  <valueName>WMIEnable</valueName>
+                  <type>REG_DWORD</type>
+                  <data>0</data>
+                </params>
+              </action>
+            </step>
+          </group>
+        </group>
+      </group>
+      <group name="Administrative Templates (Users)" description="Administrative Templates (Users).">
+        <group name="Desktop" description="Desktop.">
+          <step name="Do not add shares of recently opened documents to Network Locations" description="Enable this policy, shared folders are not added to Network Locations automatically when you open a document in the shared folder." category="recommended" defaultSelected="true" runOnOs="16">
+            <action>
+              <type>Registry</type>
+              <command>ADD</command>
+              <params>
+                <keyName>HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Policies\Explorer</keyName>
+                <valueName>NoRecentDocsNetHood</valueName>
+                <type>REG_DWORD</type>
+                <data>1</data>
+              </params>
+            </action>
+          </step>
+          <step name="Active Directory - Maximum size of Active Directory searches" description="Enable this policy, set Number of objects returned to 5000." category="recommended" defaultSelected="true" runOnOs="16">
+            <action>
+              <type>Registry</type>
+              <command>ADD</command>
+              <params>
+                <keyName>HKEY_CURRENT_USER\Software\Policies\Microsoft\Windows\Directory UI</keyName>
+                <valueName>QueryLimit</valueName>
+                <type>REG_DWORD</type>
+                <data>5000</data>
+              </params>
+            </action>
+          </step>
+        </group>
+        <group name="Start Menu and Taskbar" description="Start Menu and Taskbar.">
+          <step name="Clear the recent programs list for new users" description="Enable this policy, the recent programs list in the start menu will be blank for each new user." category="recommended" defaultSelected="true" runOnOs="16">
+            <action>
+              <type>Registry</type>
+              <command>ADD</command>
+              <params>
+                <keyName>HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Policies\Explorer</keyName>
+                <valueName>ClearRecentProgForNewUserInStartMenu</valueName>
+                <type>REG_DWORD</type>
+                <data>1</data>
+              </params>
+            </action>
+          </step>
+          <step name="Do not display or track items in Jump Lists from remote locations" description="Enable this policy, the Start Menu and Taskbar only track the files that the user opens locally on this computer. Files that the user opens over the network from remote computers are not tracked or shown in the Jump Lists. Use this setting to reduce network traffic, particularly over slow network connections." category="recommended" defaultSelected="true" runOnOs="16">
+            <action>
+              <type>Registry</type>
+              <command>ADD</command>
+              <params>
+                <keyName>HKEY_CURRENT_USER\Software\Policies\Microsoft\Windows\Explorer</keyName>
+                <valueName>NoRemoteDestinations</valueName>
+                <type>REG_DWORD</type>
+                <data>1</data>
+              </params>
+            </action>
+          </step>
+          <step name="Turn off all balloon notifications" description="Enable this policy, no notification balloons are shown to the user." category="recommended" defaultSelected="true" runOnOs="16">
+            <action>
+              <type>Registry</type>
+              <command>ADD</command>
+              <params>
+                <keyName>HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Policies\Explorer</keyName>
+                <valueName>TaskbarNoNotification</valueName>
+                <type>REG_DWORD</type>
+                <data>1</data>
+              </params>
+            </action>
+          </step>
+          <step name="Notifications - Turn off toast notifications" description="Enable this policy, applications will not be able to raise toast notifications." category="recommended" defaultSelected="true" runOnOs="16">
+            <action>
+              <type>Registry</type>
+              <command>ADD</command>
+              <params>
+                <keyName>HKEY_CURRENT_USER\SOFTWARE\Policies\Microsoft\Windows\CurrentVersion\PushNotifications</keyName>
+                <valueName>NoToastApplicationNotification</valueName>
+                <type>REG_DWORD</type>
+                <data>1</data>
+              </params>
+            </action>
+          </step>
+        </group>
+        <group name="Windows Components" description="Windows Components.">
+          <group name="Cloud Content" description="Cloud Content.">
+            <step name="Turn off all Windows spotlight features" description="Enable this policy, Windows spotlight on lock screen, Windows tips, Microsoft consumer features and other related features will be turned off." category="recommended" defaultSelected="true" runOnOs="16">
+              <action>
+                <type>Registry</type>
+                <command>ADD</command>
+                <params>
+                  <keyName>HKEY_CURRENT_USER\Software\Policies\Microsoft\Windows\CloudContent</keyName>
+                  <valueName>DisableWindowsSpotlightFeatures</valueName>
+                  <type>REG_DWORD</type>
+                  <data>1</data>
+                </params>
+              </action>
+            </step>
+          </group>
+          <group name="File Explorer" description="File Explorer.">
+            <step name="Turn off display of recent search entries in the File Explorer search box" description="Enable this policy, File Explorer will not show suggestion pop-ups as users type into the Search Box, and it will not store Search Box entries into the registry for future references." category="recommended" defaultSelected="true" runOnOs="16">
+              <action>
+                <type>Registry</type>
+                <command>ADD</command>
+                <params>
+                  <keyName>HKEY_CURRENT_USER\Software\Policies\Microsoft\Windows\Explorer</keyName>
+                  <valueName>DisableSearchBoxSuggestions</valueName>
+                  <type>REG_DWORD</type>
+                  <data>1</data>
+                </params>
+              </action>
+            </step>
+          </group>
+        </group>
+      </group>
+    </group>
+    <group name="Remove Apps" description="Remove Apps">
+      <step name="Remove 3DBuilder" description="Powershell command to remove 3DBuilder from built-in apps" category="optional" defaultSelected="false" runOnOs="16">
+        <action>
+          <!-- ShellExecute Powershell "&amp; {Get-AppxPackage -AllUsers *Microsoft.3DBuilder* | Remove-AppxPackage;Get-ProvisionedAppxPackage -online | Where {$_.Displayname -like '*Microsoft.3DBuilder*'} | Remove-ProvisionedAppxPackage –online}" -->
+          <type>ShellExecute</type>
+          <command>Powershell "&amp; {Get-AppxPackage -AllUsers *Microsoft.3DBuilder* | Remove-AppxPackage;Get-ProvisionedAppxPackage -online | Where {$_.Displayname -like '*Microsoft.3DBuilder*'} | Remove-ProvisionedAppxPackage –online}"</command>
+        </action>
+      </step>
+      <step name="Remove Alarms &amp; Clock" description="Powershell command to remove Alarms &amp; Clock from built-in apps" category="optional" defaultSelected="false" runOnOs="16">
+        <action>
+          <!-- ShellExecute Powershell "&amp; {Get-AppxPackage -AllUsers *WindowsAlarms* | Remove-AppxPackage;Get-ProvisionedAppxPackage -online | Where {$_.Displayname -like '*WindowsAlarms*'} | Remove-ProvisionedAppxPackage –online}" -->
+          <type>ShellExecute</type>
+          <command>Powershell "&amp; {Get-AppxPackage -AllUsers *WindowsAlarms* | Remove-AppxPackage;Get-ProvisionedAppxPackage -online | Where {$_.Displayname -like '*WindowsAlarms*'} | Remove-ProvisionedAppxPackage –online}"</command>
+        </action>
+      </step>
+      <step name="Remove Appconnector" description="Powershell command to remove Appconnector from built-in apps" category="optional" defaultSelected="false" runOnOs="16">
+        <action>
+          <!-- ShellExecute Powershell "&amp; {Get-AppxPackage -AllUsers *Appconnector* | Remove-AppxPackage;Get-ProvisionedAppxPackage -online | Where {$_.Displayname -like '*Appconnector*'} | Remove-ProvisionedAppxPackage –online}" -->
+          <type>ShellExecute</type>
+          <command>Powershell "&amp; {Get-AppxPackage -AllUsers *Appconnector* | Remove-AppxPackage;Get-ProvisionedAppxPackage -online | Where {$_.Displayname -like '*Appconnector*'} | Remove-ProvisionedAppxPackage –online}"</command>
+        </action>
+      </step>
+      <step name="Remove BingFinance" description="Powershell command to remove BingFinance from built-in apps" category="optional" defaultSelected="false" runOnOs="16">
+        <action>
+          <!-- ShellExecute Powershell "&amp; {Get-AppxPackage -AllUsers *BingFinance* | Remove-AppxPackage;Get-ProvisionedAppxPackage -online | Where {$_.Displayname -like '*BingFinance*'} | Remove-ProvisionedAppxPackage –online}" -->
+          <type>ShellExecute</type>
+          <command>Powershell "&amp; {Get-AppxPackage -AllUsers *BingFinance* | Remove-AppxPackage;Get-ProvisionedAppxPackage -online | Where {$_.Displayname -like '*BingFinance*'} | Remove-ProvisionedAppxPackage –online}"</command>
+        </action>
+      </step>
+      <step name="Remove BingNews" description="Powershell command to remove BingNews from built-in apps" category="optional" defaultSelected="false" runOnOs="16">
+        <action>
+          <!-- ShellExecute Powershell "&amp; {Get-AppxPackage -AllUsers *BingNews* | Remove-AppxPackage;Get-ProvisionedAppxPackage -online | Where {$_.Displayname -like '*BingNews*'} | Remove-ProvisionedAppxPackage –online}"-->
+          <type>ShellExecute</type>
+          <command>Powershell "&amp; {Get-AppxPackage -AllUsers *BingNews* | Remove-AppxPackage;Get-ProvisionedAppxPackage -online | Where {$_.Displayname -like '*BingNews*'} | Remove-ProvisionedAppxPackage –online}"</command>
+        </action>
+      </step>
+      <step name="Remove BingSports" description="Powershell command to remove BingSports from built-in apps" category="optional" defaultSelected="false" runOnOs="16">
+        <action>
+          <!-- ShellExecute Powershell "&amp; {Get-AppxPackage -AllUsers *BingSports* | Remove-AppxPackage;Get-ProvisionedAppxPackage -online | Where {$_.Displayname -like '*BingSports*'} | Remove-ProvisionedAppxPackage –online}" -->
+          <type>ShellExecute</type>
+          <command>Powershell "&amp; {Get-AppxPackage -AllUsers *BingSports* | Remove-AppxPackage;Get-ProvisionedAppxPackage -online | Where {$_.Displayname -like '*BingSports*'} | Remove-ProvisionedAppxPackage –online}"</command>
+        </action>
+      </step>
+      <step name="Remove BingWeather" description="Powershell command to remove BingWeather from built-in apps" category="optional" defaultSelected="false" runOnOs="16">
+        <action>
+          <!-- ShellExecute Powershell "&amp; {Get-AppxPackage -AllUsers *BingWeather* | Remove-AppxPackage;Get-ProvisionedAppxPackage -online | Where {$_.Displayname -like '*BingWeather*'} | Remove-ProvisionedAppxPackage –online}" -->
+          <type>ShellExecute</type>
+          <command>Powershell "&amp; {Get-AppxPackage -AllUsers *BingWeather* | Remove-AppxPackage;Get-ProvisionedAppxPackage -online | Where {$_.Displayname -like '*BingWeather*'} | Remove-ProvisionedAppxPackage –online}"</command>
+        </action>
+      </step>
+      <step name="Remove Camera" description="Powershell command to remove Camera from built-in apps" category="optional" defaultSelected="false" runOnOs="16">
+        <action>
+          <!-- ShellExecute Powershell "&amp; {Get-AppxPackage -AllUsers *WindowsCamera* | Remove-AppxPackage;Get-ProvisionedAppxPackage -online | Where {$_.Displayname -like '*WindowsCamera*'} | Remove-ProvisionedAppxPackage –online}" -->
+          <type>ShellExecute</type>
+          <command>Powershell "&amp; {Get-AppxPackage -AllUsers *WindowsCamera* | Remove-AppxPackage;Get-ProvisionedAppxPackage -online | Where {$_.Displayname -like '*WindowsCamera*'} | Remove-ProvisionedAppxPackage –online}"</command>
+        </action>
+      </step>
+      <step name="Remove Candy Crush Soda Saga" description="Powershell command to remove Candy Crush Soda Saga from built-in apps" category="optional" defaultSelected="false" runOnOs="16">
+        <action>
+          <!-- ShellExecute Powershell "&amp; {Get-AppxPackage -AllUsers *king.com.CandyCrushSodaSaga* | Remove-AppxPackage;Get-ProvisionedAppxPackage -online | Where {$_.Displayname -like '*king.com.CandyCrushSodaSaga*'} | Remove-ProvisionedAppxPackage –online}" -->
+          <type>ShellExecute</type>
+          <command>Powershell "&amp; {Get-AppxPackage -AllUsers *king.com.CandyCrushSodaSaga* | Remove-AppxPackage;Get-ProvisionedAppxPackage -online | Where {$_.Displayname -like '*king.com.CandyCrushSodaSaga*'} | Remove-ProvisionedAppxPackage –online}"</command>
+        </action>
+      </step>
+      <step name="Remove Communications Apps" description="Powershell command to remove Communications Apps(Mail/Calender) from built-in apps" category="optional" defaultSelected="false" runOnOs="16">
+        <action>
+          <!-- ShellExecute Powershell "&amp; {Get-AppxPackage -AllUsers *microsoft.windowscommunicationsapps* | Remove-AppxPackage;Get-ProvisionedAppxPackage -online | Where {$_.Displayname -like '*microsoft.windowscommunicationsapps*'} | Remove-ProvisionedAppxPackage –online}" -->
+          <type>ShellExecute</type>
+          <command>Powershell "&amp; {Get-AppxPackage -AllUsers *microsoft.windowscommunicationsapps* | Remove-AppxPackage;Get-ProvisionedAppxPackage -online | Where {$_.Displayname -like '*microsoft.windowscommunicationsapps*'} | Remove-ProvisionedAppxPackage –online}"</command>
+        </action>
+      </step>
+      <step name="Remove GetStarted" description="Powershell command to remove GetStarted from built-in apps" category="optional" defaultSelected="false" runOnOs="16">
+        <action>
+          <!-- ShellExecute Powershell "&amp; {Get-AppxPackage -AllUsers *GetStarted* | Remove-AppxPackage;Get-ProvisionedAppxPackage -online | Where {$_.Displayname -like '*GetStarted*'} | Remove-ProvisionedAppxPackage –online}" -->
+          <type>ShellExecute</type>
+          <command>Powershell "&amp; {Get-AppxPackage -AllUsers *GetStarted* | Remove-AppxPackage;Get-ProvisionedAppxPackage -online | Where {$_.Displayname -like '*GetStarted*'} | Remove-ProvisionedAppxPackage –online}"</command>
+        </action>
+      </step>
+      <step name="Remove Maps" description="Powershell command to remove Maps from built-in apps" category="optional" defaultSelected="false" runOnOs="16">
+        <action>
+          <!-- ShellExecute Powershell "&amp; {Get-AppxPackage -AllUsers *Microsoft.WindowsMaps* | Remove-AppxPackage;Get-ProvisionedAppxPackage -online | Where {$_.Displayname -like '*Microsoft.WindowsMaps*'} | Remove-ProvisionedAppxPackage –online}" -->
+          <type>ShellExecute</type>
+          <command>Powershell "&amp; {Get-AppxPackage -AllUsers *Microsoft.WindowsMaps* | Remove-AppxPackage;Get-ProvisionedAppxPackage -online | Where {$_.Displayname -like '*Microsoft.WindowsMaps*'} | Remove-ProvisionedAppxPackage –online}"</command>
+        </action>
+      </step>
+      <step name="Remove MicrosoftOfficeHub" description="Powershell command to remove MicrosoftOfficeHub from built-in apps" category="optional" defaultSelected="false" runOnOs="16">
+        <action>
+          <!-- ShellExecute Powershell "&amp; {Get-AppxPackage -AllUsers *MicrosoftOfficeHub* | Remove-AppxPackage;Get-ProvisionedAppxPackage -online | Where {$_.Displayname -like '*MicrosoftOfficeHub*'} | Remove-ProvisionedAppxPackage –online}" -->
+          <type>ShellExecute</type>
+          <command>Powershell "&amp; {Get-AppxPackage -AllUsers *MicrosoftOfficeHub* | Remove-AppxPackage;Get-ProvisionedAppxPackage -online | Where {$_.Displayname -like '*MicrosoftOfficeHub*'} | Remove-ProvisionedAppxPackage –online}"</command>
+        </action>
+      </step>
+      <step name="Remove MicrosoftSolitaireCollection" description="Powershell command to remove MicrosoftSolitaireCollection from built-in apps" category="optional" defaultSelected="false" runOnOs="16">
+        <action>
+          <!-- ShellExecute Powershell "&amp; {Get-AppxPackage -AllUsers *MicrosoftSolitaireCollection* | Remove-AppxPackage;Get-ProvisionedAppxPackage -online | Where {$_.Displayname -like '*MicrosoftSolitaireCollection*'} | Remove-ProvisionedAppxPackage –online}" -->
+          <type>ShellExecute</type>
+          <command>Powershell "&amp; {Get-AppxPackage -AllUsers *MicrosoftSolitaireCollection* | Remove-AppxPackage;Get-ProvisionedAppxPackage -online | Where {$_.Displayname -like '*MicrosoftSolitaireCollection*'} | Remove-ProvisionedAppxPackage –online}"</command>
+        </action>
+      </step>
+      <step name="Remove OneNote" description="Powershell command to remove OneNote from built-in apps" category="optional" defaultSelected="false" runOnOs="16">
+        <action>
+          <!-- ShellExecute Powershell "&amp; {Get-AppxPackage -AllUsers *OneNote* | Remove-AppxPackage;Get-ProvisionedAppxPackage -online | Where {$_.Displayname -like '*OneNote*'} | Remove-ProvisionedAppxPackage –online}" -->
+          <type>ShellExecute</type>
+          <command>Powershell "&amp; {Get-AppxPackage -AllUsers *OneNote* | Remove-AppxPackage;Get-ProvisionedAppxPackage -online | Where {$_.Displayname -like '*OneNote*'} | Remove-ProvisionedAppxPackage –online}"</command>
+        </action>
+      </step>
+      <step name="Remove People" description="Powershell command to remove People from built-in apps" category="optional" defaultSelected="false" runOnOs="16">
+        <action>
+          <!-- ShellExecute Powershell "&amp; {Get-AppxPackage -AllUsers *People* | Remove-AppxPackage;Get-ProvisionedAppxPackage -online | Where {$_.Displayname -like '*People*'} | Remove-ProvisionedAppxPackage –online}" -->
+          <type>ShellExecute</type>
+          <command>Powershell "&amp; {Get-AppxPackage -AllUsers *People* | Remove-AppxPackage;Get-ProvisionedAppxPackage -online | Where {$_.Displayname -like '*People*'} | Remove-ProvisionedAppxPackage –online}"</command>
+        </action>
+      </step>
+      <step name="Remove Phone" description="Powershell command to remove Phone from built-in apps" category="optional" defaultSelected="false" runOnOs="16">
+        <action>
+          <!-- ShellExecute Powershell "&amp; {Get-AppxPackage -AllUsers *WindowsPhone* | Remove-AppxPackage;Get-ProvisionedAppxPackage -online | Where {$_.Displayname -like '*WindowsPhone*'} | Remove-ProvisionedAppxPackage –online}" -->
+          <type>ShellExecute</type>
+          <command>Powershell "&amp; {Get-AppxPackage -AllUsers *WindowsPhone* | Remove-AppxPackage;Get-ProvisionedAppxPackage -online | Where {$_.Displayname -like '*WindowsPhone*'} | Remove-ProvisionedAppxPackage –online}"</command>
+        </action>
+      </step>
+      <step name="Remove Photos" description="Powershell command to remove Photos from built-in apps" category="optional" defaultSelected="false" runOnOs="16">
+        <action>
+          <!-- ShellExecute Powershell "&amp; {Get-AppxPackage -AllUsers *Photos* | Remove-AppxPackage;Get-ProvisionedAppxPackage -online | Where {$_.Displayname -like '*Photos*'} | Remove-ProvisionedAppxPackage –online}" -->
+          <type>ShellExecute</type>
+          <command>Powershell "&amp; {Get-AppxPackage -AllUsers *Photos* | Remove-AppxPackage;Get-ProvisionedAppxPackage -online | Where {$_.Displayname -like '*Photos*'} | Remove-ProvisionedAppxPackage –online}"</command>
+        </action>
+      </step>
+      <step name="Remove SkypeApp" description="Powershell command to remove SkypeApp from built-in apps" category="optional" defaultSelected="false" runOnOs="16">
+        <action>
+          <!-- ShellExecute Powershell "&amp; {Get-AppxPackage -AllUsers *SkypeApp* | Remove-AppxPackage;Get-ProvisionedAppxPackage -online | Where {$_.Displayname -like '*SkypeApp*'} | Remove-ProvisionedAppxPackage –online}" -->
+          <type>ShellExecute</type>
+          <command>Powershell "&amp; {Get-AppxPackage -AllUsers *SkypeApp* | Remove-AppxPackage;Get-ProvisionedAppxPackage -online | Where {$_.Displayname -like '*SkypeApp*'} | Remove-ProvisionedAppxPackage –online}"</command>
+        </action>
+      </step>
+      <step name="Remove SoundRecorder" description="Powershell command to remove SoundRecorder from built-in apps" category="optional" defaultSelected="false" runOnOs="16">
+        <action>
+          <!-- ShellExecute Powershell "&amp; {Get-AppxPackage -AllUsers *SoundRecorder* | Remove-AppxPackage;Get-ProvisionedAppxPackage -online | Where {$_.Displayname -like '*SoundRecorder*'} | Remove-ProvisionedAppxPackage –online}" -->
+          <type>ShellExecute</type>
+          <command>Powershell "&amp; {Get-AppxPackage -AllUsers *SoundRecorder* | Remove-AppxPackage;Get-ProvisionedAppxPackage -online | Where {$_.Displayname -like '*SoundRecorder*'} | Remove-ProvisionedAppxPackage –online}"</command>
+        </action>
+      </step>
+      <step name="Remove Twitter" description="Powershell command to remove Teitter from built-in apps" category="optional" defaultSelected="false" runOnOs="16">
+        <action>
+          <!-- ShellExecute Powershell "&amp; {Get-AppxPackage -AllUsers *Twitter* | Remove-AppxPackage;Get-ProvisionedAppxPackage -online | Where {$_.Displayname -like '*Twitter*'} | Remove-ProvisionedAppxPackage –online}" -->
+          <type>ShellExecute</type>
+          <command>Powershell "&amp; {Get-AppxPackage -AllUsers *Twitter* | Remove-AppxPackage;Get-ProvisionedAppxPackage -online | Where {$_.Displayname -like '*Twitter*'} | Remove-ProvisionedAppxPackage –online}"</command>
+        </action>
+      </step>
+      <step name="Remove WindowsStore" description="Powershell command to remove WindowsStore from built-in apps" category="optional" defaultSelected="false" runOnOs="16">
+        <action>
+          <!-- ShellExecute Powershell "&amp; {Get-AppxPackage -AllUsers *WindowsStore* | Remove-AppxPackage;Get-ProvisionedAppxPackage -online | Where {$_.Displayname -like '*WindowsStore*'} | Remove-ProvisionedAppxPackage –online}" -->
+          <type>ShellExecute</type>
+          <command>Powershell "&amp; {Get-AppxPackage -AllUsers *WindowsStore* | Remove-AppxPackage;Get-ProvisionedAppxPackage -online | Where {$_.Displayname -like '*WindowsStore*'} | Remove-ProvisionedAppxPackage –online}"</command>
+        </action>
+      </step>
+      <step name="Remove XboxApp" description="Powershell command to remove XboxApp from built-in apps" category="optional" defaultSelected="false" runOnOs="16">
+        <action>
+          <!-- ShellExecute Powershell "&amp; {Get-AppxPackage -AllUsers *XboxApp* | Remove-AppxPackage;Get-ProvisionedAppxPackage -online | Where {$_.Displayname -like '*XboxApp*'} | Remove-ProvisionedAppxPackage –online}" -->
+          <type>ShellExecute</type>
+          <command>Powershell "&amp; {Get-AppxPackage -AllUsers *XboxApp* | Remove-AppxPackage;Get-ProvisionedAppxPackage -online | Where {$_.Displayname -like '*XboxApp*'} | Remove-ProvisionedAppxPackage –online}"</command>
+        </action>
+      </step>
+      <step name="Remove ZuneMusic" description="Powershell command to remove ZuneMusic from built-in apps" category="optional" defaultSelected="false" runOnOs="16">
+        <action>
+          <!-- ShellExecute Powershell "&amp; {Get-AppxPackage -AllUsers *ZuneMusic* | Remove-AppxPackage;Get-ProvisionedAppxPackage -online | Where {$_.Displayname -like '*ZuneMusic*'} | Remove-ProvisionedAppxPackage –online}" -->
+          <type>ShellExecute</type>
+          <command>Powershell "&amp; {Get-AppxPackage -AllUsers *ZuneMusic* | Remove-AppxPackage;Get-ProvisionedAppxPackage -online | Where {$_.Displayname -like '*ZuneMusic*'} | Remove-ProvisionedAppxPackage –online}"</command>
+        </action>
+      </step>
+      <step name="Remove ZuneVideo" description="Powershell command to remove ZuneVideo from built-in apps" category="optional" defaultSelected="false" runOnOs="16">
+        <action>
+          <!-- ShellExecute Powershell "&amp; {Get-AppxPackage -AllUsers *ZuneVideo* | Remove-AppxPackage;Get-ProvisionedAppxPackage -online | Where {$_.Displayname -like '*ZuneVideo*'} | Remove-ProvisionedAppxPackage –online}" -->
+          <type>ShellExecute</type>
+          <command>Powershell "&amp; {Get-AppxPackage -AllUsers *ZuneVideo* | Remove-AppxPackage;Get-ProvisionedAppxPackage -online | Where {$_.Displayname -like '*ZuneVideo*'} | Remove-ProvisionedAppxPackage –online}"</command>
+        </action>
+      </step>
+    </group>
+    <group name="Windows Settings" description="Settings of windows 10.">
+      <group name="System" description="System settings">
+        <group name="Notifications &amp; actions" description="Settings - System - Notifications &amp; actions">
+          <step name="Show notifications on the lock screen" description="Turn off Show notifications on the lock screen" category="recommended" defaultSelected="true">
+            <action>
+              <type>Registry</type>
+              <command>ADD</command>
+              <params>
+                <keyName>HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\Notifications\Settings</keyName>
+                <valueName>NOC_GLOBAL_SETTING_ALLOW_TOASTS_ABOVE_LOCK</valueName>
+                <type>REG_DWORD</type>
+                <data>0</data>
+              </params>
+            </action>
+          </step>
+          <step name="Show alarms,reminders,and incoming VoIP calls on the lock screen" description="Turn off Show alarms,reminders,and incoming VoIP calls on the lock screen" category="recommended" defaultSelected="true">
+            <action>
+              <type>Registry</type>
+              <command>ADD</command>
+              <params>
+                <keyName>HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\Notifications\Settings</keyName>
+                <valueName>NOC_GLOBAL_SETTING_ALLOW_CRITICAL_TOASTS_ABOVE_LOCK</valueName>
+                <type>REG_DWORD</type>
+                <data>0</data>
+              </params>
+            </action>
+          </step>
+          <step name="Get tips, tricks, and suggestions as you use Windows" description="Turn off Get tips, tricks, and suggestions as you use Windows" category="recommended" defaultSelected="true">
+            <action>
+              <type>Registry</type>
+              <command>ADD</command>
+              <params>
+                <keyName>HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\ContentDeliveryManager</keyName>
+                <valueName>SoftLandingEnabled</valueName>
+                <type>REG_DWORD</type>
+                <data>0</data>
+              </params>
+            </action>
+          </step>
+        </group>
+        <group name="Tablet mode" description="Settings - System - Tablet mode">
+          <step name="When I sign in" description="Use desktop mode When I sign in" category="recommended" defaultSelected="true">
+            <action>
+              <type>Registry</type>
+              <command>ADD</command>
+              <params>
+                <keyName>HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\ImmersiveShell</keyName>
+                <valueName>SignInMode</valueName>
+                <type>REG_DWORD</type>
+                <data>1</data>
+              </params>
+            </action>
+          </step>
+          <step name="When this device automatically switches tablet mode on or off" description="Don't switch tablet mode" category="recommended" defaultSelected="true">
+            <action>
+              <type>Registry</type>
+              <command>ADD</command>
+              <params>
+                <keyName>HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\ImmersiveShell</keyName>
+                <valueName>ConvertibleSlateModePromptPreference</valueName>
+                <type>REG_DWORD</type>
+                <data>0</data>
+              </params>
+            </action>
+          </step>
+          <step name="Hide app icons on the taskbar in tablet mode" description="Turn off Hide app icons on the taskbar in tablet mode" category="recommended" defaultSelected="true">
+            <action>
+              <type>Registry</type>
+              <command>ADD</command>
+              <params>
+                <keyName>HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Advanced</keyName>
+                <valueName>TaskbarAppsVisibleInTableMode</valueName>
+                <type>REG_DWORD</type>
+                <data>1</data>
+              </params>
+            </action>
+          </step>
+        </group>
+      </group>
+      <group name="Personalization" description="Personalization settings">
+        <group name="Start" description="Settings - Personalization - Start">
+          <step name="Occasionally show suggestions in Start" description="Turn off Occasionally show suggestions in Start." category="recommended" defaultSelected="true">
+            <action>
+              <type>Registry</type>
+              <command>ADD</command>
+              <params>
+                <keyName>HKCU\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager</keyName>
+                <valueName>SystemPaneSuggestionsEnabled</valueName>
+                <type>REG_DWORD</type>
+                <data>0</data>
+              </params>
+            </action>
+          </step>
+        </group>
+      </group>
+      <group name="Privacy" description="Privacy settings">
+        <group name="General" description="Settings - Privacy - General">
+          <step name="Let apps use advertising ID to make ads more interesting to you based on your app usage" description="Turn off Let apps use advertising ID." category="recommended" defaultSelected="true">
+            <action>
+              <type>Registry</type>
+              <command>ADD</command>
+              <params>
+                <keyName>HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\AdvertisingInfo</keyName>
+                <valueName>Enabled</valueName>
+                <type>REG_DWORD</type>
+                <data>0</data>
+              </params>
+            </action>
+          </step>
+          <step name="Let websites provide locally relevant content by accessing my language list" description="Turn off Let websites provide locally relevant content by accessing my language list." category="recommended" defaultSelected="true">
+            <action>
+              <type>Registry</type>
+              <command>ADD</command>
+              <params>
+                <keyName>HKCU\Control Panel\International\User Profile</keyName>
+                <valueName>HttpAcceptLanguageOptout</valueName>
+                <type>REG_DWORD</type>
+                <data>1</data>
+              </params>
+            </action>
+          </step>
+          <step name="Let apps on my other devices open apps and continue experiences on this device" description="Turn off Let apps on my other devices open apps and continue experiences on this device." category="recommended" defaultSelected="true">
+            <action>
+              <type>Registry</type>
+              <command>ADD</command>
+              <params>
+                <keyName>HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\SmartGlass</keyName>
+                <valueName>UserAuthPolicy</valueName>
+                <type>REG_DWORD</type>
+                <data>0</data>
+              </params>
+            </action>
+          </step>
+        </group>
+        <step name="Let apps use my camera" description="Turn off Let apps use my camera." category="recommended" defaultSelected="true">
+          <action>
+            <type>Registry</type>
+            <command>ADD</command>
+            <params>
+              <keyName>HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\DeviceAccess\Global\{E5323777-F976-4f5b-9B55-B94699C46E44}</keyName>
+              <valueName>Value</valueName>
+              <type>REG_SZ</type>
+              <data>Deny</data>
+            </params>
+          </action>
+        </step>
+        <step name="Let apps use my microphone" description="Turn off Let apps use my microphone." category="recommended" defaultSelected="true">
+          <action>
+            <type>Registry</type>
+            <command>ADD</command>
+            <params>
+              <keyName>HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\DeviceAccess\Global\{2EEF81BE-33FA-4800-9670-1CD474972C3F}</keyName>
+              <valueName>Value</valueName>
+              <type>REG_SZ</type>
+              <data>Deny</data>
+            </params>
+          </action>
+        </step>
+        <step name="Let apps access my notifications" description="Turn off Let apps access my notifications." category="recommended" defaultSelected="true">
+          <action>
+            <type>Registry</type>
+            <command>ADD</command>
+            <params>
+              <keyName>HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\DeviceAccess\Global\{52079E78-A92B-413F-B213-E8FE35712E72}</keyName>
+              <valueName>Value</valueName>
+              <type>REG_SZ</type>
+              <data>Deny</data>
+            </params>
+          </action>
+        </step>
+        <step name="Let apps access my contacts" description="Turn off Let apps access my contacts." category="recommended" defaultSelected="true">
+          <action>
+            <type>Registry</type>
+            <command>ADD</command>
+            <params>
+              <keyName>HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\DeviceAccess\Global\{7D7E8402-7C54-4821-A34E-AEEFD62DED93}</keyName>
+              <valueName>Value</valueName>
+              <type>REG_SZ</type>
+              <data>Deny</data>
+            </params>
+          </action>
+        </step>
+        <step name="Let apps access my calendar" description="Turn off Let apps access my calendar." category="recommended" defaultSelected="true">
+          <action>
+            <type>Registry</type>
+            <command>ADD</command>
+            <params>
+              <keyName>HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\DeviceAccess\Global\{D89823BA-7180-4B81-B50C-7E471E6121A3}</keyName>
+              <valueName>Value</valueName>
+              <type>REG_SZ</type>
+              <data>Deny</data>
+            </params>
+          </action>
+        </step>
+        <step name="Let apps access my call history" description="Turn off Let apps access my call history." category="recommended" defaultSelected="true">
+          <action>
+            <type>Registry</type>
+            <command>ADD</command>
+            <params>
+              <keyName>HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\DeviceAccess\Global\{8BC668CF-7728-45BD-93F8-CF2B3B41D7AB}</keyName>
+              <valueName>Value</valueName>
+              <type>REG_SZ</type>
+              <data>Deny</data>
+            </params>
+          </action>
+        </step>
+        <step name="Let apps access and send email" description="Turn off Let apps access and send email." category="recommended" defaultSelected="true">
+          <action>
+            <type>Registry</type>
+            <command>ADD</command>
+            <params>
+              <keyName>HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\DeviceAccess\Global\{9231CB4C-BF57-4AF3-8C55-FDA7BFCC04C5}</keyName>
+              <valueName>Value</valueName>
+              <type>REG_SZ</type>
+              <data>Deny</data>
+            </params>
+          </action>
+        </step>
+        <step name="Let apps read or send messages (text or MMS)" description="Turn off Let apps read or send messages (text or MMS)." category="recommended" defaultSelected="true">
+          <action>
+            <type>Registry</type>
+            <command>ADD</command>
+            <params>
+              <keyName>HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\DeviceAccess\Global\{992AFA70-6F47-4148-B3E9-3003349C1548}</keyName>
+              <valueName>Value</valueName>
+              <type>REG_SZ</type>
+              <data>Deny</data>
+            </params>
+          </action>
+        </step>
+        <step name="Let apps control radios" description="Turn off Let apps control radios." category="recommended" defaultSelected="true">
+          <action>
+            <type>Registry</type>
+            <command>ADD</command>
+            <params>
+              <keyName>HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\DeviceAccess\Global\{A8804298-2D5F-42E3-9531-9C8C39EB29CE}</keyName>
+              <valueName>Value</valueName>
+              <type>REG_SZ</type>
+              <data>Deny</data>
+            </params>
+          </action>
+        </step>
+        <step name="Let your apps automatically share and sync info with wireless devices that don’t explicitly pair with your PC, tablet, or phone" description="Turn off Let your apps automatically share and sync info with wireless devices that don’t explicitly pair with your PC, tablet, or phone." category="recommended" defaultSelected="true">
+          <action>
+            <type>Registry</type>
+            <command>ADD</command>
+            <params>
+              <keyName>HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\DeviceAccess\Global\LooselyCoupled</keyName>
+              <valueName>Value</valueName>
+              <type>REG_SZ</type>
+              <data>Deny</data>
+            </params>
+          </action>
+        </step>
+        <step name="Windows should ask for my feedback" description="Never let windows ask for my feedback." category="recommended" defaultSelected="true">
+          <action>
+            <type>Registry</type>
+            <command>ADD</command>
+            <params>
+              <keyName>HKCU\SOFTWARE\Microsoft\Siuf\Rules</keyName>
+              <valueName>NumberOfSIUFInPeriod</valueName>
+              <type>REG_DWORD</type>
+              <data>0</data>
+            </params>
+          </action>
+        </step>
+      </group>
+    </group>
+  </group>
+</sequence>

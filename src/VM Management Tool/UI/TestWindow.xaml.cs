@@ -203,7 +203,13 @@ namespace VMManagementTool
         private void sdeleteBtn_Click(object sender, RoutedEventArgs e)
         {
 
-            WinOptimizationsManager.Instance.RunSDelete();
+            //WinOptimizationsManager.Instance.RunSDelete();
+            /**/
+            var sdeleteTask = new SDeleteTask();
+            sdeleteTask.NewInfo += LogUpdateInto;
+            //sdeleteTask.RunViaPS();
+            sdeleteTask.Run();
+
         }
 
         private void cleanmgrBtn_Click(object sender, RoutedEventArgs e)

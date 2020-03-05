@@ -37,7 +37,7 @@ namespace VMManagementTool.UI
 
             //for smoother user experience
             await Task.Delay(500);
-
+            
             //run cleanmgr
             SetParagraphLook(cleanmgrParagrath, TextLook.Processing);
             SetProgress(INDEFINITE_PROGRESS, "");
@@ -46,9 +46,10 @@ namespace VMManagementTool.UI
             winOptimizationsManager.StartCleanmgr();
         }
 
-        private void WinOptimizationsManager_CleanmgrCompleted(bool success)
+        private async void WinOptimizationsManager_CleanmgrCompleted(bool success)
         {
             ResetProgress();
+          
             if (success)
             {
                 SetParagraphLook(cleanmgrParagrath, TextLook.Completed);
@@ -62,16 +63,20 @@ namespace VMManagementTool.UI
 
             SetParagraphLook(sdeleteParagrath, TextLook.Processing);
 
-            SetProgress(-1,"Calculating...");
+            //for smoother user experience
+            await Task.Delay(500);
+
+            SetProgress(-1,"");
             //proceed to sdelete
-            winOptimizationsManager.ProgressChanged += WinOptimizationsManager_ProgressChanged;
+            //winOptimizationsManager.ProgressChanged += WinOptimizationsManager_ProgressChanged;
             winOptimizationsManager.SdeleteCompleted += WinOptimizationsManager_SdeleteCompleted;
             winOptimizationsManager.StartSdelete();
         }
 
-        private void WinOptimizationsManager_SdeleteCompleted(bool success)
+        private async void WinOptimizationsManager_SdeleteCompleted(bool success)
         {
             ResetProgress();
+           
             if (success)
             {
                 SetParagraphLook(sdeleteParagrath, TextLook.Completed);
@@ -85,8 +90,29 @@ namespace VMManagementTool.UI
 
             SetParagraphLook(defragParagrath, TextLook.Processing);
 
-            //proceed to defrag
+            //for smoother user experience
+            await Task.Delay(500);
 
+            //proceed to defrag
+            SetProgress(-1, "");
+            winOptimizationsManager.DefragCompleted += WinOptimizationsManager_DefragCompleted;
+            winOptimizationsManager.StartDefrag();
+        }
+
+        private void WinOptimizationsManager_DefragCompleted(bool success)
+        {
+            ResetProgress();
+            if (success)
+            {
+                SetParagraphLook(defragParagrath, TextLook.Completed);
+
+            }
+            else
+            {
+                SetParagraphLook(defragParagrath, TextLook.Skipped);
+
+            }
+            //finish and proceed
         }
 
         private void WinOptimizationsManager_ProgressChanged(int progress, string label)

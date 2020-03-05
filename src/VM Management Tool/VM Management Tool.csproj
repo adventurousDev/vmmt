@@ -93,6 +93,7 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="Log.cs" />
+    <Compile Include="Services\SDeleteTask.cs" />
     <Compile Include="Settings.cs" />
     <Compile Include="Test\DummyWinUpdateManager.cs" />
     <Compile Include="UIUtils\TextLookEnum.cs" />

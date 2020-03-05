@@ -24,7 +24,7 @@
                    VerticalAlignment="Top"
                    HorizontalAlignment="Left"
                    >
-                Final Cleanup
+                Cleanup
         </TextBlock>
         <StackPanel 
             Grid.Row="1"
@@ -52,18 +52,18 @@
                         <ListItem>
                             <Paragraph x:Name="cleanmgrParagrath" Foreground="{DynamicResource {x:Static SystemColors.GrayTextBrushKey}}">
 
-                                Run Disk Cleanup
+                                Disk Cleanup
 
                             </Paragraph>
                         </ListItem>
                         <ListItem>
                             <Paragraph x:Name="sdeleteParagrath" Foreground="{DynamicResource {x:Static SystemColors.GrayTextBrushKey}}">
-                                Run Sdelete
+                                Sdelete
                             </Paragraph>
                         </ListItem>
                         <ListItem>
                             <Paragraph x:Name="defragParagrath" Foreground="{DynamicResource {x:Static SystemColors.GrayTextBrushKey}}">
-                                Run Defrag
+                                Defrag
                             </Paragraph>
                         </ListItem>
                         
@@ -85,9 +85,7 @@
 
 
             </Label>
-            <ProgressBar x:Name="progressBar" Width="355" Height="15"
-                        Value="1" 
-                         />
+            <ProgressBar x:Name="progressBar" Width="355" Height="15"  />
 
         </StackPanel>
         <StackPanel Orientation="Vertical"

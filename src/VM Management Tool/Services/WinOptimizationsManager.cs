@@ -12,7 +12,7 @@ using System.Collections.ObjectModel;
 
 namespace VMManagementTool.Services
 {
-    class WinOptimizationsManager
+    class WinOptimizationsManager//todo cleanup and exception handlign in main methods(especially async)
     {
         private static readonly object instancelock = new object();
         private static WinOptimizationsManager instance = null;
@@ -93,20 +93,20 @@ namespace VMManagementTool.Services
             }
             sDeleteProc.StartInfo.FileName = path;
             sDeleteProc.StartInfo.Arguments = "-nobanner -z c:";
-            sDeleteProc.StartInfo.UseShellExecute = false;
-            sDeleteProc.StartInfo.CreateNoWindow = true;
-            sDeleteProc.StartInfo.RedirectStandardOutput = true;
-            sDeleteProc.StartInfo.RedirectStandardError = true;
+            sDeleteProc.StartInfo.UseShellExecute = true;
+            sDeleteProc.StartInfo.CreateNoWindow = false;
+            //sDeleteProc.StartInfo.RedirectStandardOutput = true;
+            //sDeleteProc.StartInfo.RedirectStandardError = true;
 
             sDeleteProc.EnableRaisingEvents = true;
-            sDeleteProc.OutputDataReceived += SDeleteProc_OutputDataReceived;
-            sDeleteProc.ErrorDataReceived += SDeleteProc_ErrorDataReceived;
+            //sDeleteProc.OutputDataReceived += SDeleteProc_OutputDataReceived;
+            //sDeleteProc.ErrorDataReceived += SDeleteProc_ErrorDataReceived;
             sDeleteProc.Exited += SDeleteProc_Exited;
 
 
             sDeleteProc.Start();
-            sDeleteProc.BeginErrorReadLine();
-            sDeleteProc.BeginOutputReadLine();
+            //sDeleteProc.BeginErrorReadLine();
+            //sDeleteProc.BeginOutputReadLine();
 
         }
         private void PrepareCleanmgrRegistry()
@@ -139,6 +139,16 @@ namespace VMManagementTool.Services
             {
                 cleanmgrProc.Kill();
             }
+            if (sDeleteProc != null)
+            {
+                sDeleteProc.Kill();
+            }
+            if (defragProc != null)
+            {
+                defragProc.Kill();
+                //defragProc.StandardInput.Close();
+            }
+
         }
 
         public void StartCleanmgr()
@@ -176,7 +186,10 @@ namespace VMManagementTool.Services
             Info($"started cleanmgr; PID = {cleanmgrProc.Id}");
 
         }
-
+        public void StartDefrag()
+        {
+            Task.Run(() => RunDefrag());
+        }
         public void RunDefrag()
         {
             //1. Enable defrag service 
@@ -198,24 +211,24 @@ namespace VMManagementTool.Services
             defragProc = new Process();
             defragProc.StartInfo.FileName = Path.Combine(@"C:\Windows\Sysnative", "Defrag.exe");
 
-            defragProc.StartInfo.Arguments = $"/C /O /V /H /U";
-            defragProc.StartInfo.UseShellExecute = false;
-            defragProc.StartInfo.CreateNoWindow = true;
-            defragProc.StartInfo.RedirectStandardOutput = true;
-            defragProc.StartInfo.RedirectStandardError = true;
-            defragProc.StartInfo.RedirectStandardInput = true;
+            defragProc.StartInfo.Arguments = $"/C /O /H /U";
+            defragProc.StartInfo.UseShellExecute = true;
+            defragProc.StartInfo.CreateNoWindow = false;
+            //defragProc.StartInfo.RedirectStandardOutput = true;
+            //defragProc.StartInfo.RedirectStandardError = true;
+            //defragProc.StartInfo.RedirectStandardInput = true;
 
 
             defragProc.EnableRaisingEvents = true;
-            defragProc.OutputDataReceived += DefragProc_OutputDataReceived;
-            defragProc.ErrorDataReceived += DefragProc_ErrorDataReceived; ;
+            //defragProc.OutputDataReceived += DefragProc_OutputDataReceived;
+            //defragProc.ErrorDataReceived += DefragProc_ErrorDataReceived; ;
             defragProc.Exited += DefragProc_Exited;
 
 
             defragProc.Start();
-            defragProc.BeginErrorReadLine();
-            defragProc.BeginOutputReadLine();
-            Info($"started defrag; PID = {defragProc.Id}");
+            //defragProc.BeginErrorReadLine();
+            //defragProc.BeginOutputReadLine();
+            //Info($"started defrag; PID = {defragProc.Id}");
         }
 
         #region trying out running defrag in powershell
@@ -295,7 +308,7 @@ namespace VMManagementTool.Services
         {
             defragProcExited = true;
             //todo also consider adding a timeout in case the null data is never received
-
+            DefragCompleted?.Invoke(defragProc.ExitCode == 0);
 
         }
 

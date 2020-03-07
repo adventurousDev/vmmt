@@ -1,0 +1,55 @@
+﻿<Page x:Class="VMManagementTool.UI.ReportPage"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+      xmlns:local="clr-namespace:VMManagementTool.UI"
+      mc:Ignorable="d" 
+       d:DesignHeight="300" d:DesignWidth="482"
+       MinWidth="482"
+      MinHeight="300"
+      Title="Report">
+    <Grid >
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="16"/>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="16"/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="16"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="16"/>
+        </Grid.RowDefinitions>
+        <TextBlock Grid.Row="1" Grid.Column="1" Foreground="Black" FontSize="16" Margin="32,8,0,8"
+                   VerticalAlignment="Top"
+                   HorizontalAlignment="Left"
+                   >
+                Report
+        </TextBlock>
+        <TextBox x:Name="theConsole"   TextWrapping="Wrap"  
+                 Background="#FFFCFCFC" IsReadOnly="True" ScrollViewer.CanContentScroll="True" AutomationProperties.Name="consoleTextbox"
+                 VerticalScrollBarVisibility="Auto" 
+                 Grid.Row="1"
+                 Grid.Column="1"            
+                 VerticalAlignment="Stretch"
+                 HorizontalAlignment="Stretch"
+                 Margin="60,60,48,60"
+                 
+                     />
+        <StackPanel Orientation="Vertical"
+                    VerticalAlignment="Bottom"
+                    HorizontalAlignment="Right"
+                    Margin="0,0,11,11"
+                    Grid.Row="1"
+                    Grid.Column="1"
+                    >
+
+            <Button x:Name="closeButton" Content="Close" MaxWidth="64" MinWidth="64" HorizontalAlignment="Right"
+                    Click="closeButton_Click"/>
+
+
+        </StackPanel>
+
+    </Grid>
+
+</Page>

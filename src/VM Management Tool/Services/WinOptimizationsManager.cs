@@ -16,7 +16,7 @@ namespace VMManagementTool.Services
     {
         private static readonly object instancelock = new object();
         private static WinOptimizationsManager instance = null;
-        //todo does this really need to be a singleton?
+        //todo remove the singleton if unused
         public static WinOptimizationsManager Instance
         {
             get

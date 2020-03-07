@@ -95,6 +95,8 @@
     <Compile Include="Log.cs" />
     <Compile Include="Services\SDeleteTask.cs" />
     <Compile Include="Settings.cs" />
+    <Compile Include="Test\DummyOptimizationTemplateManager.cs" />
+    <Compile Include="Test\DummyWinOptimizationsManger.cs" />
     <Compile Include="Test\DummyWinUpdateManager.cs" />
     <Compile Include="UIUtils\TextLookEnum.cs" />
     <Compile Include="UI\AdvanceConfigPage.xaml.cs">
@@ -124,6 +126,9 @@
     <Compile Include="Services\WinOptimizationsManager.cs" />
     <Compile Include="Services\WinUpdatesManager.cs" />
     <Compile Include="Services\WinServiceUtils.cs" />
+    <Compile Include="UI\ReportPage.xaml.cs">
+      <DependentUpon>ReportPage.xaml</DependentUpon>
+    </Compile>
     <Compile Include="UI\RunCleanupOptimizations.xaml.cs">
       <DependentUpon>RunCleanupOptimizations.xaml</DependentUpon>
     </Compile>
@@ -142,6 +147,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="UI\HomePage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="UI\ReportPage.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

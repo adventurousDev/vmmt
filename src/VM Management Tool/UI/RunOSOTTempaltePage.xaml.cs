@@ -13,6 +13,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using VMManagementTool.Services.Optimization;
+using VMManagementTool.Test;
 
 namespace VMManagementTool.UI
 {
@@ -21,7 +22,8 @@ namespace VMManagementTool.UI
     /// </summary>
     public partial class RunOSOTTempaltePage : Page
     {
-        OptimizationTemplateManager optimizationTemplateManager;
+        //OptimizationTemplateManager optimizationTemplateManager;
+        DummyOptimizationTemplateManager optimizationTemplateManager;
         const int INDEFINITE_PROGRESS = -1;
         public RunOSOTTempaltePage()
         {
@@ -35,7 +37,8 @@ namespace VMManagementTool.UI
             SetProgress(INDEFINITE_PROGRESS, "loading the template...");
             
 
-            optimizationTemplateManager = new OptimizationTemplateManager();
+            //optimizationTemplateManager = new OptimizationTemplateManager();
+            optimizationTemplateManager = new DummyOptimizationTemplateManager();
             //for smoother user experience
             await Task.Delay(250);
 

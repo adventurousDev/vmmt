@@ -13,6 +13,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using VMManagementTool.Services;
+using VMManagementTool.Test;
 using VMManagementTool.UIUtils;
 
 namespace VMManagementTool.UI
@@ -24,7 +25,8 @@ namespace VMManagementTool.UI
     {
         const int INDEFINITE_PROGRESS = -1;
 
-        WinOptimizationsManager winOptimizationsManager;
+        //WinOptimizationsManager winOptimizationsManager;
+        DummyWinOptimizationsManger winOptimizationsManager;
         public RunCleanupOptimizations()
         {
             InitializeComponent();
@@ -33,7 +35,8 @@ namespace VMManagementTool.UI
 
         private async void RunCleanupOptimizations_Loaded(object sender, RoutedEventArgs e)
         {
-            winOptimizationsManager = new WinOptimizationsManager();
+            //winOptimizationsManager = new WinOptimizationsManager();
+            winOptimizationsManager = new DummyWinOptimizationsManger();
 
             //for smoother user experience
             await Task.Delay(500);
@@ -112,7 +115,36 @@ namespace VMManagementTool.UI
                 SetParagraphLook(defragParagrath, TextLook.Skipped);
 
             }
-            //finish and proceed
+
+            FinishAndProceed();
+        }
+        async void FinishAndProceed()
+        {
+            //deregister events(jsut in case)
+            if (winOptimizationsManager != null)
+            {
+                winOptimizationsManager.CleanmgrCompleted -= WinOptimizationsManager_CleanmgrCompleted;
+                winOptimizationsManager.SdeleteCompleted -= WinOptimizationsManager_SdeleteCompleted;
+                winOptimizationsManager.DefragCompleted -= WinOptimizationsManager_DefragCompleted;
+            }
+
+            SetProgress(INDEFINITE_PROGRESS, "finishing...");
+
+            
+
+            //a delay for user to have the last look
+            await Task.Delay(500);
+            //todo save the state if not yet done by now
+            //open the next Page
+            Dispatcher.Invoke(() =>
+            {
+                var page = new ReportPage();
+                NavigationService.Navigate(page);
+
+            }
+            );
+
+
         }
 
         private void WinOptimizationsManager_ProgressChanged(int progress, string label)

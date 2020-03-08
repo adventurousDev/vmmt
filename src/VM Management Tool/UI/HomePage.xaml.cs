@@ -36,6 +36,8 @@ namespace VMManagementTool
             }
             else
             {
+                VMMTSessionManager.Instance.StartOptimizationSession();
+                //todo should the pages be passed the session id to explicitely belong to it?
                 var navTo = new RunWinUpdatesPage();
                 //var navTo = new RunOSOTTempaltePage();
                 //var navTo = new RunCleanupOptimizations();

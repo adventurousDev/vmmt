@@ -94,6 +94,7 @@
     </ApplicationDefinition>
     <Compile Include="Log.cs" />
     <Compile Include="Services\SDeleteTask.cs" />
+    <Compile Include="Services\WinUpdateStatus.cs" />
     <Compile Include="Settings.cs" />
     <Compile Include="Test\DummyOptimizationTemplateManager.cs" />
     <Compile Include="Test\DummyWinOptimizationsManger.cs" />
@@ -138,6 +139,8 @@
     <Compile Include="UI\RunWinUpdatesPage.xaml.cs">
       <DependentUpon>RunWinUpdatesPage.xaml</DependentUpon>
     </Compile>
+    <Compile Include="VMMTOptimizationSession.cs" />
+    <Compile Include="VMMTSessionManager.cs" />
     <Page Include="UI\AdvanceConfigPage.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>

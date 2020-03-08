@@ -1,5 +1,6 @@
 ﻿using Newtonsoft.Json;
 using System;
+using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
 using WUApiLib;
@@ -45,7 +46,7 @@ namespace VMManagementTool.Services
 
         UpdateCollection updateCollection;
 
-
+        Dictionary<string, WinUpdateStatus> updateResults;
 
         public WinUpdatesManager()
         {
@@ -95,7 +96,7 @@ namespace VMManagementTool.Services
             }
 
         }
-        
+
         //according to https://docs.microsoft.com/en-us/windows/win32/wua_sdk/guidelines-for-asynchronous-wua-operations,
         //because we use the same object as a callback, that "has" the job objecs,
         //we need to call cleanup to avoid circular references and leaks
@@ -221,7 +222,7 @@ namespace VMManagementTool.Services
             catch (Exception ex)
             {
                 Log.Error("WinUpdatesManager::InstallUpdates", ex.ToString());
-                
+
                 //this will allow the caller UI method to finish and 
                 //the event will be handled like expected asyncronously
                 await Task.Delay(250);
@@ -248,7 +249,7 @@ namespace VMManagementTool.Services
                     CheckCompleted?.Invoke(false);
                     return;
                 }
-
+                //todo could updates partially fail: the result above not success, but still some  updates available? 
                 Info($"Found {searchResult.Updates.Count} updates:" + Environment.NewLine);
 
                 foreach (IUpdate update in searchResult.Updates)
@@ -263,9 +264,24 @@ namespace VMManagementTool.Services
                     Info(Dump(category));
                 }
                 */
+                
                 if (searchResult.Updates.Count > 0)
                 {
                     updateCollection = searchResult.Updates;
+
+                    updateResults = new Dictionary<string, WinUpdateStatus>();
+                    foreach (IUpdate update in updateCollection)
+                    {
+                        List<string> KBs = new List<string>();
+                        foreach (string KB in update.KBArticleIDs)
+                        {
+                            KBs.Add(KB);
+                        }
+
+                        WinUpdateStatus updateStatus = new WinUpdateStatus(update.Title, KBs);
+                        updateResults.Add(update.Title, updateStatus);
+                    }
+
                     UpdatesFound?.Invoke();
                     CheckCompleted?.Invoke(true);
 
@@ -291,7 +307,7 @@ namespace VMManagementTool.Services
             {
                 var downloadResult = updateDownloader.EndDownload(downloadJob);
 
-
+                //todo could downloads partially fail: the result above not success, but still some  updates available for install? 
                 if (downloadResult.ResultCode != OperationResultCode.orcSucceeded)
                 {
                     Info($"Download failed with code: {downloadResult.ResultCode}");
@@ -307,7 +323,19 @@ namespace VMManagementTool.Services
 
                 for (int i = 0; i < downloadJob.Updates.Count; i++)
                 {
-                    Info($"Download status for update {downloadJob.Updates[i].Title}: {downloadResult.GetUpdateResult(i).ResultCode}");
+                    var resultCode = downloadResult.GetUpdateResult(i).ResultCode;
+                    var title = downloadJob.Updates[i].Title;
+                    if (resultCode != OperationResultCode.orcSucceeded)
+                    {
+                        //the title must be there
+                        //but if it it not for some reason we will detect this (via dict. exception)
+                        updateResults[title].Error = resultCode.ToString() ;
+                        updateResults[title].IsInstalled = false;
+                    }
+                    
+
+                    Info($"Download status for update {title}: {resultCode}");
+
                 }
             }
             catch (Exception ex)
@@ -336,7 +364,7 @@ namespace VMManagementTool.Services
             }
 
         }
-        
+
         //Installation Complete callback
         void IInstallationCompletedCallback.Invoke(IInstallationJob installationJob, IInstallationCompletedCallbackArgs callbackArgs)
         {
@@ -357,6 +385,7 @@ namespace VMManagementTool.Services
 
         private void OnInstallationComplete(IInstallationResult installResult)
         {
+            //todo can there be partial success, and we miss some results?
             if (installResult.ResultCode != OperationResultCode.orcSucceeded)
             {
                 Info($"Installation failed with code: {installResult.ResultCode}");
@@ -368,7 +397,17 @@ namespace VMManagementTool.Services
 
             for (int i = 0; i < updateInstaller.Updates.Count; i++)
             {
-                Info($"Installation status for update {updateInstaller.Updates[i].Title}: {installResult.GetUpdateResult(i).ResultCode}");
+                var resultCode = installResult.GetUpdateResult(i).ResultCode;
+                var title = updateInstaller.Updates[i].Title;
+                if (resultCode != OperationResultCode.orcSucceeded)
+                {
+                    //the title must be there
+                    //but if it it not for some reason we will detect this (via dict. exception)
+                    updateResults[title].Error = resultCode.ToString();
+                    updateResults[title].IsInstalled = false;
+                }
+
+                Info($"Installation status for update {title}: {resultCode}");
             }
             Info($"Is reboot required? : {installResult.RebootRequired}");
 
@@ -503,6 +542,14 @@ namespace VMManagementTool.Services
             return res.PadLeft(res.Length + depth * 4); ;
         }
 
+        public object GetResults()
+        {
+            //todo how do we comm. full state/ failure (vs per-update state below)?
+            return updateResults;
+
+
+
+        }
     }
 
 }

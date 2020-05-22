@@ -23,8 +23,8 @@ namespace VMManagementTool.UI
     /// </summary>
     public partial class RunWinUpdatesPage : Page
     {
-        //WinUpdatesManager winUpdateManager;
-        DummyWinUpdateManager winUpdateManager;
+        WinUpdatesManager winUpdateManager;
+        //DummyWinUpdateManager winUpdateManager;
         volatile bool aborted = false;
         public RunWinUpdatesPage()
         {
@@ -55,8 +55,8 @@ namespace VMManagementTool.UI
                 return;
             }
             //start with checking for updates right away
-            //winUpdateManager = new WinUpdatesManager();
-            winUpdateManager = new DummyWinUpdateManager();
+            winUpdateManager = new WinUpdatesManager();
+            //winUpdateManager = new DummyWinUpdateManager();
 
             winUpdateManager.CheckCompleted += WinUpdateManager_CheckCompleted;
             winUpdateManager.ProgressChanged += WinUpdateManager_ProgressChanged;
@@ -242,11 +242,10 @@ namespace VMManagementTool.UI
 
                 winUpdateManager.CleanUp();
 
-                winUpdateManager = null;
+                winUpdateManager = null;                
 
-                bool enabled = await WinServiceUtils.SetStartupTypeAsync(WinUpdatesManager.WUA_SERVICE_NAME, false, 5000).ConfigureAwait(true);
-
-                await WinServiceUtils.StartServiceAsync(WinUpdatesManager.WUA_SERVICE_NAME, 5000).ConfigureAwait(true);
+                await WinServiceUtils.StopServiceAsync(WinUpdatesManager.WUA_SERVICE_NAME, 5000).ConfigureAwait(false);
+                await WinServiceUtils.SetStartupTypeAsync(WinUpdatesManager.WUA_SERVICE_NAME, false, 5000).ConfigureAwait(false);
 
             }
         }
@@ -288,14 +287,17 @@ namespace VMManagementTool.UI
             );
 
         }
-       
+
         async void FinishAndProceed()
         {
-            StartInfiniteProgress("finishing...");
-            await Cleanup();
+            VMMTSessionManager.Instance.AddOptimizationResults(VMMTSessionManager.WIN_UPDATE_RESULTS_KEY, winUpdateManager.GetResults());
 
+            StartInfiniteProgress("finishing...");
+            await Task.Run(Cleanup).ConfigureAwait(false);
+
+            
             //a delay for user to have the last look
-            await Task.Delay(500);
+            await Task.Delay(500).ConfigureAwait(false);
             //todo save the state if not yet done by now
             //open the next Page
             Dispatcher.Invoke(() =>

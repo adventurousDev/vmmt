@@ -44,8 +44,8 @@ namespace VMManagementTool
             WinUpdatesManager.Instance.UpdatesFound += Instance_UpdatesFound;
             WinUpdatesManager.Instance.ReadyToInstall += Instance_ReadyToInstall;
 
-            WinOptimizationsManager.Instance.NewInfo += LogUpdateInto;
-            WinOptimizationsManager.Instance.SDeleteProgressChanged += Instance_SDeleteProgressChanged;
+            CleanupManager.Instance.NewInfo += LogUpdateInto;
+            CleanupManager.Instance.SDeleteProgressChanged += Instance_SDeleteProgressChanged;
             this.Loaded += OnLoad;
             Closing += TestWindow_Closing;
         }
@@ -214,13 +214,13 @@ namespace VMManagementTool
 
         private void cleanmgrBtn_Click(object sender, RoutedEventArgs e)
         {
-            WinOptimizationsManager.Instance.RunCleanmgr();
+            CleanupManager.Instance.RunCleanmgr();
         }
 
         private void hidewindow_Click(object sender, RoutedEventArgs e)
         {
             //WinOptimizationsManager.Instance.HideCleanMgrWndow();
-            WinOptimizationsManager.Instance.Abort();
+            CleanupManager.Instance.Abort();
         }
 
         private void cleanmgrReg_Click(object sender, RoutedEventArgs e)
@@ -231,7 +231,7 @@ namespace VMManagementTool
         private void defragBtn_Click(object sender, RoutedEventArgs e)
         {
             //WinOptimizationsManager.Instance.RunDefragPS();
-            WinOptimizationsManager.Instance.RunDefrag();
+            CleanupManager.Instance.RunDefrag();
         }
 
         private void loadButton_Click(object sender, RoutedEventArgs e)

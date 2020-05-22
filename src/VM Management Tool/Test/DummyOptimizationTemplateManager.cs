@@ -11,7 +11,7 @@ namespace VMManagementTool.Test
         public event Action<int, string> RunProgressChanged;
         public event Action<bool> RunCompleted;
         int fakeSteps = 200;
-
+        List<(string, bool)> stepsResults = new List<(string, bool)>();
         internal async Task LoadAsync(string templatePath)
         {
             await Task.Delay(500);
@@ -25,20 +25,29 @@ namespace VMManagementTool.Test
                 
                 //random delay: in 30% probablility of being longer(300ms)
                 int delay = random.Next(1, 11) < 4 ? 300 : 150;
+                //random status with 3% of fail possibility
+                bool status = random.Next(0, 100) > 3;
                 await Task.Delay(delay);
-
-                RunProgressChanged?.Invoke(i*100/fakeSteps, $"Something step {i} something");
+                var step = $"Something step {i} something";
+                RunProgressChanged?.Invoke(i*100/fakeSteps, step );
+                stepsResults.Add((step, status));
             }
+           
             RunCompleted?.Invoke(true) ;
         }
 
         internal void Abort()
         {
+            
             RunCompleted?.Invoke(false) ;
         }
-
+        public object GetResults()
+        {
+            return stepsResults;
+        }
         internal async Task CleanupAsync()
         {
+            await Task.Delay(50);
             return;
         }
     }

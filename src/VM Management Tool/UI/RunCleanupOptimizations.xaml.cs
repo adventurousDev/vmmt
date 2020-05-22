@@ -25,8 +25,8 @@ namespace VMManagementTool.UI
     {
         const int INDEFINITE_PROGRESS = -1;
 
-        //WinOptimizationsManager winOptimizationsManager;
-        DummyWinOptimizationsManger winOptimizationsManager;
+       CleanupManager cleanupManager;
+        //DummyCleanupManager cleanupManager;
         public RunCleanupOptimizations()
         {
             InitializeComponent();
@@ -35,8 +35,9 @@ namespace VMManagementTool.UI
 
         private async void RunCleanupOptimizations_Loaded(object sender, RoutedEventArgs e)
         {
-            //winOptimizationsManager = new WinOptimizationsManager();
-            winOptimizationsManager = new DummyWinOptimizationsManger();
+            
+            cleanupManager = new CleanupManager();
+            //cleanupManager = new DummyCleanupManager();
 
             //for smoother user experience
             await Task.Delay(500);
@@ -45,8 +46,8 @@ namespace VMManagementTool.UI
             SetParagraphLook(cleanmgrParagrath, TextLook.Processing);
             SetProgress(INDEFINITE_PROGRESS, "");
 
-            winOptimizationsManager.CleanmgrCompleted += WinOptimizationsManager_CleanmgrCompleted;
-            winOptimizationsManager.StartCleanmgr();
+            cleanupManager.CleanmgrCompleted += WinOptimizationsManager_CleanmgrCompleted;
+            cleanupManager.StartCleanmgr();
         }
 
         private async void WinOptimizationsManager_CleanmgrCompleted(bool success)
@@ -72,8 +73,8 @@ namespace VMManagementTool.UI
             SetProgress(-1,"");
             //proceed to sdelete
             //winOptimizationsManager.ProgressChanged += WinOptimizationsManager_ProgressChanged;
-            winOptimizationsManager.SdeleteCompleted += WinOptimizationsManager_SdeleteCompleted;
-            winOptimizationsManager.StartSdelete();
+            cleanupManager.SdeleteCompleted += WinOptimizationsManager_SdeleteCompleted;
+            cleanupManager.StartSdelete();
         }
 
         private async void WinOptimizationsManager_SdeleteCompleted(bool success)
@@ -98,8 +99,8 @@ namespace VMManagementTool.UI
 
             //proceed to defrag
             SetProgress(-1, "");
-            winOptimizationsManager.DefragCompleted += WinOptimizationsManager_DefragCompleted;
-            winOptimizationsManager.StartDefrag();
+            cleanupManager.DefragCompleted += WinOptimizationsManager_DefragCompleted;
+            cleanupManager.StartDefrag();
         }
 
         private void WinOptimizationsManager_DefragCompleted(bool success)
@@ -118,34 +119,7 @@ namespace VMManagementTool.UI
 
             FinishAndProceed();
         }
-        async void FinishAndProceed()
-        {
-            //deregister events(jsut in case)
-            if (winOptimizationsManager != null)
-            {
-                winOptimizationsManager.CleanmgrCompleted -= WinOptimizationsManager_CleanmgrCompleted;
-                winOptimizationsManager.SdeleteCompleted -= WinOptimizationsManager_SdeleteCompleted;
-                winOptimizationsManager.DefragCompleted -= WinOptimizationsManager_DefragCompleted;
-            }
-
-            SetProgress(INDEFINITE_PROGRESS, "finishing...");
-
-            
-
-            //a delay for user to have the last look
-            await Task.Delay(500);
-            //todo save the state if not yet done by now
-            //open the next Page
-            Dispatcher.Invoke(() =>
-            {
-                var page = new ReportPage();
-                NavigationService.Navigate(page);
-
-            }
-            );
-
-
-        }
+       
 
         private void WinOptimizationsManager_ProgressChanged(int progress, string label)
         {
@@ -154,7 +128,7 @@ namespace VMManagementTool.UI
 
         private void abortButton_Click(object sender, RoutedEventArgs e)
         {
-            winOptimizationsManager.Abort();
+            cleanupManager.Abort();
         }
 
         void SetProgress(int value, string label)
@@ -214,6 +188,35 @@ namespace VMManagementTool.UI
                 paragraph.TextDecorations = textDecorations;
             }
             );
+
+        }
+        async void FinishAndProceed()
+        {
+            VMMTSessionManager.Instance.AddOptimizationResults(VMMTSessionManager.CLEANUP_RESULTS_KEY, cleanupManager.GetResults());
+            //deregister events(jsut in case)
+            if (cleanupManager != null)
+            {
+                cleanupManager.CleanmgrCompleted -= WinOptimizationsManager_CleanmgrCompleted;
+                cleanupManager.SdeleteCompleted -= WinOptimizationsManager_SdeleteCompleted;
+                cleanupManager.DefragCompleted -= WinOptimizationsManager_DefragCompleted;
+            }
+
+            SetProgress(INDEFINITE_PROGRESS, "finishing...");
+
+           
+
+            //a delay for user to have the last look
+            await Task.Delay(500);
+            //todo save the state if not yet done by now
+            //open the next Page
+            Dispatcher.Invoke(() =>
+            {
+                var page = new ReportPage();
+                NavigationService.Navigate(page);
+
+            }
+            );
+
 
         }
 

@@ -21,9 +21,10 @@
             <RowDefinition Height="*"/>
             <RowDefinition Height="16"/>
         </Grid.RowDefinitions>
-        <TextBlock Grid.Row="1" Grid.Column="1" Foreground="Black" FontSize="16" Margin="32,8,0,8"
+        <TextBlock Grid.Row="1" Grid.Column="1" Foreground="Black" FontSize="18" Margin="0,22,0,0"
+                   FontWeight="DemiBold"
                    VerticalAlignment="Top"
-                   HorizontalAlignment="Left"
+                   HorizontalAlignment="Center"
                    >
                 OSOT Template Optimizations
         </TextBlock>

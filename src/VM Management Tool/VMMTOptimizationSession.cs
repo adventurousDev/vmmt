@@ -18,5 +18,9 @@ namespace VMManagementTool
         {
             optimizationResults.Add(optimizationTask, result);
         }
+        public Dictionary<string, object> GetResults()
+        {
+            return optimizationResults;
+        }
     }
 }

@@ -74,6 +74,9 @@
       <HintPath>..\packages\Microsoft.PowerShell.5.ReferenceAssemblies.1.1.0\lib\net4\System.Management.Automation.dll</HintPath>
     </Reference>
     <Reference Include="System.ServiceProcess" />
+    <Reference Include="System.ValueTuple, Version=4.0.3.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.ValueTuple.4.5.0\lib\netstandard1.0\System.ValueTuple.dll</HintPath>
+    </Reference>
     <Reference Include="System.Xml" />
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Core" />
@@ -97,7 +100,7 @@
     <Compile Include="Services\WinUpdateStatus.cs" />
     <Compile Include="Settings.cs" />
     <Compile Include="Test\DummyOptimizationTemplateManager.cs" />
-    <Compile Include="Test\DummyWinOptimizationsManger.cs" />
+    <Compile Include="Test\DummyCleanupManager.cs" />
     <Compile Include="Test\DummyWinUpdateManager.cs" />
     <Compile Include="UIUtils\TextLookEnum.cs" />
     <Compile Include="UI\AdvanceConfigPage.xaml.cs">
@@ -124,7 +127,7 @@
     <Compile Include="Services\RegistryUtils.cs" />
     <Compile Include="Services\ShellCommand.cs" />
     <Compile Include="Services\UpdateManager.cs" />
-    <Compile Include="Services\WinOptimizationsManager.cs" />
+    <Compile Include="Services\CleanupManager.cs" />
     <Compile Include="Services\WinUpdatesManager.cs" />
     <Compile Include="Services\WinServiceUtils.cs" />
     <Compile Include="UI\ReportPage.xaml.cs">

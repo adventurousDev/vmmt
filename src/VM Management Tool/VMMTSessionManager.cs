@@ -32,11 +32,20 @@ namespace VMManagementTool
             }
         }
 
+        public const string WIN_UPDATE_RESULTS_KEY = "winupdateresults";
+        public const string OSOT_RESULTS_KEY = "osotresults";
+        public const string CLEANUP_RESULTS_KEY = "cleanupresults";
+
         public void StartOptimizationSession()
         {
             optimizationSession = new VMMTOptimizationSession();
         }
-
+        public VMMTOptimizationSession FinishCurrentSession()
+        {
+            var tmpRef = optimizationSession;
+            optimizationSession = null;
+            return tmpRef;
+        }
         public void AddOptimizationResults(string optimizationTask, object result )
         {
             optimizationSession.AddResult(optimizationTask, result);

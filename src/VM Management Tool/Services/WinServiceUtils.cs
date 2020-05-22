@@ -45,6 +45,10 @@ namespace VMManagementTool.Services
 
 
             }
+            catch
+            {
+                return false;
+            }
             finally
             {
                 sc.Close();
@@ -57,7 +61,7 @@ namespace VMManagementTool.Services
 
             try
             {
-                if (sc.Status == ServiceControllerStatus.Running)
+                if (sc.Status == ServiceControllerStatus.Running || sc.Status==ServiceControllerStatus.StartPending)
                 {
                     return true;
                 }
@@ -84,6 +88,10 @@ namespace VMManagementTool.Services
 
 
 
+            }
+            catch
+            {
+                return false;
             }
             finally
             {

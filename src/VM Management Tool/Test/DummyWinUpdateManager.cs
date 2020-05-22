@@ -4,10 +4,12 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using VMManagementTool.Services;
+using WUApiLib;
 
 namespace VMManagementTool.Test
 {
-    class DummyWinUpdateManager
+    class DummyWinUpdateManager : IDisposable
     {
         public event Action<bool> CheckCompleted;
         public event Action<bool> DownloadCompleted;
@@ -17,6 +19,7 @@ namespace VMManagementTool.Test
         int stage = 0;
         CancellationTokenSource cts;
 
+        Dictionary<string, WinUpdateStatus> updateResults = new Dictionary<string, WinUpdateStatus>();
         async Task SimualteProgress(string action)
         {
 
@@ -70,6 +73,19 @@ namespace VMManagementTool.Test
 
                 return;
             }
+
+            //dummy updates 
+            for (int i = 0; i < 3; i++)
+            {
+                string title = $"A dummy update number {i}";
+
+                WinUpdateStatus updateStatus = new WinUpdateStatus(title,
+                    new List<string> { "KB" + (DateTime.UtcNow - new DateTime(1970, 1, 1)).TotalSeconds.ToString().Substring(0, 6) }
+                    );
+                updateResults.Add(title, updateStatus);
+            }
+
+
             CheckCompleted?.Invoke(true);
         }
 
@@ -87,6 +103,11 @@ namespace VMManagementTool.Test
 
                 return;
             }
+
+            //simualte download failure 
+            string title = $"A dummy update number {2}";
+            updateResults[title].Error = OperationResultCode.orcFailed.ToString();
+            updateResults[title].IsInstalled = false;
             DownloadCompleted?.Invoke(true);
 
         }
@@ -105,6 +126,20 @@ namespace VMManagementTool.Test
 
                 return;
             }
+
+            //dummy update install states 
+            for (int i = 0; i < 3; i++)
+            {
+                if (i == 2)
+                {
+                    continue;
+                }
+                string title = $"A dummy update number {i}";
+
+                updateResults[title].IsInstalled = true;
+            }
+
+            
             InstallationCompleted?.Invoke(true);
 
         }
@@ -132,6 +167,19 @@ namespace VMManagementTool.Test
 
         internal void CleanUp()
         {
+
+        }
+
+        public void Dispose()
+        {
+            throw new NotImplementedException();
+        }
+        public object GetResults()
+        {
+            //todo how do we comm. full state/ failure (vs per-update state below)?
+            return updateResults;
+
+
 
         }
     }

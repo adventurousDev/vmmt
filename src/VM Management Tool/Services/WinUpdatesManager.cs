@@ -46,7 +46,7 @@ namespace VMManagementTool.Services
 
         UpdateCollection updateCollection;
 
-        Dictionary<string, WinUpdateStatus> updateResults;
+        Dictionary<string, WinUpdateStatus> updateResults = new Dictionary<string, WinUpdateStatus>();
 
         public WinUpdatesManager()
         {
@@ -264,12 +264,12 @@ namespace VMManagementTool.Services
                     Info(Dump(category));
                 }
                 */
-                
+
                 if (searchResult.Updates.Count > 0)
                 {
                     updateCollection = searchResult.Updates;
 
-                    updateResults = new Dictionary<string, WinUpdateStatus>();
+
                     foreach (IUpdate update in updateCollection)
                     {
                         List<string> KBs = new List<string>();
@@ -329,10 +329,10 @@ namespace VMManagementTool.Services
                     {
                         //the title must be there
                         //but if it it not for some reason we will detect this (via dict. exception)
-                        updateResults[title].Error = resultCode.ToString() ;
+                        updateResults[title].Error = resultCode.ToString();
                         updateResults[title].IsInstalled = false;
                     }
-                    
+
 
                     Info($"Download status for update {title}: {resultCode}");
 
@@ -393,7 +393,7 @@ namespace VMManagementTool.Services
                 return;
             }
 
-            InstallationCompleted?.Invoke(true);
+
 
             for (int i = 0; i < updateInstaller.Updates.Count; i++)
             {
@@ -402,14 +402,21 @@ namespace VMManagementTool.Services
                 if (resultCode != OperationResultCode.orcSucceeded)
                 {
                     //the title must be there
-                    //but if it it not for some reason we will detect this (via dict. exception)
+                    //but if it is not for some reason we will detect this (via dict. exception)
                     updateResults[title].Error = resultCode.ToString();
                     updateResults[title].IsInstalled = false;
+                }
+                else
+                {
+                    updateResults[title].IsInstalled = true;
                 }
 
                 Info($"Installation status for update {title}: {resultCode}");
             }
             Info($"Is reboot required? : {installResult.RebootRequired}");
+
+
+            InstallationCompleted?.Invoke(true);
 
         }
 
@@ -546,8 +553,6 @@ namespace VMManagementTool.Services
         {
             //todo how do we comm. full state/ failure (vs per-update state below)?
             return updateResults;
-
-
 
         }
     }

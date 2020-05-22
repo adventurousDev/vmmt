@@ -22,8 +22,8 @@ namespace VMManagementTool.UI
     /// </summary>
     public partial class RunOSOTTempaltePage : Page
     {
-        //OptimizationTemplateManager optimizationTemplateManager;
-        DummyOptimizationTemplateManager optimizationTemplateManager;
+        OptimizationTemplateManager optimizationTemplateManager;
+        //DummyOptimizationTemplateManager optimizationTemplateManager;
         const int INDEFINITE_PROGRESS = -1;
         public RunOSOTTempaltePage()
         {
@@ -37,8 +37,8 @@ namespace VMManagementTool.UI
             SetProgress(INDEFINITE_PROGRESS, "loading the template...");
             
 
-            //optimizationTemplateManager = new OptimizationTemplateManager();
-            optimizationTemplateManager = new DummyOptimizationTemplateManager();
+            optimizationTemplateManager = new OptimizationTemplateManager();
+            //optimizationTemplateManager = new DummyOptimizationTemplateManager();
             //for smoother user experience
             await Task.Delay(250);
 
@@ -95,7 +95,7 @@ namespace VMManagementTool.UI
         }
         async void FinishAndProceed()
         {
-
+            VMMTSessionManager.Instance.AddOptimizationResults(VMMTSessionManager.OSOT_RESULTS_KEY, optimizationTemplateManager.GetResults());
             if (optimizationTemplateManager != null)
             {
                 optimizationTemplateManager.RunProgressChanged -= OptimizationTemplateManager_RunProgressChanged;
@@ -103,6 +103,7 @@ namespace VMManagementTool.UI
             }
 
             SetProgress(INDEFINITE_PROGRESS, "finishing...");
+            
 
             await optimizationTemplateManager.CleanupAsync();
            

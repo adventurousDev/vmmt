@@ -12,12 +12,12 @@ using System.Collections.ObjectModel;
 
 namespace VMManagementTool.Services
 {
-    class WinOptimizationsManager//todo cleanup and exception handlign in main methods(especially async)
+    class CleanupManager//todo cleanup and exception handlign in main methods(especially async)
     {
         private static readonly object instancelock = new object();
-        private static WinOptimizationsManager instance = null;
+        private static CleanupManager instance = null;
         //todo remove the singleton if unused
-        public static WinOptimizationsManager Instance
+        public static CleanupManager Instance
         {
             get
             {
@@ -27,7 +27,7 @@ namespace VMManagementTool.Services
                     {
                         if (instance == null)
                         {
-                            instance = new WinOptimizationsManager();
+                            instance = new CleanupManager();
                         }
                     }
                 }
@@ -51,6 +51,8 @@ namespace VMManagementTool.Services
 
         public event Action<int, string> ProgressChanged;
 
+
+        List<(string, bool, int)> results = new List<(string, bool, int)>();
 
         public bool SDeleteRunning { get { return sDeleteProc != null; } }
         private const int SW_HIDE = 0;
@@ -306,8 +308,11 @@ namespace VMManagementTool.Services
 
         private void DefragProc_Exited(object sender, EventArgs e)
         {
+            var exitCode = defragProc.ExitCode;
             defragProcExited = true;
-            //todo also consider adding a timeout in case the null data is never received
+            
+            results.Add(("Defrag", exitCode == 0, exitCode));
+            
             DefragCompleted?.Invoke(defragProc.ExitCode == 0);
 
         }
@@ -317,6 +322,7 @@ namespace VMManagementTool.Services
         {
             var exitCode = cleanmgrProc.ExitCode;
             Info($"Finished execution. Exit code: {exitCode}");
+            results.Add(("Disk Cleanup", exitCode == 0, exitCode));
             CleanmgrCompleted?.Invoke(exitCode == 0);
             cleanmgrProc.Close();
             cleanmgrProc = null;
@@ -352,6 +358,7 @@ namespace VMManagementTool.Services
 
             SDeleteExited?.Invoke(exitCode);
 
+            results.Add(("SDelete", exitCode == 0, exitCode));
             SdeleteCompleted?.Invoke(exitCode==0);
         }
 
@@ -409,6 +416,10 @@ namespace VMManagementTool.Services
         private void Info(string text)
         {
             NewInfo?.Invoke(text);
+        }
+        public object GetResults()
+        {
+            return results;
         }
     }
 }

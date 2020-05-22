@@ -26,6 +26,8 @@ namespace VMManagementTool.Services.Optimization
         public event Action<bool> RunCompleted;
         volatile bool abortionsRequested = false;
 
+        List<(string, bool)> stepsResults = new List<(string, bool)>();
+
         public void Load(string path)
         {
             try
@@ -155,13 +157,19 @@ namespace VMManagementTool.Services.Optimization
                 currentStep++;
                 int percentage = (int)((currentStep * 1f / totalSteps) * 95);//95 for better visibility
 
-                step.Action.Execute();
+                var status = step.Action.Execute();
+                stepsResults.Add((step.Name, status));
 
                 RunProgressChanged?.Invoke(percentage, step.Name);
 
                 //throttling to allow visible and smooth progress
                 //await Task.Delay(100);
             }
+            if (abortionsRequested)
+            {
+                stepsResults = null;
+            }
+            
             RunCompleted?.Invoke(!abortionsRequested);
 
         }
@@ -171,7 +179,10 @@ namespace VMManagementTool.Services.Optimization
             await Task.Run(() => Load(path));
 
         }
-
+        public object GetResults()
+        {
+            return stepsResults;
+        }
         public async Task CleanupAsync()
         {
             //todo consider cleaning up resources

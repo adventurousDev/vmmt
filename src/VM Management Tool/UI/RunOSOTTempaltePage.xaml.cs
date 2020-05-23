@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -29,16 +30,22 @@ namespace VMManagementTool.UI
         {
             InitializeComponent();
             Loaded += RunOSOTTempaltePage_Loaded;
+          
         }
 
         private async void RunOSOTTempaltePage_Loaded(object sender, RoutedEventArgs e)
         {
             //prepare: load the template with infinite progress asyncrounously
             SetProgress(INDEFINITE_PROGRESS, "loading the template...");
-            
+
 
             optimizationTemplateManager = new OptimizationTemplateManager();
             //optimizationTemplateManager = new DummyOptimizationTemplateManager();
+
+            //for debuging
+            //SetProgress(INDEFINITE_PROGRESS, Directory.GetCurrentDirectory());
+            //await Task.Delay(15000);
+            
             //for smoother user experience
             await Task.Delay(250);
 
@@ -46,7 +53,7 @@ namespace VMManagementTool.UI
             //todo get the path from approapriate source
             string templatePath = Settings.OPTIMIZATION_TEMPLATE_PATH;
             await optimizationTemplateManager.LoadAsync(templatePath);
-            
+
 
             optimizationTemplateManager.RunProgressChanged += OptimizationTemplateManager_RunProgressChanged;
             optimizationTemplateManager.RunCompleted += OptimizationTemplateManager_RunCompleted;
@@ -95,7 +102,7 @@ namespace VMManagementTool.UI
         }
         async void FinishAndProceed()
         {
-            VMMTSessionManager.Instance.AddOptimizationResults(VMMTSessionManager.OSOT_RESULTS_KEY, optimizationTemplateManager.GetResults());
+            VMMTSessionManager.Instance.SetOSOTResults(optimizationTemplateManager.GetResults());
             if (optimizationTemplateManager != null)
             {
                 optimizationTemplateManager.RunProgressChanged -= OptimizationTemplateManager_RunProgressChanged;
@@ -103,10 +110,10 @@ namespace VMManagementTool.UI
             }
 
             SetProgress(INDEFINITE_PROGRESS, "finishing...");
-            
+
 
             await optimizationTemplateManager.CleanupAsync();
-           
+
             //a delay for user to have the last look
             await Task.Delay(500);
             //todo save the state if not yet done by now

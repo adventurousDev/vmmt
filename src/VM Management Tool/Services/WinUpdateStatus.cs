@@ -6,15 +6,20 @@ using System.Threading.Tasks;
 
 namespace VMManagementTool.Services
 {
-    class WinUpdateStatus
+    public class WinUpdateStatus
     {
 
-        public string Title { get; private set; }
-        public List<string> KBIds { get; private set; }
+        public string Title { get; set; }
+        public List<string> KBIds { get; set; }
         public bool IsInstalled { get;  set; }
 
         public string Error { get;  set; }
 
+        //for json deserialization
+        public WinUpdateStatus()
+        {
+
+        }
         public WinUpdateStatus(string updateTitle, List<string> KBs )
         {
             Title = updateTitle;

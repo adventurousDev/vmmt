@@ -3,24 +3,20 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using VMManagementTool.Services;
 
 namespace VMManagementTool
 {
     class VMMTOptimizationSession
     {
-        //optimization outcomes/ errors/ states of different tasks
-        Dictionary<string, object> optimizationResults = new Dictionary<string, object>();
+        public Dictionary<string, WinUpdateStatus> WinUpdateResults { get; set; }
+        public List<(string, bool)> OSOTResults { get; set; }
+        public List<(string, bool, int)> CleanupResults { get; set; }
+
         public VMMTOptimizationSession()
         {
             //todo consider generating some sort of GUID here
         }
-        public void AddResult(string optimizationTask, object result)
-        {
-            optimizationResults.Add(optimizationTask, result);
-        }
-        public Dictionary<string, object> GetResults()
-        {
-            return optimizationResults;
-        }
+        
     }
 }

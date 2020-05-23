@@ -10,7 +10,7 @@ namespace VMManagementTool.Test
     {
         public event Action<int, string> RunProgressChanged;
         public event Action<bool> RunCompleted;
-        int fakeSteps = 200;
+        int fakeSteps = 10;
         List<(string, bool)> stepsResults = new List<(string, bool)>();
         internal async Task LoadAsync(string templatePath)
         {
@@ -41,7 +41,7 @@ namespace VMManagementTool.Test
             
             RunCompleted?.Invoke(false) ;
         }
-        public object GetResults()
+        public List<(string, bool)> GetResults()
         {
             return stepsResults;
         }

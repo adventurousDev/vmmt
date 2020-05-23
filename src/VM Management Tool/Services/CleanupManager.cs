@@ -417,7 +417,7 @@ namespace VMManagementTool.Services
         {
             NewInfo?.Invoke(text);
         }
-        public object GetResults()
+        public List<(string, bool, int)> GetResults()
         {
             return results;
         }

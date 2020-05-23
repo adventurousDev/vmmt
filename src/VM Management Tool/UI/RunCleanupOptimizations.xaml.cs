@@ -25,7 +25,7 @@ namespace VMManagementTool.UI
     {
         const int INDEFINITE_PROGRESS = -1;
 
-       CleanupManager cleanupManager;
+        CleanupManager cleanupManager;
         //DummyCleanupManager cleanupManager;
         public RunCleanupOptimizations()
         {
@@ -35,7 +35,7 @@ namespace VMManagementTool.UI
 
         private async void RunCleanupOptimizations_Loaded(object sender, RoutedEventArgs e)
         {
-            
+
             cleanupManager = new CleanupManager();
             //cleanupManager = new DummyCleanupManager();
 
@@ -192,7 +192,7 @@ namespace VMManagementTool.UI
         }
         async void FinishAndProceed()
         {
-            VMMTSessionManager.Instance.AddOptimizationResults(VMMTSessionManager.CLEANUP_RESULTS_KEY, cleanupManager.GetResults());
+            VMMTSessionManager.Instance.SetCleanupResults(cleanupManager.GetResults());
             //deregister events(jsut in case)
             if (cleanupManager != null)
             {

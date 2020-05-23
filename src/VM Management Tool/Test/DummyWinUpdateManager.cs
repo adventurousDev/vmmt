@@ -13,7 +13,7 @@ namespace VMManagementTool.Test
     {
         public event Action<bool> CheckCompleted;
         public event Action<bool> DownloadCompleted;
-        public event Action<bool> InstallationCompleted;
+        public event Action<bool, bool> InstallationCompleted;
         public event Action<int, string> ProgressChanged;
         int timeout = 2000;
         int stage = 0;
@@ -139,8 +139,8 @@ namespace VMManagementTool.Test
                 updateResults[title].IsInstalled = true;
             }
 
-            
-            InstallationCompleted?.Invoke(true);
+            bool reboot = true;
+            InstallationCompleted?.Invoke(true, reboot);
 
         }
 
@@ -157,7 +157,7 @@ namespace VMManagementTool.Test
                     DownloadCompleted?.Invoke(false);
                     break;
                 case 3:
-                    InstallationCompleted?.Invoke(false);
+                    InstallationCompleted?.Invoke(false, false);
                     break;
 
             }
@@ -174,7 +174,7 @@ namespace VMManagementTool.Test
         {
             throw new NotImplementedException();
         }
-        public object GetResults()
+        public Dictionary<string, WinUpdateStatus> GetResults()
         {
             //todo how do we comm. full state/ failure (vs per-update state below)?
             return updateResults;

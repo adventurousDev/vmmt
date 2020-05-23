@@ -26,11 +26,15 @@ namespace VMManagementTool.UI
         WinUpdatesManager winUpdateManager;
         //DummyWinUpdateManager winUpdateManager;
         volatile bool aborted = false;
-        public RunWinUpdatesPage()
+        bool resumeInstall = false;
+        public RunWinUpdatesPage(bool resume = false)
         {
             InitializeComponent();
-            Loaded += RunOptimizationsPage_Loaded;
+            resumeInstall = resume;
+
+            Loaded += RunWinUpdatesPage_Loaded;
             Unloaded += RunWinUpdatesPage_Unloaded;
+
         }
 
         private void RunWinUpdatesPage_Unloaded(object sender, RoutedEventArgs e)
@@ -38,34 +42,56 @@ namespace VMManagementTool.UI
             //Cleanup();
         }
 
-        private async void RunOptimizationsPage_Loaded(object sender, RoutedEventArgs e)
+        private async void RunWinUpdatesPage_Loaded(object sender, RoutedEventArgs e)
         {
-            ResetProgress();
-            StartInfiniteProgress("preparing...");
-            await Prepare().ConfigureAwait(false);
-            if (aborted)
+            if (resumeInstall)
             {
-                ResetProgress();
-
-                SetParagraphLook(checkParagrath, TextLook.Skipped);
-                SetParagraphLook(downloadParagrath, TextLook.Skipped);
-                SetParagraphLook(installParagrath, TextLook.Skipped);
-
-                FinishAndProceed();
-                return;
+                await ResumeAfterRestart().ConfigureAwait(false);
             }
-            //start with checking for updates right away
-            winUpdateManager = new WinUpdatesManager();
-            //winUpdateManager = new DummyWinUpdateManager();
+            else
+            {
 
-            winUpdateManager.CheckCompleted += WinUpdateManager_CheckCompleted;
-            winUpdateManager.ProgressChanged += WinUpdateManager_ProgressChanged;
 
-            //checking reports no progress so indeterminate
+                ResetProgress();
+                StartInfiniteProgress("preparing...");
+                await Prepare().ConfigureAwait(false);
+                if (aborted)
+                {
+                    ResetProgress();
+
+                    SetParagraphLook(checkParagrath, TextLook.Skipped);
+                    SetParagraphLook(downloadParagrath, TextLook.Skipped);
+                    SetParagraphLook(installParagrath, TextLook.Skipped);
+
+                    FinishAndProceed();
+                    return;
+                }
+                //start with checking for updates right away
+                winUpdateManager = new WinUpdatesManager();
+                //winUpdateManager = new DummyWinUpdateManager();
+
+                winUpdateManager.CheckCompleted += WinUpdateManager_CheckCompleted;
+                winUpdateManager.ProgressChanged += WinUpdateManager_ProgressChanged;
+
+                //checking reports no progress so indeterminate
+                StartInfiniteProgress("");
+
+                SetParagraphLook(checkParagrath, TextLook.Processing);
+                winUpdateManager.CheckForUpdates();
+            }
+        }
+
+        private async Task ResumeAfterRestart()
+        {
             StartInfiniteProgress("");
+            SetParagraphLook(checkParagrath, TextLook.Completed);
+            SetParagraphLook(downloadParagrath, TextLook.Completed);
+            SetParagraphLook(installParagrath, TextLook.Processing);
+            //delay for user to have to time to notice what is going on
+            await Task.Delay(500);
+            //todo consider checking that during/ after restart things went as required
+            WinUpdateManager_InstallationCompleted(true, false);
 
-            SetParagraphLook(checkParagrath, TextLook.Processing);
-            winUpdateManager.CheckForUpdates();
 
         }
 
@@ -164,16 +190,37 @@ namespace VMManagementTool.UI
             }
         }
 
-        private void WinUpdateManager_InstallationCompleted(bool success)
+        private void WinUpdateManager_InstallationCompleted(bool success, bool restartNeeded)
         {
 
 
             ResetProgress();
+
+
             if (success && !aborted)
             {
-                SetParagraphLook(installParagrath, TextLook.Completed);
-                //todo check if reboot needed and move on to reboot
-                //otherwise just move on
+                if (restartNeeded)
+                {
+                    StartInfiniteProgress("restarting the system...");
+                    VMMTSessionManager.Instance.SetWinUpdateResults(winUpdateManager.GetResults());
+                    VMMTSessionManager.Instance.SaveSessionForResume();
+                    SystemUtils.ScheduleAfterRestart();
+                    SystemUtils.RestartSystem();
+                    return;
+                }
+                else
+                {
+                    //winUpdateManager  is null when we arrive here after resume
+                    //in that case the session data is already restored from disk
+                    if (winUpdateManager != null)
+                    {
+                        VMMTSessionManager.Instance.SetWinUpdateResults(winUpdateManager.GetResults());
+                    }
+
+                    SetParagraphLook(installParagrath, TextLook.Completed);
+                }
+                
+
 
 
             }
@@ -242,12 +289,13 @@ namespace VMManagementTool.UI
 
                 winUpdateManager.CleanUp();
 
-                winUpdateManager = null;                
+                winUpdateManager = null;
 
-                await WinServiceUtils.StopServiceAsync(WinUpdatesManager.WUA_SERVICE_NAME, 5000).ConfigureAwait(false);
-                await WinServiceUtils.SetStartupTypeAsync(WinUpdatesManager.WUA_SERVICE_NAME, false, 5000).ConfigureAwait(false);
+
 
             }
+            await WinServiceUtils.StopServiceAsync(WinUpdatesManager.WUA_SERVICE_NAME, 5000).ConfigureAwait(false);
+            await WinServiceUtils.SetStartupTypeAsync(WinUpdatesManager.WUA_SERVICE_NAME, false, 5000).ConfigureAwait(false);
         }
 
         void SetParagraphLook(Paragraph paragraph, TextLook look)
@@ -290,14 +338,15 @@ namespace VMManagementTool.UI
 
         async void FinishAndProceed()
         {
-            VMMTSessionManager.Instance.AddOptimizationResults(VMMTSessionManager.WIN_UPDATE_RESULTS_KEY, winUpdateManager.GetResults());
+           
 
             StartInfiniteProgress("finishing...");
             await Task.Run(Cleanup).ConfigureAwait(false);
 
-            
+
             //a delay for user to have the last look
             await Task.Delay(500).ConfigureAwait(false);
+
             //todo save the state if not yet done by now
             //open the next Page
             Dispatcher.Invoke(() =>

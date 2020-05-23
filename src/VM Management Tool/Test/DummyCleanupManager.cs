@@ -12,7 +12,7 @@ namespace VMManagementTool.Test
         public event Action<bool> DefragCompleted;
         public event Action<bool> SdeleteCompleted;
         int stage = 0;//1 clean, 2 sdelete, 3 defrag
-        int fakeProgressDuration = 4000;//4 seconds
+        int fakeProgressDuration = 1000;//4 seconds
 
         List<(string, bool, int)> results = new List<(string, bool, int)>();
 
@@ -80,7 +80,7 @@ namespace VMManagementTool.Test
             stage = 0;
 
         }
-        public object GetResults()
+        public List<(string, bool, int)> GetResults()
         {
             return results;
         }

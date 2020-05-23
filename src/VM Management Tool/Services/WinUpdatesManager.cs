@@ -59,7 +59,7 @@ namespace VMManagementTool.Services
 
         public event Action<bool> CheckCompleted;
         public event Action<bool> DownloadCompleted;
-        public event Action<bool> InstallationCompleted;
+        public event Action<bool, bool> InstallationCompleted;
         public event Action<int, string> ProgressChanged;
 
         //todo remove, or refactor to return results and w/ exception handling
@@ -226,7 +226,7 @@ namespace VMManagementTool.Services
                 //this will allow the caller UI method to finish and 
                 //the event will be handled like expected asyncronously
                 await Task.Delay(250);
-                InstallationCompleted?.Invoke(false);
+                InstallationCompleted?.Invoke(false, false);
 
             }
         }
@@ -377,7 +377,7 @@ namespace VMManagementTool.Services
             catch (Exception ex)
             {
 
-                InstallationCompleted?.Invoke(false);
+                InstallationCompleted?.Invoke(false, false);
                 Log.Error("IInstallationCompletedCallback.Invoke", ex.ToString());
 
             }
@@ -389,7 +389,7 @@ namespace VMManagementTool.Services
             if (installResult.ResultCode != OperationResultCode.orcSucceeded)
             {
                 Info($"Installation failed with code: {installResult.ResultCode}");
-                InstallationCompleted?.Invoke(false);
+                InstallationCompleted?.Invoke(false, false);
                 return;
             }
 
@@ -416,7 +416,7 @@ namespace VMManagementTool.Services
             Info($"Is reboot required? : {installResult.RebootRequired}");
 
 
-            InstallationCompleted?.Invoke(true);
+            InstallationCompleted?.Invoke(true, installResult.RebootRequired);
 
         }
 
@@ -549,7 +549,7 @@ namespace VMManagementTool.Services
             return res.PadLeft(res.Length + depth * 4); ;
         }
 
-        public object GetResults()
+        public Dictionary<string, WinUpdateStatus> GetResults()
         {
             //todo how do we comm. full state/ failure (vs per-update state below)?
             return updateResults;

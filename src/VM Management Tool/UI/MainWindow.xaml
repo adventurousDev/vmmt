@@ -25,7 +25,7 @@
 
             </MenuItem>
         </Menu>
-        <Frame Source="HomePage.xaml" 
+        <Frame x:Name="frame"
                NavigationUIVisibility="Hidden" >
             
         </Frame>

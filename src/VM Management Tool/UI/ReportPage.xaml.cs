@@ -29,32 +29,49 @@ namespace VMManagementTool.UI
 
         void PrintResults()
         {
+            //debug test session serialization
+            //VMMTSessionManager.Instance.SaveSessionForResume();
+
+            //VMMTSessionManager.Instance.LoadPausedSession();
+
             var session = VMMTSessionManager.Instance.FinishCurrentSession();
-            var sessionResults = session.GetResults();
-            var winUpdateResults = (Dictionary<string, WinUpdateStatus>)sessionResults[VMMTSessionManager.WIN_UPDATE_RESULTS_KEY];
-            var osotResults = (List<(string, bool)>)sessionResults[VMMTSessionManager.OSOT_RESULTS_KEY];
-            var cleanupResults = (List<(string, bool, int)>)sessionResults[VMMTSessionManager.CLEANUP_RESULTS_KEY];
 
-            theConsole.AppendText($"Windwos Updates: {(winUpdateResults.Count == 0 ? "no updates found" : "")}" + Environment.NewLine);
-
-            foreach (var updateTitle in winUpdateResults.Keys)
+            var winUpdateResults = session.WinUpdateResults;
+            var osotResults = session.OSOTResults;
+            var cleanupResults = session.CleanupResults;
+            if (winUpdateResults != null)
             {
-                var updateStatus = winUpdateResults[updateTitle];
-                var outTitle = updateTitle + "(" + string.Join(",", updateStatus.KBIds) + ")";
-                theConsole.AppendText($"        {outTitle} - {(updateStatus.IsInstalled ? "successfully installed" : "failed to install: " + updateStatus.Error)}{Environment.NewLine}");
+                theConsole.AppendText($"Windwos Updates: {(winUpdateResults.Count == 0 ? "no updates found" : "")}" + Environment.NewLine);
+
+                foreach (var updateTitle in winUpdateResults.Keys)
+                {
+                    var updateStatus = winUpdateResults[updateTitle];
+                    var outTitle = updateTitle + "(" + string.Join(",", updateStatus.KBIds) + ")";
+                    theConsole.AppendText($"        {outTitle} - {(updateStatus.IsInstalled ? "successfully installed" : "failed to install: " + updateStatus.Error)}{Environment.NewLine}");
+                }
+
+
+                theConsole.AppendText(Environment.NewLine);
             }
 
-            theConsole.AppendText(Environment.NewLine);
-            var successfulCount = osotResults.Count((st) => st.Item2);
-            var fails = osotResults.Count - successfulCount;
-            theConsole.AppendText($"OSOT Template: ({successfulCount} - succeeded; {fails} - failed)" + Environment.NewLine);
-            theConsole.AppendText(Environment.NewLine);
-
-            theConsole.AppendText($"Cleanup:" + Environment.NewLine);
-
-            foreach (var cleanupResult in cleanupResults)
+            if (osotResults != null)
             {
-                theConsole.AppendText($"        {cleanupResult.Item1} - {(cleanupResult.Item2 ? "success" : $"fail:(code {cleanupResult.Item3})")}{Environment.NewLine}");
+
+
+                var successfulCount = osotResults.Count((st) => st.Item2);
+                var fails = osotResults.Count - successfulCount;
+                theConsole.AppendText($"OSOT Template: ({successfulCount} - succeeded; {fails} - failed)" + Environment.NewLine);
+                theConsole.AppendText(Environment.NewLine);
+            }
+
+            if (cleanupResults != null)
+            {
+                theConsole.AppendText($"Cleanup:" + Environment.NewLine);
+
+                foreach (var cleanupResult in cleanupResults)
+                {
+                    theConsole.AppendText($"        {cleanupResult.Item1} - {(cleanupResult.Item2 ? "success" : $"fail:(code {cleanupResult.Item3})")}{Environment.NewLine}");
+                }
             }
 
         }

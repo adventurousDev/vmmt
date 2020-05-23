@@ -179,7 +179,7 @@ namespace VMManagementTool.Services.Optimization
             await Task.Run(() => Load(path));
 
         }
-        public object GetResults()
+        public List<(string, bool)> GetResults()
         {
             return stepsResults;
         }

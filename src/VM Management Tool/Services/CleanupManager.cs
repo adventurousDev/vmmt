@@ -137,15 +137,15 @@ namespace VMManagementTool.Services
 
         public void Abort()
         {
-            if (cleanmgrProc != null)
+            if (cleanmgrProc != null && !cleanmgrProc.HasExited)
             {
                 cleanmgrProc.Kill();
             }
-            if (sDeleteProc != null)
+            if (sDeleteProc != null && !sDeleteProc.HasExited)
             {
                 sDeleteProc.Kill();
             }
-            if (defragProc != null)
+            if (defragProc != null && !defragProc.HasExited)
             {
                 defragProc.Kill();
                 //defragProc.StandardInput.Close();
@@ -310,9 +310,9 @@ namespace VMManagementTool.Services
         {
             var exitCode = defragProc.ExitCode;
             defragProcExited = true;
-            
+
             results.Add(("Defrag", exitCode == 0, exitCode));
-            
+
             DefragCompleted?.Invoke(defragProc.ExitCode == 0);
 
         }
@@ -359,7 +359,7 @@ namespace VMManagementTool.Services
             SDeleteExited?.Invoke(exitCode);
 
             results.Add(("SDelete", exitCode == 0, exitCode));
-            SdeleteCompleted?.Invoke(exitCode==0);
+            SdeleteCompleted?.Invoke(exitCode == 0);
         }
 
         private void SDeleteProc_ErrorDataReceived(object sender, DataReceivedEventArgs e)
@@ -382,7 +382,7 @@ namespace VMManagementTool.Services
             {
                 var spaceBeforePercentageIndex = e.Data.LastIndexOf(' ', percentageIndex);
                 var percentageString = e.Data.Substring(spaceBeforePercentageIndex + 1, percentageIndex - spaceBeforePercentageIndex - 1);
-                stage = e.Data.Substring(0, spaceBeforePercentageIndex-1);
+                stage = e.Data.Substring(0, spaceBeforePercentageIndex - 1);
                 progress = int.Parse(percentageString);
             }
 

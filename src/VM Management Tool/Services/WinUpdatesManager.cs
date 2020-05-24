@@ -440,7 +440,8 @@ namespace VMManagementTool.Services
 
         void Info(string text)
         {
-            NewInfo?.Invoke(text);
+            //NewInfo?.Invoke(text);
+            Log.Info("WindownUpdate", text);
         }
         string Dump(object obj, int depth = 1)
         {

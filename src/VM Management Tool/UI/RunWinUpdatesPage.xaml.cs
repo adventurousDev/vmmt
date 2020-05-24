@@ -54,8 +54,8 @@ namespace VMManagementTool.UI
 
                 ResetProgress();
                 StartInfiniteProgress("preparing...");
-                await Prepare().ConfigureAwait(false);
-                if (aborted)
+                var prepared = await Prepare().ConfigureAwait(false);
+                if (aborted || !prepared)
                 {
                     ResetProgress();
 
@@ -219,7 +219,7 @@ namespace VMManagementTool.UI
 
                     SetParagraphLook(installParagrath, TextLook.Completed);
                 }
-                
+
 
 
 
@@ -338,7 +338,7 @@ namespace VMManagementTool.UI
 
         async void FinishAndProceed()
         {
-           
+
 
             StartInfiniteProgress("finishing...");
             await Task.Run(Cleanup).ConfigureAwait(false);

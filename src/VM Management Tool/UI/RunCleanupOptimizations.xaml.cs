@@ -36,6 +36,7 @@ namespace VMManagementTool.UI
         private async void RunCleanupOptimizations_Loaded(object sender, RoutedEventArgs e)
         {
             Log.Debug("RunCleanupOptimizations", "Cleanup Page Loaded");
+            Loaded -= RunCleanupOptimizations_Loaded;
             cleanupManager = new CleanupManager();
             //cleanupManager = new DummyCleanupManager();
 

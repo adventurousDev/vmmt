@@ -90,7 +90,7 @@ namespace VMManagementTool.Services
                     path = Path.Combine(@"C:\bwLehrpool\SDelete", "sdelete.exe");
                 }
                 sDeleteProc.StartInfo.FileName = path;
-                sDeleteProc.StartInfo.Arguments = "-nobanner -z c:";
+                sDeleteProc.StartInfo.Arguments = "/accepteula -nobanner -z c:";
                 sDeleteProc.StartInfo.UseShellExecute = true;
                 sDeleteProc.StartInfo.CreateNoWindow = false;
                 //sDeleteProc.StartInfo.RedirectStandardOutput = true;

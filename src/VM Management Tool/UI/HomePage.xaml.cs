@@ -30,6 +30,8 @@ namespace VMManagementTool
         private void HomePage_Loaded(object sender, RoutedEventArgs e)
         {
             Log.Debug("HomePage", "Home Page Loaded");
+
+            Loaded -= HomePage_Loaded;
         }
 
         private void Button_Click(object sender, RoutedEventArgs e)

@@ -31,6 +31,7 @@ namespace VMManagementTool.UI
         private void ReportPage_Loaded(object sender, RoutedEventArgs e)
         {
             Log.Debug("ReportPage", "Report Page Loaded");
+            this.Loaded -= ReportPage_Loaded;
             PrintResults();
         }
 

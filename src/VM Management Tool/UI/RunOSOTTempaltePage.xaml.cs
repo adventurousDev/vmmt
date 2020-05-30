@@ -36,7 +36,7 @@ namespace VMManagementTool.UI
         private async void RunOSOTTempaltePage_Loaded(object sender, RoutedEventArgs e)
         {
             Log.Debug("RunOSOTTempaltePage", "OSOT Page Loaded");
-
+            Loaded -= RunOSOTTempaltePage_Loaded;
             //prepare: load the template with infinite progress asyncrounously
             SetProgress(INDEFINITE_PROGRESS, "loading the template...");
 

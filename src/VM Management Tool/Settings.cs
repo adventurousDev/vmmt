@@ -13,5 +13,7 @@ namespace VMManagementTool
         //todo because of EULA the excutable needs to be downlaoded
         //becuase it can not be distriibued with the app
         public const string SDELETE_FOLDER = @"C:\bwLehrpool\SDelete";
+
+        public const bool DEBUG = true;
     }
 }

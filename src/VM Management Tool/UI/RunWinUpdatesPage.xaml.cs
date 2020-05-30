@@ -44,6 +44,8 @@ namespace VMManagementTool.UI
 
         private async void RunWinUpdatesPage_Loaded(object sender, RoutedEventArgs e)
         {
+            Log.Debug("RunWinUpdatesPage", $"Win Update Page Loaded; After reboot? : {resumeInstall}");
+
             if (resumeInstall)
             {
                 await ResumeAfterRestart().ConfigureAwait(false);

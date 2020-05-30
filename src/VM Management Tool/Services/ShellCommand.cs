@@ -62,7 +62,7 @@ namespace VMManagementTool.Services
             }
             catch (Exception e)
             {
-
+                Log.Error("ShellCommand.TryExecute", e.Message);
                 return false;
 
             }

@@ -205,10 +205,10 @@ namespace VMManagementTool
 
             //WinOptimizationsManager.Instance.RunSDelete();
             /**/
-            var sdeleteTask = new SDeleteTask();
-            sdeleteTask.NewInfo += LogUpdateInto;
+            //var sdeleteTask = new SDeleteTask();
+            //sdeleteTask.NewInfo += LogUpdateInto;
             //sdeleteTask.RunViaPS();
-            sdeleteTask.Run();
+            //sdeleteTask.Run();
 
         }
 

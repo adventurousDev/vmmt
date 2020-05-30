@@ -13,7 +13,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
-using VMManagementTool.Services.Optimization;
+using VMManagementTool.Services;
 using VMManagementTool.Test;
 
 namespace VMManagementTool.UI
@@ -30,11 +30,13 @@ namespace VMManagementTool.UI
         {
             InitializeComponent();
             Loaded += RunOSOTTempaltePage_Loaded;
-          
+
         }
 
         private async void RunOSOTTempaltePage_Loaded(object sender, RoutedEventArgs e)
         {
+            Log.Debug("RunOSOTTempaltePage", "OSOT Page Loaded");
+
             //prepare: load the template with infinite progress asyncrounously
             SetProgress(INDEFINITE_PROGRESS, "loading the template...");
 
@@ -45,23 +47,32 @@ namespace VMManagementTool.UI
             //for debuging
             //SetProgress(INDEFINITE_PROGRESS, Directory.GetCurrentDirectory());
             //await Task.Delay(15000);
-            
+
             //for smoother user experience
             await Task.Delay(250);
 
-
-            //todo get the path from approapriate source
-            string templatePath = Settings.OPTIMIZATION_TEMPLATE_PATH;
-            await optimizationTemplateManager.LoadAsync(templatePath);
-
-
             optimizationTemplateManager.RunProgressChanged += OptimizationTemplateManager_RunProgressChanged;
             optimizationTemplateManager.RunCompleted += OptimizationTemplateManager_RunCompleted;
+            //todo get the path from approapriate source
+            string templatePath = Settings.OPTIMIZATION_TEMPLATE_PATH;
+            try
+            {
+                //the loading can fail; then we just need to finsihproceed to the next page
+                await optimizationTemplateManager.LoadAsync(templatePath);
 
-            optimizationTemplateManager.RunDefaultSteps();
+                optimizationTemplateManager.RunDefaultStepsAsync();
+            }
+            catch (Exception ex)
+            {
+                OptimizationTemplateManager_RunCompleted(false);
+            }
+
+            
+
+            
         }
-
-        private void OptimizationTemplateManager_RunCompleted(bool obj)
+        //the parameter signifies sucess (not aborted or failed): false mean aborted or failed 
+        private void OptimizationTemplateManager_RunCompleted(bool successful)
         {
             //cleanup and proceed to the next page 
             //todo also fetch and save the status for report
@@ -91,10 +102,7 @@ namespace VMManagementTool.UI
                 }
             );
         }
-        void ResetProgress()
-        {
-            SetProgress(0, "");
-        }
+        
         private void abortButton_Click(object sender, RoutedEventArgs e)
         {
             SetProgress(INDEFINITE_PROGRESS, "aborting...");

@@ -12,7 +12,7 @@ using System.Collections.ObjectModel;
 
 namespace VMManagementTool.Services
 {
-    class CleanupManager//todo cleanup and exception handlign in main methods(especially async)
+    class CleanupManager : IDisposable//todo cleanup and exception handlign in main methods(especially async)
     {
         private static readonly object instancelock = new object();
         private static CleanupManager instance = null;
@@ -63,286 +63,54 @@ namespace VMManagementTool.Services
         long lastSdeleteProgressTime = 0;
         int lastProgress = 0;
 
-        [DllImport("User32")]
-        private static extern int ShowWindow(int hwnd, int nCmdShow);
 
-        private void HideCleanMgrWndow()
-        {
-            var hWnd = cleanmgrProc.MainWindowHandle.ToInt32();
-            ShowWindow(hWnd, SW_HIDE);
-        }
 
+        //SDELETE -----------------------------------------------------------
         public void StartSdelete()
         {
             Task.Run(RunSDelete);
         }
         public void RunSDelete()
         {
-            if (sDeleteProc != null)
-            {
-                SDeleteError?.Invoke("SDelete is already running");
-                return;
-            }
-
-            //todo deregister events before loosing reference
-            sDeleteProc = new Process();
-            var executable = Environment.Is64BitOperatingSystem ? "sdelete64.exe" : "sdelete.exe";
-            var path = Path.Combine(Settings.SDELETE_FOLDER, executable);
-            if (executable == "sdelete64.exe" && !File.Exists(path))
-            {
-                //try using 32 bit because it is more probable to be there 
-                path = Path.Combine(@"C:\bwLehrpool\SDelete", "sdelete.exe");
-            }
-            sDeleteProc.StartInfo.FileName = path;
-            sDeleteProc.StartInfo.Arguments = "-nobanner -z c:";
-            sDeleteProc.StartInfo.UseShellExecute = true;
-            sDeleteProc.StartInfo.CreateNoWindow = false;
-            //sDeleteProc.StartInfo.RedirectStandardOutput = true;
-            //sDeleteProc.StartInfo.RedirectStandardError = true;
-
-            sDeleteProc.EnableRaisingEvents = true;
-            //sDeleteProc.OutputDataReceived += SDeleteProc_OutputDataReceived;
-            //sDeleteProc.ErrorDataReceived += SDeleteProc_ErrorDataReceived;
-            sDeleteProc.Exited += SDeleteProc_Exited;
-
-
-            sDeleteProc.Start();
-            //sDeleteProc.BeginErrorReadLine();
-            //sDeleteProc.BeginOutputReadLine();
-
-        }
-        private void PrepareCleanmgrRegistry()
-        {
-            //todo will this(64 view) cause errror on 32 system?
-            RegistryKey root = RegistryKey.OpenBaseKey(RegistryHive.LocalMachine, RegistryView.Registry64);
-            RegistryKey volumeCahches = root.OpenSubKey(@"SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\VolumeCaches", true);
-
-            foreach (string keyname in volumeCahches.GetSubKeyNames())
-            {
-                if (keyname.Equals("Update Cleanup"))
-                {
-                    //for now just ignoring the update cleanup because it is taking to long
-                    continue;
-                }
-
-                RegistryKey key = volumeCahches.OpenSubKey(keyname, true);
-
-                key.SetValue($"StateFlags{CLEANMGR_STATEFLAGS_ID}", "2", Microsoft.Win32.RegistryValueKind.DWord);
-                //Registry.SetValue(key.Name, $"StateFlags{CLEANMGR_STATEFLAGS_ID}", "2", Microsoft.Win32.RegistryValueKind.DWord);
-                //Info(key.GetValue($"StateFlags{CLEANMGR_STATEFLAGS_ID}").ToString()); // Replace KEY_NAME with what you're looking for
-            }
-            volumeCahches.Close();
-            root.Close();
-        }
-
-        public void Abort()
-        {
-            if (cleanmgrProc != null && !cleanmgrProc.HasExited)
-            {
-                cleanmgrProc.Kill();
-            }
-            if (sDeleteProc != null && !sDeleteProc.HasExited)
-            {
-                sDeleteProc.Kill();
-            }
-            if (defragProc != null && !defragProc.HasExited)
-            {
-                defragProc.Kill();
-                //defragProc.StandardInput.Close();
-            }
-
-        }
-
-        public void StartCleanmgr()
-        {
-            Task.Run(() => RunCleanmgr());
-        }
-        public void RunCleanmgr()
-        {
-            if (cleanmgrProc != null)
-            {
-                //SDeleteError?.Invoke("SDelete is already running");
-                return;
-            }
-            Info("Starting cleanmgr...");
-            PrepareCleanmgrRegistry();
-
-            //todo deregister events before loosing reference
-            cleanmgrProc = new Process();
-            cleanmgrProc.StartInfo.FileName = "cleanmgr.exe";
-            cleanmgrProc.StartInfo.Arguments = $"/sagerun:{CLEANMGR_STATEFLAGS_ID}";
-            cleanmgrProc.StartInfo.UseShellExecute = false;
-            cleanmgrProc.StartInfo.CreateNoWindow = true;
-            cleanmgrProc.StartInfo.RedirectStandardOutput = true;
-            cleanmgrProc.StartInfo.RedirectStandardError = true;
-
-            cleanmgrProc.EnableRaisingEvents = true;
-            cleanmgrProc.OutputDataReceived += CleanmgrProc_OutputDataReceived;
-            cleanmgrProc.ErrorDataReceived += CleanmgrProc_ErrorDataReceived;
-            cleanmgrProc.Exited += CleanmgrProc_Exited;
-
-
-            cleanmgrProc.Start();
-            cleanmgrProc.BeginErrorReadLine();
-            cleanmgrProc.BeginOutputReadLine();
-            Info($"started cleanmgr; PID = {cleanmgrProc.Id}");
-
-        }
-        public void StartDefrag()
-        {
-            Task.Run(() => RunDefrag());
-        }
-        public void RunDefrag()
-        {
-            //1. Enable defrag service 
-            WinServiceUtils.EnableService("defragsvc");
-            //2. Create the process and register for the events
-            //3. Run the process
-            //4. Print the outputs 
-            //5. Handle the ending
-            if (defragProc != null)
-            {
-                //SDeleteError?.Invoke("SDelete is already running");
-                return;
-            }
-            defragProcExited = false;
-            Info("Starting defrag...");
-            //PrepareCleanmgrRegistry();
-
-            //todo deregister events before loosing reference
-            defragProc = new Process();
-            defragProc.StartInfo.FileName = Path.Combine(@"C:\Windows\Sysnative", "Defrag.exe");
-
-            defragProc.StartInfo.Arguments = $"/C /O /H /U";
-            defragProc.StartInfo.UseShellExecute = true;
-            defragProc.StartInfo.CreateNoWindow = false;
-            //defragProc.StartInfo.RedirectStandardOutput = true;
-            //defragProc.StartInfo.RedirectStandardError = true;
-            //defragProc.StartInfo.RedirectStandardInput = true;
-
-
-            defragProc.EnableRaisingEvents = true;
-            //defragProc.OutputDataReceived += DefragProc_OutputDataReceived;
-            //defragProc.ErrorDataReceived += DefragProc_ErrorDataReceived; ;
-            defragProc.Exited += DefragProc_Exited;
-
-
-            defragProc.Start();
-            //defragProc.BeginErrorReadLine();
-            //defragProc.BeginOutputReadLine();
-            //Info($"started defrag; PID = {defragProc.Id}");
-        }
-
-        #region trying out running defrag in powershell
-        [Obsolete]
-        public void RunDefragPS()
-        {
             try
             {
-                WinServiceUtils.EnableService("defragsvc");
-                PowerShell powershell = PowerShell.Create();
+                if (sDeleteProc != null)
+                {
+                    SDeleteError?.Invoke("SDelete is already running");
+                    return;
+                }
 
-                PSDataCollection<PSObject> output = new PSDataCollection<PSObject>();
-                output.DataAdded += Output_DataAdded;
-                powershell.InvocationStateChanged += Powershell_InvocationStateChanged;
+                //todo deregister events before loosing reference
+                sDeleteProc = new Process();
+                var executable = Environment.Is64BitOperatingSystem ? "sdelete64.exe" : "sdelete.exe";
+                var path = Path.Combine(Settings.SDELETE_FOLDER, executable);
+                if (executable == "sdelete64.exe" && !File.Exists(path))
+                {
+                    //try using 32 bit because it is more probable to be there 
+                    path = Path.Combine(@"C:\bwLehrpool\SDelete", "sdelete.exe");
+                }
+                sDeleteProc.StartInfo.FileName = path;
+                sDeleteProc.StartInfo.Arguments = "-nobanner -z c:";
+                sDeleteProc.StartInfo.UseShellExecute = true;
+                sDeleteProc.StartInfo.CreateNoWindow = false;
+                //sDeleteProc.StartInfo.RedirectStandardOutput = true;
+                //sDeleteProc.StartInfo.RedirectStandardError = true;
 
-                powershell.AddScript("defrag /C /O /V /H /U");
+                sDeleteProc.EnableRaisingEvents = true;
+                //sDeleteProc.OutputDataReceived += SDeleteProc_OutputDataReceived;
+                //sDeleteProc.ErrorDataReceived += SDeleteProc_ErrorDataReceived;
+                sDeleteProc.Exited += SDeleteProc_Exited;
 
 
-                IAsyncResult asyncResult = powershell.BeginInvoke<PSObject, PSObject>(null, output);
-
-
-
-
-
+                sDeleteProc.Start();
+                //sDeleteProc.BeginErrorReadLine();
+                //sDeleteProc.BeginOutputReadLine();
             }
             catch (Exception e)
             {
-                throw new Exception("Could not enable the service, error: " + e.Message);
+                Log.Error("CleanupManager.RunSDelete", e.Message);
             }
 
-        }
-
-        [Obsolete]
-        private void Powershell_InvocationStateChanged(object sender, PSInvocationStateChangedEventArgs e)
-        {
-            Info("Incovation state chaged: " + e.InvocationStateInfo.State);
-        }
-        [Obsolete]
-        private void Output_DataAdded(object sender, DataAddedEventArgs e)
-        {
-            PSDataCollection<PSObject> myp = (PSDataCollection<PSObject>)sender;
-
-            Collection<PSObject> results = myp.ReadAll();
-            Info("Data added; count: " + results.Count);
-            foreach (PSObject result in results)
-            {
-                Info(result.ToString());
-            }
-        }
-        #endregion
-
-
-        private void DefragProc_ErrorDataReceived(object sender, DataReceivedEventArgs e)
-        {
-            Info($"defrag process Error: {e.Data}");
-        }
-
-        private void DefragProc_OutputDataReceived(object sender, DataReceivedEventArgs e)
-        {
-            var output = e.Data;
-            if (e.Data == null && defragProcExited)
-            {
-                var exitCode = defragProc.ExitCode;
-                bool hasExited = defragProc.HasExited;
-                defragProc.Close();
-                defragProc = null;
-                Info($"Finished execution. Exit code: {exitCode}; really exited {hasExited}; ");
-            }
-            else
-            {
-                Info($"defrag process Info: {output}");
-
-            }
-        }
-
-        private void DefragProc_Exited(object sender, EventArgs e)
-        {
-            var exitCode = defragProc.ExitCode;
-            defragProcExited = true;
-
-            results.Add(("Defrag", exitCode == 0, exitCode));
-
-            DefragCompleted?.Invoke(defragProc.ExitCode == 0);
-
-        }
-
-
-        private void CleanmgrProc_Exited(object sender, EventArgs e)
-        {
-            var exitCode = cleanmgrProc.ExitCode;
-            Info($"Finished execution. Exit code: {exitCode}");
-            results.Add(("Disk Cleanup", exitCode == 0, exitCode));
-            CleanmgrCompleted?.Invoke(exitCode == 0);
-            cleanmgrProc.Close();
-            cleanmgrProc = null;
-
-
-        }
-
-        private void CleanmgrProc_ErrorDataReceived(object sender, DataReceivedEventArgs e)
-        {
-            Info($"cleanmgr process Error: {e.Data}");
-            //todo handle the error
-        }
-
-        private void CleanmgrProc_OutputDataReceived(object sender, DataReceivedEventArgs e)
-        {
-            if (e.Data == null)
-            {
-                return;
-            }
-            Info($"cleanmgr process Info: {e.Data}");
         }
 
         private void SDeleteProc_Exited(object sender, EventArgs e)
@@ -413,13 +181,241 @@ namespace VMManagementTool.Services
         }
 
 
+        //CLEANMGR ----------------------------------------------------------
+        private void PrepareCleanmgrRegistry()
+        {
+            //todo will this(64 view) cause errror on 32 system?
+            RegistryKey root = RegistryKey.OpenBaseKey(RegistryHive.LocalMachine, RegistryView.Registry64);
+            RegistryKey volumeCahches = root.OpenSubKey(@"SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\VolumeCaches", true);
+
+            foreach (string keyname in volumeCahches.GetSubKeyNames())
+            {
+                if (keyname.Equals("Update Cleanup"))
+                {
+                    //for now just ignoring the update cleanup because it is taking to long
+                    continue;
+                }
+
+                RegistryKey key = volumeCahches.OpenSubKey(keyname, true);
+
+                key.SetValue($"StateFlags{CLEANMGR_STATEFLAGS_ID}", "2", Microsoft.Win32.RegistryValueKind.DWord);
+                //Registry.SetValue(key.Name, $"StateFlags{CLEANMGR_STATEFLAGS_ID}", "2", Microsoft.Win32.RegistryValueKind.DWord);
+                //Info(key.GetValue($"StateFlags{CLEANMGR_STATEFLAGS_ID}").ToString()); // Replace KEY_NAME with what you're looking for
+            }
+            volumeCahches.Close();
+            root.Close();
+        }
+        public void StartCleanmgr()
+        {
+            Task.Run(() => RunCleanmgr());
+        }
+        public void RunCleanmgr()
+        {
+            try
+            {
+                if (cleanmgrProc != null)
+                {
+                    //SDeleteError?.Invoke("SDelete is already running");
+                    return;
+                }
+                Info("Starting cleanmgr...");
+                PrepareCleanmgrRegistry();
+
+                //todo deregister events before loosing reference
+                cleanmgrProc = new Process();
+                cleanmgrProc.StartInfo.FileName = "cleanmgr.exe";
+                cleanmgrProc.StartInfo.Arguments = $"/sagerun:{CLEANMGR_STATEFLAGS_ID}";
+                cleanmgrProc.StartInfo.UseShellExecute = false;
+                cleanmgrProc.StartInfo.CreateNoWindow = true;
+                cleanmgrProc.StartInfo.RedirectStandardOutput = true;
+                cleanmgrProc.StartInfo.RedirectStandardError = true;
+
+                cleanmgrProc.EnableRaisingEvents = true;
+                cleanmgrProc.OutputDataReceived += CleanmgrProc_OutputDataReceived;
+                cleanmgrProc.ErrorDataReceived += CleanmgrProc_ErrorDataReceived;
+                cleanmgrProc.Exited += CleanmgrProc_Exited;
+
+
+                cleanmgrProc.Start();
+                cleanmgrProc.BeginErrorReadLine();
+                cleanmgrProc.BeginOutputReadLine();
+                Info($"started cleanmgr; PID = {cleanmgrProc.Id}");
+            }
+            catch (Exception e)
+            {
+
+                Log.Error("CleanupManager.RunCleanmgr", e.Message);
+            }
+
+        }
+
+        private void CleanmgrProc_Exited(object sender, EventArgs e)
+        {
+            var exitCode = cleanmgrProc.ExitCode;
+            Info($"Finished execution. Exit code: {exitCode}");
+            results.Add(("Disk Cleanup", exitCode == 0, exitCode));
+            CleanmgrCompleted?.Invoke(exitCode == 0);
+            cleanmgrProc.Close();
+            cleanmgrProc = null;
+
+
+        }
+
+        private void CleanmgrProc_ErrorDataReceived(object sender, DataReceivedEventArgs e)
+        {
+            Info($"cleanmgr process Error: {e.Data}");
+            //todo handle the error
+        }
+
+        private void CleanmgrProc_OutputDataReceived(object sender, DataReceivedEventArgs e)
+        {
+            if (e.Data == null)
+            {
+                return;
+            }
+            Info($"cleanmgr process Info: {e.Data}");
+        }
+
+        //DEFRAG ------------------------------------------------------------
+        public void StartDefrag()
+        {
+            Task.Run(() => RunDefrag());
+        }
+        public void RunDefrag()
+        {
+            try
+            {
+                //1. Enable defrag service 
+                WinServiceUtils.EnableService("defragsvc");
+                //2. Create the process and register for the events
+                //3. Run the process
+                //4. Print the outputs 
+                //5. Handle the ending
+                if (defragProc != null)
+                {
+                    //SDeleteError?.Invoke("SDelete is already running");
+                    return;
+                }
+                defragProcExited = false;
+                Info("Starting defrag...");
+                //PrepareCleanmgrRegistry();
+
+                //todo deregister events before loosing reference
+                defragProc = new Process();
+                defragProc.StartInfo.FileName = Path.Combine(@"C:\Windows\Sysnative", "Defrag.exe");
+
+                defragProc.StartInfo.Arguments = $"/C /O /H /U";
+                defragProc.StartInfo.UseShellExecute = true;
+                defragProc.StartInfo.CreateNoWindow = false;
+                //defragProc.StartInfo.RedirectStandardOutput = true;
+                //defragProc.StartInfo.RedirectStandardError = true;
+                //defragProc.StartInfo.RedirectStandardInput = true;
+
+
+                defragProc.EnableRaisingEvents = true;
+                //defragProc.OutputDataReceived += DefragProc_OutputDataReceived;
+                //defragProc.ErrorDataReceived += DefragProc_ErrorDataReceived; ;
+                defragProc.Exited += DefragProc_Exited;
+
+
+                defragProc.Start();
+                //defragProc.BeginErrorReadLine();
+                //defragProc.BeginOutputReadLine();
+                //Info($"started defrag; PID = {defragProc.Id}");
+            }
+            catch (Exception e)
+            {
+                Log.Error("CleanupManager.RunDefrag", e.Message);
+            }
+        }
+
+        private void DefragProc_ErrorDataReceived(object sender, DataReceivedEventArgs e)
+        {
+            Info($"defrag process Error: {e.Data}");
+        }
+
+        private void DefragProc_OutputDataReceived(object sender, DataReceivedEventArgs e)
+        {
+            var output = e.Data;
+            if (e.Data == null && defragProcExited)
+            {
+                var exitCode = defragProc.ExitCode;
+                bool hasExited = defragProc.HasExited;
+                defragProc.Close();
+                defragProc = null;
+                Info($"Finished execution. Exit code: {exitCode}; really exited {hasExited}; ");
+            }
+            else
+            {
+                Info($"defrag process Info: {output}");
+
+            }
+        }
+
+        private void DefragProc_Exited(object sender, EventArgs e)
+        {
+            var exitCode = defragProc.ExitCode;
+            defragProcExited = true;
+
+            results.Add(("Defrag", exitCode == 0, exitCode));
+
+            DefragCompleted?.Invoke(defragProc.ExitCode == 0);
+
+        }
+
+
+        //MISC ----------------------------------------------------------------
+        [DllImport("User32")]
+        private static extern int ShowWindow(int hwnd, int nCmdShow);
+
+        private void HideCleanMgrWndow()
+        {
+            var hWnd = cleanmgrProc.MainWindowHandle.ToInt32();
+            ShowWindow(hWnd, SW_HIDE);
+        }
+
+        public void Abort()
+        {
+            try
+            {
+                if (cleanmgrProc != null && !cleanmgrProc.HasExited)
+                {
+                    cleanmgrProc.Kill();
+                }
+                if (sDeleteProc != null && !sDeleteProc.HasExited)
+                {
+                    sDeleteProc.Kill();
+                }
+                if (defragProc != null && !defragProc.HasExited)
+                {
+                    defragProc.Kill();
+                    //defragProc.StandardInput.Close();
+                }
+            }
+            catch (Exception e)
+            {
+                Log.Error("CleanupManager.Abort", e.Message);
+            }
+
+        }
+
+        //debug only
         private void Info(string text)
         {
             NewInfo?.Invoke(text);
+            Log.Debug("CleanupManager", text);
         }
+
         public List<(string, bool, int)> GetResults()
         {
             return results;
+        }
+
+        public void Dispose()
+        {
+            cleanmgrProc?.Dispose();
+            defragProc?.Dispose();
+            sDeleteProc?.Dispose();
         }
     }
 }

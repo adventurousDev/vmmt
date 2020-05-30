@@ -96,7 +96,6 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="Log.cs" />
-    <Compile Include="Services\SDeleteTask.cs" />
     <Compile Include="Services\SystemUtils.cs" />
     <Compile Include="Services\WinUpdateStatus.cs" />
     <Compile Include="Settings.cs" />
@@ -122,7 +121,7 @@
     <Compile Include="Services\Optimization\Condition.cs" />
     <Compile Include="Services\Optimization\Group.cs" />
     <Compile Include="Services\Optimization\IGroupChild.cs" />
-    <Compile Include="Services\Optimization\OptimizationTemplateManager.cs" />
+    <Compile Include="Services\OptimizationTemplateManager.cs" />
     <Compile Include="Services\Optimization\Actions\RegistryAction.cs" />
     <Compile Include="Services\Optimization\Step.cs" />
     <Compile Include="Services\RegistryUtils.cs" />

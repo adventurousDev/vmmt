@@ -24,11 +24,17 @@ namespace VMManagementTool
         public HomePage()
         {
             InitializeComponent();
+            Loaded += HomePage_Loaded;
+        }
+
+        private void HomePage_Loaded(object sender, RoutedEventArgs e)
+        {
+            Log.Debug("HomePage", "Home Page Loaded");
         }
 
         private void Button_Click(object sender, RoutedEventArgs e)
         {
-            
+
             if (advancedRadioBtn.IsChecked ?? false)
             {
                 var navTo = new AdvanceConfigPage();
@@ -43,7 +49,7 @@ namespace VMManagementTool
                 //var navTo = new RunCleanupOptimizations();
                 NavigationService.Navigate(navTo);
             }
-            
+
         }
 
         private void RadioBtn_CheckedChanged(object sender, RoutedEventArgs e)
@@ -54,7 +60,7 @@ namespace VMManagementTool
             }
             if (advancedRadioBtn?.IsChecked ?? false)
             {
-                nextRunButton.Content="Configure";
+                nextRunButton.Content = "Configure";
             }
             else
             {

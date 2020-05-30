@@ -9,6 +9,8 @@ namespace VMManagementTool
 {
     static class Log
     {
+        static object locker = new object();
+
         const string LOG_FILE = "log.log";
         public static void Error(string tag, string message)
         {
@@ -18,10 +20,20 @@ namespace VMManagementTool
         {
             WriteToFile($"INFO:    {tag}    {message}");
         }
+
+        public static void Debug(string tag, string message)
+        {
+            WriteToFile($"DEBUG:    {tag}    {message}");
+        }
         static void WriteToFile(string msg)
         {
-            var time = DateTime.Now.ToString("dd.MM.yyyy hh:mm:ss");
-            File.AppendAllText(LOG_FILE, $"{time} {msg} {Environment.NewLine}");
+            var time = DateTime.Now.ToString("dd.MM.yyyy hh:mm:ss.fff");
+            
+            lock (locker)
+            {                
+                File.AppendAllText(LOG_FILE, $"{time} {msg} {Environment.NewLine}");
+            }
+
         }
 
     }

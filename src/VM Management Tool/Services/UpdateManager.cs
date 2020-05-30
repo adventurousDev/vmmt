@@ -16,12 +16,21 @@ namespace VMManagementTool.Services
 
         public void Update()
         {
-            //1. download the executable into tmp
-            tempPath = Path.GetTempFileName();
-            using (WebClient webClient = new WebClient())
+            try
             {
-                webClient.DownloadFileCompleted += WebClient_DownloadFileCompleted;
-                webClient.DownloadFileAsync(new Uri(EXECUTABLE_URL), tempPath);
+                //1. download the executable into tmp
+                tempPath = Path.GetTempFileName();
+                using (WebClient webClient = new WebClient())
+                {
+                    webClient.DownloadFileCompleted += WebClient_DownloadFileCompleted;
+                    webClient.DownloadFileAsync(new Uri(EXECUTABLE_URL), tempPath);
+                }
+            }
+            catch (Exception ex)
+            {
+
+                Log.Error("UpdateManager.Update", ex.Message);
+
             }
 
 
@@ -29,42 +38,41 @@ namespace VMManagementTool.Services
 
         private void WebClient_DownloadFileCompleted(object sender, System.ComponentModel.AsyncCompletedEventArgs e)
         {
-            if (!File.Exists(tempPath))
-            {
-                //todo handle this better
-                //log at least
-                return;
-            }
-            //2. if defined perform verifications *
-            //3. get the path of current executable
-            var exePath = Application.ResourceAssembly.Location;
-            //4. rename the current executable
-            if(File.Exists(exePath + "_temp"))
-            {
-                File.Delete(exePath + "_temp");
-            }
-            File.Move(exePath, exePath + "_temp");
-            //5. copy the new exe and rename to the origianl name of current one
-            File.Move(tempPath, exePath);
-            //6. initiate start of the new one 
-            System.Diagnostics.Process.Start(exePath);//will this still have the old exe name? 
-            //7. close the current 
-            Application.Current.Shutdown();
+            UpdateAndRestart();
         }
-        public void TmpReplaceAndRestart(string newExePath)
+        void UpdateAndRestart()
         {
-            //2. if defined perform verifications *
-            //3. get the path of current executable
-            var exePath = Application.ResourceAssembly.Location;
-            //4. rename the current executable
-            File.Move(exePath, exePath + "_temp");
-            //5. copy the new exe and rename to the origianl name of current one
-            File.Move(newExePath, exePath);
-            //6. initiate start of the new one 
-            System.Diagnostics.Process.Start(exePath);//will this still have the old exe name? 
-            //7. close the current 
-            Application.Current.Shutdown();
+            try
+            {
+                if (!File.Exists(tempPath))
+                {
+                    //todo handle this better
+                    //log at least
+                    return;
+                }
+                //2. if defined perform verifications *
+                //3. get the path of current executable
+                var exePath = Application.ResourceAssembly.Location;
+                //4. rename the current executable
+                if (File.Exists(exePath + "_temp"))
+                {
+                    File.Delete(exePath + "_temp");
+                }
+                File.Move(exePath, exePath + "_temp");
+                //5. copy the new exe and rename to the origianl name of current one
+                File.Move(tempPath, exePath);
+                //6. initiate start of the new one 
+                System.Diagnostics.Process.Start(exePath);//will this still have the old exe name? 
+                                                          //7. close the current 
+                Application.Current.Shutdown();
+            }
+            catch (Exception ex)
+            {
+
+                Log.Error("UpdateManager.WebClient_DownloadFileCompleted", ex.Message);
+            }
         }
+
 
     }
 }

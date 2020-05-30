@@ -35,7 +35,7 @@ namespace VMManagementTool.UI
 
         private async void RunCleanupOptimizations_Loaded(object sender, RoutedEventArgs e)
         {
-
+            Log.Debug("RunCleanupOptimizations", "Cleanup Page Loaded");
             cleanupManager = new CleanupManager();
             //cleanupManager = new DummyCleanupManager();
 
@@ -118,13 +118,9 @@ namespace VMManagementTool.UI
             }
 
             FinishAndProceed();
-        }
-       
+        }       
 
-        private void WinOptimizationsManager_ProgressChanged(int progress, string label)
-        {
-            SetProgress(progress, label);
-        }
+        
 
         private void abortButton_Click(object sender, RoutedEventArgs e)
         {
@@ -210,11 +206,11 @@ namespace VMManagementTool.UI
             //todo save the state if not yet done by now
             //open the next Page
             Dispatcher.Invoke(() =>
-            {
-                var page = new ReportPage();
-                NavigationService.Navigate(page);
+                {
+                    var page = new ReportPage();
+                    NavigationService.Navigate(page);
 
-            }
+                }
             );
 
 

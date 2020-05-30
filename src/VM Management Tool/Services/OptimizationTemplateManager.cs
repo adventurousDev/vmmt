@@ -7,9 +7,10 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Xml;
 using System.Xml.XPath;
+using VMManagementTool.Services.Optimization;
 using VMManagementTool.Services.Optimization.Actions;
 
-namespace VMManagementTool.Services.Optimization
+namespace VMManagementTool.Services
 {
     class OptimizationTemplateManager
     {
@@ -30,10 +31,10 @@ namespace VMManagementTool.Services.Optimization
 
         public void Load(string path)
         {
+
+
             try
             {
-
-
                 var xmlReader = XmlReader.Create(path, new XmlReaderSettings());
 
                 var doc = new XPathDocument(xmlReader);
@@ -114,10 +115,14 @@ namespace VMManagementTool.Services.Optimization
                 //Log(json);
                 xmlReader.Close();
             }
-            catch (Exception e)
+            catch (Exception ex)
             {
+
+                Log.Error("OptimizationTemplateManager.Load", ex.Message);
                 throw;
             }
+
+
 
 
 
@@ -127,55 +132,59 @@ namespace VMManagementTool.Services.Optimization
         {
             abortionsRequested = true;
         }
-        public async Task RunDefaultStepsAsync()
-        {
-            await Task.Run(() => RunSteps((step) => (step.Category == Step.Categories.mandatory || step.Category == Step.Categories.recommended)));
-        }
-        public void RunDefaultSteps()
+
+        public void RunDefaultStepsAsync()
         {
             Task.Run(() => RunSteps((step) => (step.Category == Step.Categories.mandatory || step.Category == Step.Categories.recommended)));
         }
-        async void RunSteps(Func<Step, bool> conditionCheck = null)
+        void RunSteps(Func<Step, bool> conditionCheck = null)
         {
-            //initialize the abortion flag 
-            abortionsRequested = false;
-
-
-            var stepsToRun = GetSteps(conditionCheck);
-            int totalSteps = stepsToRun.Count;
-            int currentStep = 1;
-
-
-            foreach (var step in stepsToRun)
+            try
             {
-                //allow abortion after each step
+                //initialize the abortion flag 
+                abortionsRequested = false;
+
+
+                var stepsToRun = GetSteps(conditionCheck);
+                int totalSteps = stepsToRun.Count;
+                int currentStep = 1;
+
+
+                foreach (var step in stepsToRun)
+                {
+                    //allow abortion after each step
+                    if (abortionsRequested)
+                    {
+                        break;
+                    }
+
+                    currentStep++;
+                    int percentage = (int)((currentStep * 1f / totalSteps) * 95);//95 for better visibility
+
+                    var status = step.Action.Execute();
+                    stepsResults.Add((step.Name, status));
+
+                    RunProgressChanged?.Invoke(percentage, step.Name);
+
+                    //throttling to allow visible and smooth progress
+                    //await Task.Delay(100);
+                }
                 if (abortionsRequested)
                 {
-                    break;
+                    stepsResults = null;
                 }
-
-                currentStep++;
-                int percentage = (int)((currentStep * 1f / totalSteps) * 95);//95 for better visibility
-
-                var status = step.Action.Execute();
-                stepsResults.Add((step.Name, status));
-
-                RunProgressChanged?.Invoke(percentage, step.Name);
-
-                //throttling to allow visible and smooth progress
-                //await Task.Delay(100);
             }
-            if (abortionsRequested)
+            catch (Exception e)
             {
-                stepsResults = null;
+                Log.Error("OptimizationTemplateManager.RunSteps", e.Message);
             }
-            
+
             RunCompleted?.Invoke(!abortionsRequested);
 
         }
         public async Task LoadAsync(string path)
         {
-            //will execute the laoding on thread pool thread
+            //will execute the loading on thread pool thread
             await Task.Run(() => Load(path));
 
         }
@@ -188,7 +197,7 @@ namespace VMManagementTool.Services.Optimization
             //todo consider cleaning up resources
 
         }
-        public List<Step> GetSteps(Func<Step, bool> conditionCheck = null)
+        List<Step> GetSteps(Func<Step, bool> conditionCheck = null)
         {
             var res = new List<Step>();
             if (RootGroups != null)
@@ -201,10 +210,7 @@ namespace VMManagementTool.Services.Optimization
             return res;
         }
 
-        public async Task<List<Step>> GetDefaultSelectedStepsAsync()
-        {
-            return await Task.Run<List<Step>>(() => GetSteps((step) => step.DefaultSelected));
-        }
+
 
         void RecursivelyAddSteps(List<Step> theList, Group group, Func<Step, bool> conditionCheck)
         {
@@ -262,12 +268,13 @@ namespace VMManagementTool.Services.Optimization
 
         }
 
-        internal void RunAll(HashSet<string> onlyRun = null)
+        [Obsolete("Used for debug only")]
+        public void RunAll(HashSet<string> onlyRun = null)
         {
             var csvDelimiter = '`';
 
             var allSteps = GetSteps();
-            Log($"Starting processing {allSteps.Count} steps");
+            WriteLog($"Starting processing {allSteps.Count} steps");
             int lastPercentage = 0;
             int stepCounter = 0;
 
@@ -286,7 +293,7 @@ namespace VMManagementTool.Services.Optimization
                 int percentage = (int)((stepCounter * 1f / allSteps.Count) * 100);
                 if (percentage - lastPercentage >= 10)
                 {
-                    Log($"Processing steps: {percentage}%");
+                    WriteLog($"Processing steps: {percentage}%");
                     lastPercentage = percentage;
                 }
 
@@ -297,7 +304,7 @@ namespace VMManagementTool.Services.Optimization
                     csvBuilder.AppendLine(csv);
 
                 }
-                Log($"Processing step: {step.Name}");
+                WriteLog($"Processing step: {step.Name}");
                 var stateBefore = step.Action.CheckStatus();
                 bool execResult = step.Action.Execute();
                 var stateAfter = step.Action.CheckStatus();
@@ -307,7 +314,7 @@ namespace VMManagementTool.Services.Optimization
 
             }
 
-            Log(csvBuilder.ToString());
+            WriteLog(csvBuilder.ToString());
 
         }
 
@@ -404,7 +411,7 @@ namespace VMManagementTool.Services.Optimization
             return action;
         }
 
-        private Action_ ParseCustomCheckAction(XPathNavigator actionXNav)
+        Action_ ParseCustomCheckAction(XPathNavigator actionXNav)
         {
             //parse params
             //these are all known keys:
@@ -436,7 +443,7 @@ namespace VMManagementTool.Services.Optimization
 
         }
 
-        private Action_ ParseSchTasksAction(XPathNavigator actionXNav)
+        Action_ ParseSchTasksAction(XPathNavigator actionXNav)
         {
             //parse params
             //these are all known keys:
@@ -447,7 +454,7 @@ namespace VMManagementTool.Services.Optimization
             return new SchTasksAction(parameters);
         }
 
-        private Action_ ParseShellExecuteAction(XPathNavigator actionXNav)
+        Action_ ParseShellExecuteAction(XPathNavigator actionXNav)
         {
             //this has no parameters
 
@@ -461,7 +468,7 @@ namespace VMManagementTool.Services.Optimization
             return new ShellExecuteAction(command);
         }
 
-        private Action_ ParseServiceAction(XPathNavigator actionXNav)
+        Action_ ParseServiceAction(XPathNavigator actionXNav)
         {
             //parse params
             //these are all known keys:
@@ -557,9 +564,10 @@ namespace VMManagementTool.Services.Optimization
                 }
             }
         }
-        void Log(string msg)
+        void WriteLog(string msg)
         {
             NewInfo?.Invoke(msg);
+            Log.Debug("OptimizationTemplateManager", msg);
         }
     }
 }

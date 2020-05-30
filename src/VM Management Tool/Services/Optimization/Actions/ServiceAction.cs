@@ -35,7 +35,7 @@ namespace VMManagementTool.Services.Optimization.Actions
             }
             catch (Exception e)
             {
-
+                Log.Error("ServiceAction.CheckStatus", e.Message);
                 return StatusResult.Unavailable;
             }
         }
@@ -52,6 +52,7 @@ namespace VMManagementTool.Services.Optimization.Actions
             }
             catch (Exception e)
             {
+                Log.Error("ServiceAction.Execute", e.Message);
 
                 return false;
             }

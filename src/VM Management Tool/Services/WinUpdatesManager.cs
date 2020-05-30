@@ -154,8 +154,8 @@ namespace VMManagementTool.Services
             catch (Exception ex)
             {
 
-                Log.Error("WinUpdatesManager::CheckForUpdates", ex.ToString());
-                await Task.Delay(250);
+                Log.Error("WinUpdatesManager.CheckForUpdates", ex.ToString());
+                await Task.Yield();
                 CheckCompleted?.Invoke(false);
             }
 
@@ -197,10 +197,10 @@ namespace VMManagementTool.Services
             catch (Exception ex)
             {
 
-                Log.Error("WinUpdatesManager::DownloadUpdates", ex.ToString());
+                Log.Error("WinUpdatesManager.DownloadUpdates", ex.ToString());
                 //this will allow the caller UI method to finish and 
                 //the event will be handled like expected asyncronously
-                await Task.Delay(250);
+                await Task.Yield();
                 DownloadCompleted?.Invoke(false);
             }
 
@@ -225,15 +225,16 @@ namespace VMManagementTool.Services
 
                 //this will allow the caller UI method to finish and 
                 //the event will be handled like expected asyncronously
-                await Task.Delay(250);
+                await Task.Yield();
                 InstallationCompleted?.Invoke(false, false);
 
             }
         }
 
-        //------ WUA callbacks ----------------------------------------------
+        //------ WUA callbacks ----------------------------------------------------
 
         //Search Complete callback
+
         //for now this will be our callback 
         //This needs some testing because can be problematic accorting to: 
         //https://docs.microsoft.com/en-us/windows/win32/wua_sdk/guidelines-for-asynchronous-wua-operations
@@ -383,7 +384,7 @@ namespace VMManagementTool.Services
             }
         }
 
-        private void OnInstallationComplete(IInstallationResult installResult)
+        void OnInstallationComplete(IInstallationResult installResult)
         {
             //todo can there be partial success, and we miss some results?
             if (installResult.ResultCode != OperationResultCode.orcSucceeded)
@@ -436,12 +437,12 @@ namespace VMManagementTool.Services
             }
         }
 
-        //------- Log Utils -------------------------------------------------------------------
+        //------- Misc -------------------------------------------------------------------
 
         void Info(string text)
         {
             //NewInfo?.Invoke(text);
-            Log.Info("WindownUpdate", text);
+            Log.Debug("WindowsUpdate", text);
         }
         string Dump(object obj, int depth = 1)
         {

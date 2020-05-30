@@ -13,7 +13,7 @@ namespace VMManagementTool.Services
         {
             if (string.IsNullOrEmpty(regKey))
             {
-                throw new ArgumentException("Registry key can not be null or empty string");
+                return null;
             }
             string[] parts = regKey.Split(new[] { '\\' }, StringSplitOptions.RemoveEmptyEntries);
             string properHive = TranslateHive(parts[0]);

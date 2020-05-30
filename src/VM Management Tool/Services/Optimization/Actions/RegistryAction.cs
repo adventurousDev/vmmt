@@ -192,6 +192,7 @@ namespace VMManagementTool.Services.Optimization.Actions
             }
             catch (Exception ex)
             {
+                Log.Error("RegistryAction.ExecuteAdd", ex.Message);
                 return false;
             }
         }
@@ -209,8 +210,9 @@ namespace VMManagementTool.Services.Optimization.Actions
                     
                 }
             }
-            catch (Exception e)
+            catch (Exception ex)
             {
+                Log.Error("RegistryAction.ExecuteDeleteKey", ex.Message);
                 return false;
             }
 
@@ -233,6 +235,7 @@ namespace VMManagementTool.Services.Optimization.Actions
             }
             catch (Exception ex)
             {
+                Log.Error("RegistryAction.ExecuteDeleteValue", ex.Message);
                 return false;
             }
 

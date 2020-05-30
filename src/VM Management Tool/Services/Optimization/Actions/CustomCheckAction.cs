@@ -23,12 +23,14 @@ namespace VMManagementTool.Services.Optimization.Actions
 
         public override bool Execute()
         {
-            throw new NotImplementedException();
+            Log.Error("CustomCheckAction.Execute", "Not supported.");
+            return false;
         }
 
         public override StatusResult CheckStatus()
         {
-            throw new NotImplementedException();
+            Log.Error("CustomCheckAction.CheckStatus", "Not supported.");
+            return StatusResult.Unavailable;
         }
     }
 }

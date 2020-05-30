@@ -45,8 +45,9 @@ namespace VMManagementTool.Services
 
 
             }
-            catch
+            catch (Exception ex)
             {
+                Log.Error("WinServiceUtils.StopServiceAsync", ex.Message);
                 return false;
             }
             finally
@@ -61,7 +62,7 @@ namespace VMManagementTool.Services
 
             try
             {
-                if (sc.Status == ServiceControllerStatus.Running || sc.Status==ServiceControllerStatus.StartPending)
+                if (sc.Status == ServiceControllerStatus.Running || sc.Status == ServiceControllerStatus.StartPending)
                 {
                     return true;
                 }
@@ -89,8 +90,9 @@ namespace VMManagementTool.Services
 
 
             }
-            catch
+            catch (Exception ex)
             {
+                Log.Error("WinServiceUtils.StartServiceAsync", ex.Message);
                 return false;
             }
             finally
@@ -114,51 +116,48 @@ namespace VMManagementTool.Services
         {
             SetStartupType(serviceName, "disabled");
         }
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="serviceName"></param>
+        /// <returns></returns>
+        /// <exception cref="System.Exception">When get-service PS cmdlet fails</exception>
         public static string GetStartupType(string serviceName)
         {
-            try
+
+            using (PowerShell shell = PowerShell.Create())
             {
-                using (PowerShell shell = PowerShell.Create())
+                shell.AddCommand("get-service").AddParameter("name", serviceName);
+                //shell.AddParameter("startuptype", startupType);
+                var resCollection = shell.Invoke();
+                if (resCollection.Count > 0)
                 {
-                    shell.AddCommand("get-service").AddParameter("name", serviceName);
-                    //shell.AddParameter("startuptype", startupType);
-                    var resCollection = shell.Invoke();
-                    if (resCollection.Count > 0)
-                    {
-                        var startType = resCollection[0].Properties["StartType"].Value;
-                        return startType.ToString();
-                    }
-                    else
-                    {
-                        throw new Exception($"The service {serviceName} not found.");
-                    }
+                    var startType = resCollection[0].Properties["StartType"].Value;
+                    return startType.ToString();
+                }
+                else
+                {
+                    throw new Exception($"The service {serviceName} not found.");
                 }
             }
-            catch (Exception e)
-            {
-                throw new Exception("Could not change serice startup type" + e.Message);
-            }
+
         }
+        /// <exception cref="System.Exception">When set-service PS cmdlet fails</exception>
         public static void SetStartupType(string serviceName, string startupType)
         {
-            try
+
+            using (PowerShell shell = PowerShell.Create())
             {
-                using (PowerShell shell = PowerShell.Create())
+                shell.AddCommand("set-service").AddParameter("name", serviceName);
+                shell.AddParameter("startuptype", startupType);
+
+                shell.Invoke();
+                if (shell.HadErrors)
                 {
-                    shell.AddCommand("set-service").AddParameter("name", serviceName);
-                    shell.AddParameter("startuptype", startupType);
-                    
-                    shell.Invoke();
-                    if (shell.HadErrors)
-                    {
-                        throw new Exception("Errors setting service startup mode");
-                    }
+                    throw new Exception("Errors setting service startup mode");
                 }
             }
-            catch (Exception e)
-            {
-                throw new Exception("Could not change service startup type" + e.Message);
-            }
+
 
 
         }
@@ -184,7 +183,7 @@ namespace VMManagementTool.Services
 
                     var result = shell.BeginInvoke();
                     DateTime utcNow = DateTime.UtcNow;
-                    
+
                     while (!result.IsCompleted)
                     {
                         if ((DateTime.UtcNow.Ticks - utcNow.Ticks) / 10000 > timeout)
@@ -192,7 +191,7 @@ namespace VMManagementTool.Services
                             return false;
                         }
                         await Task.Delay(200).ConfigureAwait(false);
-                        
+
 
                     }
                     if (shell.HadErrors)
@@ -205,6 +204,7 @@ namespace VMManagementTool.Services
             }
             catch (Exception e)
             {
+                Log.Error("WinServiceUtils.SetStartupTypeAsync", e.Message);
                 return false;
             }
 

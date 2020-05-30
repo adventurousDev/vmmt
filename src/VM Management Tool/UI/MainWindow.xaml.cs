@@ -29,17 +29,26 @@ namespace VMManagementTool
 
             var args = Environment.GetCommandLineArgs();
             var dir = Directory.GetCurrentDirectory();
-            
+
             if (args.Length > 1 && args[1].Equals("/resume"))
             {
-                
+
                 SystemUtils.DeleteResumeTask();
-                VMMTSessionManager.Instance.LoadPausedSession();
+                try
+                {
+                    VMMTSessionManager.Instance.LoadPausedSession();
+                }
+                catch (Exception ex)
+                {
+                    Log.Error("MainWindow.MainWindow", ex.Message);
+                    Log.Info("MainWindow.MainWindow", "Unable to load saved session: starting from the beginning");
+                    frame.Navigate(new HomePage());
+                }
                 frame.Navigate(new RunWinUpdatesPage(true));
             }
             else
             {
-                
+
                 frame.Navigate(new HomePage());
             }
         }

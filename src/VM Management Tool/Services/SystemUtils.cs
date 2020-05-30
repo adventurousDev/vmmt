@@ -24,7 +24,7 @@ namespace VMManagementTool.Services
             if (!cmd.TryExecute(out _))
             {
                 //throw new Exception("Unable to schedule after restart resume");
-                Log.Error("SystemUtils::ScheduleAfterRestart", "Unable to schedule resume task");
+                Log.Error("SystemUtils.ScheduleAfterRestart", "Unable to schedule resume task");
             }
         }
 
@@ -34,7 +34,7 @@ namespace VMManagementTool.Services
             var cmd = new ShellCommand(schCmd);
             if (!cmd.TryExecute(out _))
             {
-                Log.Error("SystemUtils::DeleteResumeTask", "Unable to delete resume task");
+                Log.Error("SystemUtils.DeleteResumeTask", "Unable to delete resume task");
             }
         }
 
@@ -44,7 +44,7 @@ namespace VMManagementTool.Services
             var cmd = new ShellCommand(cmdStr);
             if (!cmd.TryExecute(out _))
             {
-                throw new Exception("Unable to perform PC restart");
+                Log.Error("SystemUtils.RestartSystem", "Unable to perform PC restart");
             }
         }
 

@@ -7,7 +7,7 @@ using VMManagementTool.Services;
 
 namespace VMManagementTool
 {
-    class VMMTOptimizationSession
+    public class VMMTOptimizationSession
     {
         public Dictionary<string, WinUpdateStatus> WinUpdateResults { get; set; }
         public List<(string, bool)> OSOTResults { get; set; }

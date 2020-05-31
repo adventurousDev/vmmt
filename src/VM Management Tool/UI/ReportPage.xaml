@@ -26,7 +26,7 @@
                    >
                 Report
         </TextBlock>
-        <TextBox x:Name="theConsole"   TextWrapping="Wrap"  
+        <RichTextBox x:Name="theConsole"    IsDocumentEnabled="True"
                  Background="#FFFCFCFC" IsReadOnly="True" ScrollViewer.CanContentScroll="True" AutomationProperties.Name="consoleTextbox"
                  VerticalScrollBarVisibility="Auto" 
                  Grid.Row="1"

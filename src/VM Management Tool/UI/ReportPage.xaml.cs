@@ -70,7 +70,21 @@ namespace VMManagementTool.UI
 
                     var successfulCount = osotResults.Count((st) => st.Item2);
                     var fails = osotResults.Count - successfulCount;
-                    theConsole.AppendText($"OSOT Template: ({successfulCount} - succeeded; {fails} - failed)" + Environment.NewLine);
+                    //theConsole.AppendText($"OSOT Template: {successfulCount} - succeeded; {fails} - failed" + Environment.NewLine);
+                    Paragraph para = new Paragraph();
+                    para.Margin = new Thickness(0); // remove indent between paragraphs
+
+                    Hyperlink link = new Hyperlink();
+                    link.IsEnabled = true;
+                    link.Inlines.Add("view details");
+                    link.Click += (x, y) => ShowOSOTDetailsDialog(session);
+
+                    
+                    para.Inlines.Add(new Run($"OSOT Template: {successfulCount} - succeeded; {fails} - failed ("));
+                    para.Inlines.Add(link);
+                    para.Inlines.Add(new Run(")"));
+
+                    theConsole.Document.Blocks.Add(para);
                     theConsole.AppendText(Environment.NewLine);
                 }
 
@@ -91,6 +105,13 @@ namespace VMManagementTool.UI
             }
 
         }
+
+        void ShowOSOTDetailsDialog(VMMTOptimizationSession session)
+        {
+            var dialog = new OSOTDetailReport(session);
+            dialog.ShowDialog();
+        }
+
         private void closeButton_Click(object sender, RoutedEventArgs e)
         {
             Application.Current.Shutdown();

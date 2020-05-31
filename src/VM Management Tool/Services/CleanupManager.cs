@@ -358,7 +358,15 @@ namespace VMManagementTool.Services
             defragProcExited = true;
 
             results.Add(("Defrag", exitCode == 0, exitCode));
-
+            //disable the serivice after using it
+            try
+            {
+                WinServiceUtils.DisableService("defragsvc");
+            }
+            catch (Exception ex)
+            {
+                Log.Error("CleanupManager.DefragProc_Exited::(disable defragsvc)", ex.Message);
+            }
             DefragCompleted?.Invoke(defragProc.ExitCode == 0);
 
         }

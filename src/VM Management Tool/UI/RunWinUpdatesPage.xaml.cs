@@ -204,7 +204,7 @@ namespace VMManagementTool.UI
                 if (restartNeeded)
                 {
                     StartInfiniteProgress("restarting the system...");
-                    VMMTSessionManager.Instance.SetWinUpdateResults(winUpdateManager.GetResults());
+                    VMMTSessionManager.Instance.SetWinUpdateResults(winUpdateManager?.GetResults());
                     VMMTSessionManager.Instance.SaveSessionForResume();
                     SystemUtils.ScheduleAfterRestart();
                     SystemUtils.RestartSystem();

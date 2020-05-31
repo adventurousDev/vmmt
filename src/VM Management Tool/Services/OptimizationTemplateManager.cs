@@ -164,7 +164,7 @@ namespace VMManagementTool.Services
                     var status = step.Action.Execute();
                     stepsResults.Add((step.Name, status));
 
-                    RunProgressChanged?.Invoke(percentage, step.Name);
+                    RunProgressChanged?.Invoke(percentage, $"({currentStep}/ {totalSteps} ) "+step.Name);
 
                     //throttling to allow visible and smooth progress
                     //await Task.Delay(100);

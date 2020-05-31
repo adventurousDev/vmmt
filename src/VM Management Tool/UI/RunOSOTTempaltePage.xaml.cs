@@ -110,7 +110,7 @@ namespace VMManagementTool.UI
         }
         async void FinishAndProceed()
         {
-            VMMTSessionManager.Instance.SetOSOTResults(optimizationTemplateManager.GetResults());
+            VMMTSessionManager.Instance.SetOSOTResults(optimizationTemplateManager?.GetResults());
             if (optimizationTemplateManager != null)
             {
                 optimizationTemplateManager.RunProgressChanged -= OptimizationTemplateManager_RunProgressChanged;

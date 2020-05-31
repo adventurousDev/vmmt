@@ -189,7 +189,7 @@ namespace VMManagementTool.UI
         }
         async void FinishAndProceed()
         {
-            VMMTSessionManager.Instance.SetCleanupResults(cleanupManager.GetResults());
+            VMMTSessionManager.Instance.SetCleanupResults(cleanupManager?.GetResults());
             //deregister events(jsut in case)
             if (cleanupManager != null)
             {

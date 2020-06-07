@@ -716,6 +716,14 @@
             "PrerequisitesLocation" = "2:1"
             "Url" = "8:"
             "ComponentsUrl" = "8:"
+                "Items"
+                {
+                    "{EDC2488A-8267-493A-A98E-7D9C3B36CDF3}:.NETFramework,Version=v4.7.2"
+                    {
+                    "Name" = "8:Microsoft .NET Framework 4.7.2 (x86 and x64)"
+                    "ProductCode" = "8:.NETFramework,Version=v4.7.2"
+                    }
+                }
             }
         }
         "Release"
@@ -2508,8 +2516,8 @@
         {
         "Name" = "8:Microsoft Visual Studio"
         "ProductName" = "8:VM Management Tool"
-        "ProductCode" = "8:{ADAF905B-FABF-4CEB-B083-71E4388CB542}"
-        "PackageCode" = "8:{05926877-2EDD-4625-B775-F0F13C79E974}"
+        "ProductCode" = "8:{FA0CDF62-B7C5-42E5-95B6-B8CEC7BEF601}"
+        "PackageCode" = "8:{990F7891-BE5E-48DD-9288-91C71993D61D}"
         "UpgradeCode" = "8:{8A3335A8-D38E-4C9B-97D7-D8892BBBAEC3}"
         "AspNetVersion" = "8:"
         "RestartWWWService" = "11:FALSE"
@@ -3058,7 +3066,7 @@
         {
             "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_647E3384BF8845F88E8B8083CD83DE1C"
             {
-            "SourcePath" = "8:..\\VM Management Tool\\obj\\Release\\VM Management Tool.exe"
+            "SourcePath" = "8:..\\VM Management Tool\\obj\\Release\\vmmt.exe"
             "TargetName" = "8:"
             "Tag" = "8:"
             "Folder" = "8:_587D39D869EB4101895A721113D49765"

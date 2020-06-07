@@ -61,5 +61,11 @@ namespace VMManagementTool
             TestWindow.Instance.WindowState = WindowState.Normal;
 
         }
+
+        private void AboutMenuSelected(object sender, RoutedEventArgs e)
+        {
+            var version = Assembly.GetExecutingAssembly().GetName().Version;
+            MessageBox.Show($"Version: {version.Major}.{version.Minor}.{version.Build}");
+        }
     }
 }

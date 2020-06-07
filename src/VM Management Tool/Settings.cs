@@ -15,5 +15,6 @@ namespace VMManagementTool
         public const string SDELETE_FOLDER = @"C:\bwLehrpool\SDelete";
 
         public const bool DEBUG = true;
+        public const string VERSION = "1.0.0"; 
     }
 }

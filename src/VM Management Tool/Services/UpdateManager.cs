@@ -24,64 +24,10 @@ namespace VMManagementTool.Services
         public string CurrentVersion { get { return Assembly.GetExecutingAssembly().GetName().Version.ToString(3); } }
         private Dictionary<string, object> updateData;
         WebClient webClient;
-        public void Update_()
-        {
-            try
-            {
-                //1. download the executable into tmp
-                tempPath = Path.GetTempFileName();
-                using (WebClient webClient = new WebClient())
-                {
-                    webClient.DownloadFileCompleted += WebClient_DownloadFileCompleted;
-                    //webClient.DownloadFileAsync(new Uri(EXECUTABLE_URL), tempPath);
-                }
-            }
-            catch (Exception ex)
-            {
+        
 
-                Log.Error("UpdateManager.Update", ex.Message);
-
-            }
-
-
-        }
-
-        private void WebClient_DownloadFileCompleted(object sender, System.ComponentModel.AsyncCompletedEventArgs e)
-        {
-            //UpdateAndRestart();
-        }
-        void UpdateAndRestart_()
-        {
-            try
-            {
-                if (!File.Exists(tempPath))
-                {
-                    //todo handle this better
-                    //log at least
-                    return;
-                }
-                //2. if defined perform verifications *
-                //3. get the path of current executable
-                var exePath = Application.ResourceAssembly.Location;
-                //4. rename the current executable
-                if (File.Exists(exePath + "_temp"))
-                {
-                    File.Delete(exePath + "_temp");
-                }
-                File.Move(exePath, exePath + "_temp");
-                //5. copy the new exe and rename to the origianl name of current one
-                File.Move(tempPath, exePath);
-                //6. initiate start of the new one 
-                System.Diagnostics.Process.Start(exePath);//will this still have the old exe name? 
-                                                          //7. close the current 
-                Application.Current.Shutdown();
-            }
-            catch (Exception ex)
-            {
-
-                Log.Error("UpdateManager.WebClient_DownloadFileCompleted", ex.Message);
-            }
-        }
+      
+      
 
         public async Task<bool> IsNewerVersionAvailable()
         {
@@ -91,7 +37,7 @@ namespace VMManagementTool.Services
                 using (var client = new HttpClient())
                 {
                     //1. downlaod the json manifest
-                    var resp = await client.GetAsync(Settings.UPDATE_MANIFEST_URL);
+                    var resp = await client.GetAsync(Configs.UPDATE_MANIFEST_URL);
                     updateManifestJSON = await resp.Content.ReadAsStringAsync();
                 }
 

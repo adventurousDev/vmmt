@@ -62,16 +62,21 @@ namespace VMManagementTool
 
         }
 
-        private void AboutMenuSelected(object sender, RoutedEventArgs e)
+        private void AboutMenuItemSelected(object sender, RoutedEventArgs e)
         {
             var version = Assembly.GetExecutingAssembly().GetName().Version;
             
             MessageBox.Show($"Version: {version.ToString(3)}");
         }
 
-        private void CheckForUpdatesSelected(object sender, RoutedEventArgs e)
+        private void UpdateMenuItemSelected(object sender, RoutedEventArgs e)
         {
             new UpdateWindow().ShowDialog();
+        }
+
+        private void ExitMenuItemSelected(object sender, RoutedEventArgs e)
+        {
+            this.Close();
         }
     }
 }

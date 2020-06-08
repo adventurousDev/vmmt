@@ -12,16 +12,16 @@
     <DockPanel>
         <Menu Visibility="Visible" DockPanel.Dock="Top" Background="White">
             <MenuItem Header="_File">                
-                <MenuItem Header="E_xit"/>
+                <MenuItem Header="E_xit" Click="ExitMenuItemSelected"/>
             </MenuItem>
             <MenuItem Header="_Tools">
-                <MenuItem Header="Test" Click="MenuItem_Click"/>                
+                <!--MenuItem Header="Test" Click="MenuItem_Click"/-->                
                 <MenuItem Header="_Options..."/>
                 
             </MenuItem>
             <MenuItem Header="_Help">
-                <MenuItem Header="Check for Updates" Click="CheckForUpdatesSelected"/>
-                <MenuItem Header="_About" Click="AboutMenuSelected"/>
+                <MenuItem Header="Check for Updates" Click="UpdateMenuItemSelected"/>
+                <MenuItem Header="_About" Click="AboutMenuItemSelected"/>
 
             </MenuItem>
         </Menu>

@@ -20,7 +20,7 @@
                 
             </MenuItem>
             <MenuItem Header="_Help">
-                <MenuItem Header="Check for Updates"/>
+                <MenuItem Header="Check for Updates" Click="CheckForUpdatesSelected"/>
                 <MenuItem Header="_About" Click="AboutMenuSelected"/>
 
             </MenuItem>

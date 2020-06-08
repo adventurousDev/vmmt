@@ -277,7 +277,7 @@ namespace VMManagementTool
 
         private void testUpdate_Click(object sender, RoutedEventArgs e)
         {
-            new UpdateManager().Update();
+            //new UpdateManager().Update();
             //new UpdateManager().TmpReplaceAndRestart(@"C:\Users\Student\Desktop\TmpExe\exe.tmp");
         }
     }

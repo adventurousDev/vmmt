@@ -15,6 +15,7 @@ using System.Windows.Shapes;
 using VMManagementTool.Test;
 using VMManagementTool.Services;
 using VMManagementTool.UIUtils;
+using System.ComponentModel;
 
 namespace VMManagementTool.UI
 {
@@ -33,14 +34,21 @@ namespace VMManagementTool.UI
             resumeInstall = resume;
 
             Loaded += RunWinUpdatesPage_Loaded;
-            Unloaded += RunWinUpdatesPage_Unloaded;
+            
 
+            var hostWin = Application.Current.MainWindow;
+            hostWin.Closing += HostWin_Closing;
+            Unloaded += (s, e) => { hostWin.Closing -= HostWin_Closing; };
         }
 
-        private void RunWinUpdatesPage_Unloaded(object sender, RoutedEventArgs e)
+        private void HostWin_Closing(object sender, CancelEventArgs e)
         {
-            //Cleanup();
+            
+            Abort();
+            Cleanup().Wait() ;
         }
+
+       
 
         private async void RunWinUpdatesPage_Loaded(object sender, RoutedEventArgs e)
         {
@@ -237,6 +245,16 @@ namespace VMManagementTool.UI
 
         private void abortButton_Click(object sender, RoutedEventArgs e)
         {
+            Abort();
+
+
+
+
+
+
+        }
+        void Abort()
+        {
             aborted = true;
             Dispatcher.Invoke(() => abortButton.IsEnabled = false);
 
@@ -248,21 +266,8 @@ namespace VMManagementTool.UI
                 winUpdateManager.AbortAll();
             }
             StartInfiniteProgress("aborting...");
-
-
-
-
-            //Proceed("aborted!");
         }
-        void Proceed(string msg)
-        {
-            this.Dispatcher.Invoke(() =>
-            {
-                MessageBox.Show(msg);
-            }
-           );
-
-        }
+        
         async Task<bool> Prepare()
         {
             bool enabled = await WinServiceUtils.SetStartupTypeAsync(WinUpdatesManager.WUA_SERVICE_NAME, true, 60000).ConfigureAwait(false);
@@ -341,7 +346,10 @@ namespace VMManagementTool.UI
         async void FinishAndProceed()
         {
 
-
+            if (aborted)
+            {
+                VMMTSessionManager.Instance.SetWinUpdateResults(null);
+            }
             StartInfiniteProgress("finishing...");
             await Task.Run(Cleanup).ConfigureAwait(false);
 

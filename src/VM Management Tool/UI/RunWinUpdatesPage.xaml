@@ -8,7 +8,7 @@
       d:DesignHeight="300" d:DesignWidth="482"
        MinWidth="482"
       MinHeight="300"
-      Title="RunWinUpdatesPage">
+      Title="Windwos Updates">
 
     <Grid >
         <Grid.ColumnDefinitions>

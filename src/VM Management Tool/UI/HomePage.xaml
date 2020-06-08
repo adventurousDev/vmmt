@@ -8,7 +8,7 @@
       d:DesignHeight="450" d:DesignWidth="800"
       MinWidth="482"
       MinHeight="300"
-      Title="Page1">
+      Title="Welcome">
 
     <Grid >
         <Grid.ColumnDefinitions>

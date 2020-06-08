@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:VMManagementTool"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800"
+        Title="VM Management Tool" Height="450" Width="800"
          MinWidth="600"
          MinHeight="360"
         >

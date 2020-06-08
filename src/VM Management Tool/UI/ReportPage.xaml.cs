@@ -63,6 +63,10 @@ namespace VMManagementTool.UI
 
                     theConsole.AppendText(Environment.NewLine);
                 }
+                else
+                {
+                    theConsole.AppendText($"Windwos Updates: aborted" + Environment.NewLine);
+                }
 
                 if (osotResults != null)
                 {
@@ -79,13 +83,17 @@ namespace VMManagementTool.UI
                     link.Inlines.Add("view details");
                     link.Click += (x, y) => ShowOSOTDetailsDialog(session);
 
-                    
-                    para.Inlines.Add(new Run($"OSOT Template: {successfulCount} - succeeded; {fails} - failed ("));
+
+                    para.Inlines.Add(new Run($"OSOT Template Steps: {successfulCount} - succeeded; {fails} - failed ("));
                     para.Inlines.Add(link);
                     para.Inlines.Add(new Run(")"));
 
                     theConsole.Document.Blocks.Add(para);
                     theConsole.AppendText(Environment.NewLine);
+                }
+                else
+                {
+                    theConsole.AppendText($"OSOT Template Steps: aborted" + Environment.NewLine);
                 }
 
                 if (cleanupResults != null)
@@ -96,6 +104,10 @@ namespace VMManagementTool.UI
                     {
                         theConsole.AppendText($"        {cleanupResult.Item1} - {(cleanupResult.Item2 ? "success" : $"fail:(code {cleanupResult.Item3})")}{Environment.NewLine}");
                     }
+                }
+                else
+                {
+                    theConsole.AppendText($"Cleanup: aborted" + Environment.NewLine);
                 }
             }
             catch (Exception ex)

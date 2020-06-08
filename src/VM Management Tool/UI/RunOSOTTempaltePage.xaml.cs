@@ -26,11 +26,20 @@ namespace VMManagementTool.UI
         OptimizationTemplateManager optimizationTemplateManager;
         //DummyOptimizationTemplateManager optimizationTemplateManager;
         const int INDEFINITE_PROGRESS = -1;
+        volatile bool aborted = false;
         public RunOSOTTempaltePage()
         {
             InitializeComponent();
             Loaded += RunOSOTTempaltePage_Loaded;
+            var hostWin = Application.Current.MainWindow;
+            hostWin.Closing += HostWin_Closing;
+            Unloaded += (s, e) => { hostWin.Closing -= HostWin_Closing; };
+        }
 
+        private void HostWin_Closing(object sender, System.ComponentModel.CancelEventArgs e)
+        {
+            
+            Abort();
         }
 
         private async void RunOSOTTempaltePage_Loaded(object sender, RoutedEventArgs e)
@@ -67,9 +76,9 @@ namespace VMManagementTool.UI
                 OptimizationTemplateManager_RunCompleted(false);
             }
 
-            
 
-            
+
+
         }
         //the parameter signifies sucess (not aborted or failed): false mean aborted or failed 
         private void OptimizationTemplateManager_RunCompleted(bool successful)
@@ -79,7 +88,7 @@ namespace VMManagementTool.UI
             FinishAndProceed();
 
         }
-
+        
         private void OptimizationTemplateManager_RunProgressChanged(int progress, string stepName)
         {
             SetProgress(progress, $"executing: {stepName}");
@@ -102,15 +111,30 @@ namespace VMManagementTool.UI
                 }
             );
         }
-        
+
         private void abortButton_Click(object sender, RoutedEventArgs e)
         {
+
+            Abort();
+
+        }
+        void Abort()
+        {
+            aborted = true;
             SetProgress(INDEFINITE_PROGRESS, "aborting...");
             optimizationTemplateManager.Abort();
         }
         async void FinishAndProceed()
         {
-            VMMTSessionManager.Instance.SetOSOTResults(optimizationTemplateManager?.GetResults());
+            if (aborted)
+            {
+                VMMTSessionManager.Instance.SetOSOTResults(null);
+            }
+            else
+            {
+                VMMTSessionManager.Instance.SetOSOTResults(optimizationTemplateManager?.GetResults());
+            }
+
             if (optimizationTemplateManager != null)
             {
                 optimizationTemplateManager.RunProgressChanged -= OptimizationTemplateManager_RunProgressChanged;
@@ -120,7 +144,7 @@ namespace VMManagementTool.UI
             SetProgress(INDEFINITE_PROGRESS, "finishing...");
 
 
-            await optimizationTemplateManager.CleanupAsync();
+            await optimizationTemplateManager?.CleanupAsync();
 
             //a delay for user to have the last look
             await Task.Delay(500);

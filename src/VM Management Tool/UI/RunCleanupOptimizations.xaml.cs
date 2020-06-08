@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -21,17 +22,30 @@ namespace VMManagementTool.UI
     /// <summary>
     /// Interaction logic for RunCleanupOptimizations.xaml
     /// </summary>
-    public partial class RunCleanupOptimizations : Page
+    public partial class RunCleanupOptimizations : Page, IDisposable
     {
         const int INDEFINITE_PROGRESS = -1;
 
         CleanupManager cleanupManager;
         //DummyCleanupManager cleanupManager;
+
+        bool aborted = false;
         public RunCleanupOptimizations()
         {
             InitializeComponent();
             Loaded += RunCleanupOptimizations_Loaded;
+            var hostWin = Application.Current.MainWindow;
+            hostWin.Closing += HostWin_Closing;
+            Unloaded += (s, e) => { hostWin.Closing -= HostWin_Closing; };
         }
+
+        private void HostWin_Closing(object sender, CancelEventArgs e)
+        {
+            
+            Abort();
+        }
+
+        
 
         private async void RunCleanupOptimizations_Loaded(object sender, RoutedEventArgs e)
         {
@@ -42,7 +56,7 @@ namespace VMManagementTool.UI
 
             //for smoother user experience
             await Task.Delay(500);
-            
+
             //run cleanmgr
             SetParagraphLook(cleanmgrParagrath, TextLook.Processing);
             SetProgress(INDEFINITE_PROGRESS, "");
@@ -54,7 +68,7 @@ namespace VMManagementTool.UI
         private async void WinOptimizationsManager_CleanmgrCompleted(bool success)
         {
             ResetProgress();
-          
+
             if (success)
             {
                 SetParagraphLook(cleanmgrParagrath, TextLook.Completed);
@@ -71,17 +85,24 @@ namespace VMManagementTool.UI
             //for smoother user experience
             await Task.Delay(500);
 
-            SetProgress(-1,"");
+            if (aborted)
+            {
+                SetParagraphLook(sdeleteParagrath, TextLook.Skipped);
+                FinishAndProceed();
+                return;
+            }
+            SetProgress(INDEFINITE_PROGRESS, "");
             //proceed to sdelete
             //winOptimizationsManager.ProgressChanged += WinOptimizationsManager_ProgressChanged;
-            cleanupManager.SdeleteCompleted += WinOptimizationsManager_SdeleteCompleted;
+            
+            cleanupManager.SdeleteCompleted += WinOptimizationsManager_SdeleteCompleted;           
             cleanupManager.StartSdelete();
         }
 
         private async void WinOptimizationsManager_SdeleteCompleted(bool success)
         {
             ResetProgress();
-           
+
             if (success)
             {
                 SetParagraphLook(sdeleteParagrath, TextLook.Completed);
@@ -97,9 +118,14 @@ namespace VMManagementTool.UI
 
             //for smoother user experience
             await Task.Delay(500);
-
+            if (aborted)
+            {
+                SetParagraphLook(defragParagrath, TextLook.Skipped);
+                FinishAndProceed();
+                return;
+            }
             //proceed to defrag
-            SetProgress(-1, "");
+            SetProgress(INDEFINITE_PROGRESS, "");
             cleanupManager.DefragCompleted += WinOptimizationsManager_DefragCompleted;
             cleanupManager.StartDefrag();
         }
@@ -119,15 +145,19 @@ namespace VMManagementTool.UI
             }
 
             FinishAndProceed();
-        }       
+        }
 
-        
+
 
         private void abortButton_Click(object sender, RoutedEventArgs e)
         {
+            Abort();
+        }
+        private void Abort()
+        {
+            aborted = true;
             cleanupManager.Abort();
         }
-
         void SetProgress(int value, string label)
         {
             Dispatcher.Invoke(() =>
@@ -189,7 +219,15 @@ namespace VMManagementTool.UI
         }
         async void FinishAndProceed()
         {
-            VMMTSessionManager.Instance.SetCleanupResults(cleanupManager?.GetResults());
+            if (aborted)
+            {
+                VMMTSessionManager.Instance.SetCleanupResults(null);
+            }
+            else
+            {
+                VMMTSessionManager.Instance.SetCleanupResults(cleanupManager?.GetResults());
+            }
+            
             //deregister events(jsut in case)
             if (cleanupManager != null)
             {
@@ -200,7 +238,7 @@ namespace VMManagementTool.UI
 
             SetProgress(INDEFINITE_PROGRESS, "finishing...");
 
-           
+
 
             //a delay for user to have the last look
             await Task.Delay(500);
@@ -217,6 +255,9 @@ namespace VMManagementTool.UI
 
         }
 
-
+        public void Dispose()
+        {
+            cleanupManager?.Dispose();
+        }
     }
 }

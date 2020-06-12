@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -29,11 +30,11 @@ namespace VMManagementTool
         {
             get
             {
-                if (instance == null )
+                if (instance == null)
                 {
                     instance = new TestWindow();
                 }
-                
+
                 return instance;
             }
         }
@@ -275,10 +276,14 @@ namespace VMManagementTool
             template.TestShellAction();
         }
 
-        private void testUpdate_Click(object sender, RoutedEventArgs e)
+        private async void testUpdate_Click(object sender, RoutedEventArgs e)
         {
-            //new UpdateManager().Update();
-            //new UpdateManager().TmpReplaceAndRestart(@"C:\Users\Student\Desktop\TmpExe\exe.tmp");
+            Stopwatch st = new Stopwatch();
+            st.Start();
+
+            await ConfigurationManager.Instance.CheckFetchExternalTool("psexec", "PsExec.exe,PsExec64.exe,Eula.txt", "https://download.sysinternals.com/files/PSTools.zip", false, true);
+            st.Stop();
+            this.LogUpdateInto($"Took: {st.ElapsedMilliseconds} ms");
         }
     }
 }

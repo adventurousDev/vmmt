@@ -21,14 +21,21 @@ namespace VMManagementTool.UI
     /// </summary>
     public partial class UpdateWindow : Window
     {
-        UpdateManager updateManager = new UpdateManager();
+        UpdateManager updateManager ;
         volatile bool updateStarted = false;
         public UpdateWindow()
         {
             InitializeComponent();
+
+            updateManager = new UpdateManager(ConfigurationManager.Instance.GetStringConfig(ConfigurationManager.CONFIG_KEY_UPDATE_MANIFEST_URL));
             Loaded += UpdateWindow_Loaded;
         }
 
+
+        public UpdateWindow(UpdateManager updateManager) : this()
+        {
+            this.updateManager = updateManager;
+        }
         private void UpdateWindow_Loaded(object sender, RoutedEventArgs e)
         {
             Loaded -= UpdateWindow_Loaded;
@@ -46,19 +53,19 @@ namespace VMManagementTool.UI
             {
                 updateManager.Abort();
             }
-            
+
         }
         protected override void OnClosing(CancelEventArgs e)
         {
-            AbortTasks();           
+            AbortTasks();
             base.OnClosing(e);
-            
+
         }
         async void StartCheck()
         {
             progressText.Text = "checking...";
             progressBar.IsIndeterminate = true;
-            var available = await updateManager.IsNewerVersionAvailable().ConfigureAwait(true);
+            var available = await updateManager.CheckForUpdates().ConfigureAwait(true);
             progressText.Text = "";
             progressBar.IsIndeterminate = false;
             progressPanel.Visibility = Visibility.Hidden;

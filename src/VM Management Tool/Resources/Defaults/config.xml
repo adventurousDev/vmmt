@@ -1,0 +1,19 @@
+<configuration>	
+	<updateManifestURL>https://www.dropbox.com/s/0kbyj4guwn3qpbr/update.json?raw=1</updateManifestURL>
+	<osotTemplateURL>https://www.dropbox.com/s/gkq253dhjlqdd9w/Hayk_Windows%2010%201507-1803-Server%202016_comp.xml?dl=1</osotTemplateURL>
+	<externalTools isList="true">
+		<tool>
+			<name>SDelete</name>
+			<isZipped>true</isZipped>
+			<!-- Files to extract and check for before attempting downlaod. CSV. -->
+			<files>sdelete.exe,sdelete64.exe,Eula.txt</files>
+			<URL>https://download.sysinternals.com/files/SDelete.zip</URL>
+		</tool>
+		<tool>
+			<name>PsExec</name>
+			<isZipped>true</isZipped>
+			<files>PsExec.exe,PsExec64.exe,Eula.txt</files>
+			<URL>https://download.sysinternals.com/files/PSTools.zip</URL>
+		</tool>
+	</externalTools>  
+</configuration>

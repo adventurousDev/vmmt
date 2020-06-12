@@ -29,7 +29,7 @@ namespace VMManagementTool
 
             var args = Environment.GetCommandLineArgs();
             var dir = Directory.GetCurrentDirectory();
-
+            frame.Navigated += Frame_Navigated;
             if (args.Length > 1 && args[1].Equals("/resume"))
             {
 
@@ -49,7 +49,19 @@ namespace VMManagementTool
             else
             {
 
-                frame.Navigate(new HomePage());
+                frame.Navigate(new InitPage());
+            }
+        }
+
+        private void Frame_Navigated(object sender, System.Windows.Navigation.NavigationEventArgs e)
+        {
+            if(e.Content is InitPage)
+            {
+                menu.IsEnabled = false;
+            }
+            else
+            {
+                menu.IsEnabled = true;
             }
         }
 

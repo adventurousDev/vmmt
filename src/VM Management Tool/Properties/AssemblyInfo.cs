@@ -52,6 +52,6 @@ using System.Windows;
 // by using the '*' as shown below:
 // [assembly: AssemblyVersion("1.0.*")]
 
-[assembly: AssemblyVersion(VMManagementTool.Settings.VERSION)]
-[assembly: AssemblyFileVersion(VMManagementTool.Settings.VERSION)]
-[assembly: AssemblyInformationalVersion(VMManagementTool.Settings.VERSION)]
+[assembly: AssemblyVersion(VMManagementTool.Configs.VERSION)]
+[assembly: AssemblyFileVersion(VMManagementTool.Configs.VERSION)]
+[assembly: AssemblyInformationalVersion(VMManagementTool.Configs.VERSION)]

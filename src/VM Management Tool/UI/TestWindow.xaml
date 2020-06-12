@@ -7,7 +7,7 @@
         mc:Ignorable="d"
         Title="VM Management Tool" Height="450" Width="1013.333">
     <Grid>
-        <TabControl SelectedIndex="4">
+        <TabControl SelectedIndex="5">
             <TabItem Header="WU">
                 <Grid>
                     <Button Content="Check..." HorizontalAlignment="Left" Margin="25,40,0,0" VerticalAlignment="Top" Width="75" Click="Button_Click"/>
@@ -54,6 +54,11 @@
             <TabItem Header="Update">
                 <Grid>
                     <Button x:Name="testUpdate" Content="Test" HorizontalAlignment="Left" Margin="25,40,0,0" VerticalAlignment="Top" Width="75" Click="testUpdate_Click"     />
+                </Grid>
+            </TabItem>
+            <TabItem Header="Config">
+                <Grid>
+                    <Button x:Name="test" Content="Test" HorizontalAlignment="Left" Margin="25,40,0,0" VerticalAlignment="Top" Width="75" Click="testUpdate_Click"     />
                 </Grid>
             </TabItem>
 

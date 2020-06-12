@@ -73,6 +73,7 @@
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Data" />
+    <Reference Include="System.IO.Compression" />
     <Reference Include="System.IO.Compression.FileSystem" />
     <Reference Include="System.Management.Automation, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <HintPath>..\packages\Microsoft.PowerShell.5.ReferenceAssemblies.1.1.0\lib\net4\System.Management.Automation.dll</HintPath>
@@ -98,16 +99,21 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="ConfigurationManager.cs" />
     <Compile Include="Log.cs" />
+    <Compile Include="Services\FileManager.cs" />
     <Compile Include="Services\SystemUtils.cs" />
     <Compile Include="Services\WinUpdateStatus.cs" />
-    <Compile Include="Settings.cs" />
+    <Compile Include="Configs.cs" />
     <Compile Include="Test\DummyOptimizationTemplateManager.cs" />
     <Compile Include="Test\DummyCleanupManager.cs" />
     <Compile Include="Test\DummyWinUpdateManager.cs" />
     <Compile Include="UIUtils\TextLookEnum.cs" />
     <Compile Include="UI\AdvanceConfigPage.xaml.cs">
       <DependentUpon>AdvanceConfigPage.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="UI\InitPage.xaml.cs">
+      <DependentUpon>InitPage.xaml</DependentUpon>
     </Compile>
     <Compile Include="UI\MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
@@ -154,6 +160,10 @@
     <Compile Include="VMMTOptimizationSession.cs" />
     <Compile Include="VMMTSessionManager.cs" />
     <Page Include="UI\AdvanceConfigPage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="UI\InitPage.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -266,7 +276,10 @@
     </Resource>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Resources\default.xml">
+    <Content Include="Resources\Defaults\osot.xml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Resources\Defaults\config.xml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
   </ItemGroup>

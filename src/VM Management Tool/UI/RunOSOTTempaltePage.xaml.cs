@@ -63,7 +63,7 @@ namespace VMManagementTool.UI
             optimizationTemplateManager.RunProgressChanged += OptimizationTemplateManager_RunProgressChanged;
             optimizationTemplateManager.RunCompleted += OptimizationTemplateManager_RunCompleted;
             //todo get the path from approapriate source
-            string templatePath = Settings.OPTIMIZATION_TEMPLATE_PATH;
+            string templatePath = Configs.OPTIMIZATION_TEMPLATE_DEFAULT_PATH;
             try
             {
                 //the loading can fail; then we just need to finsihproceed to the next page

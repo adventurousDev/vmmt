@@ -10,12 +10,12 @@
          MinHeight="360"
         >
     <DockPanel>
-        <Menu Visibility="Visible" DockPanel.Dock="Top" Background="White">
+        <Menu x:Name="menu" Visibility="Visible" DockPanel.Dock="Top" Background="White" IsEnabled="False">
             <MenuItem Header="_File">                
                 <MenuItem Header="E_xit" Click="ExitMenuItemSelected"/>
             </MenuItem>
             <MenuItem Header="_Tools">
-                <!--MenuItem Header="Test" Click="MenuItem_Click"/-->                
+                <MenuItem Header="Test" Click="MenuItem_Click"/>
                 <MenuItem Header="_Options..."/>
                 
             </MenuItem>

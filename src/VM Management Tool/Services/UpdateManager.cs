@@ -13,7 +13,7 @@ using System.Windows;
 
 namespace VMManagementTool.Services
 {
-    class UpdateManager : IDisposable
+    public class UpdateManager
     {
         const string UPDATE_DATA_VERSION_KEY = "version";
         const string UPDATE_DATA_URL_KEY = "URL";
@@ -24,25 +24,33 @@ namespace VMManagementTool.Services
         public string CurrentVersion { get { return Assembly.GetExecutingAssembly().GetName().Version.ToString(3); } }
         private Dictionary<string, object> updateData;
         WebClient webClient;
-        
+        string manifestURL;
 
-      
-      
+        public UpdateManager(string manifestURL)
+        {
+            this.manifestURL = manifestURL;
+        }
 
-        public async Task<bool> IsNewerVersionAvailable()
+
+
+
+        public async Task<bool> CheckForUpdates()
         {
             try
             {
-                string updateManifestJSON;
-                using (var client = new HttpClient())
+                if (updateData == null)
                 {
-                    //1. downlaod the json manifest
-                    var resp = await client.GetAsync(Configs.UPDATE_MANIFEST_URL);
-                    updateManifestJSON = await resp.Content.ReadAsStringAsync();
-                }
+                    string updateManifestJSON;
+                    using (var client = new HttpClient())
+                    {
+                        //1. downlaod the json manifest
+                        var resp = await client.GetAsync(manifestURL);
+                        updateManifestJSON = await resp.Content.ReadAsStringAsync();
+                    }
 
-                //2. parse it and get the remote version                
-                updateData = JsonConvert.DeserializeObject<Dictionary<string, object>>(updateManifestJSON);
+                    //2. parse it and get the remote version                
+                    updateData = JsonConvert.DeserializeObject<Dictionary<string, object>>(updateManifestJSON);
+                }
 
                 var newVer = updateData[UPDATE_DATA_VERSION_KEY].ToString();
                 Version newVersion = new Version(newVer);
@@ -81,8 +89,15 @@ namespace VMManagementTool.Services
                     return;
                 }
                 //3. unzip it into random temp dir
-                var tempDir = Path.Combine(Path.GetTempPath(),Path.GetRandomFileName());
+                var tempDir = Path.Combine(Path.GetTempPath(), Path.GetRandomFileName());
                 await ExtractAllAync(tempZipFile, tempDir);
+
+                try
+                {
+                    File.Delete(tempZipFile);
+                }
+                catch { }
+
                 //4. find the setup.exe and start it
                 var setupExeFile = Path.Combine(tempDir, "setup.exe");
                 if (!File.Exists(setupExeFile))
@@ -102,23 +117,20 @@ namespace VMManagementTool.Services
                 webClient.Dispose();
                 webClient = null;
             }
-            
+
         }
 
         async Task ExtractAllAync(string zipFile, string dir)
         {
-            await Task.Run(()=>ZipFile.ExtractToDirectory(zipFile, dir));
+            await Task.Run(() => ZipFile.ExtractToDirectory(zipFile, dir));
         }
         public void Abort()
         {
             aborted = true;
             webClient?.CancelAsync();
-            
+
         }
 
-        public void Dispose()
-        {
-            //nothing to do as the webclient is disposed after usage
-        }
+
     }
 }

@@ -101,7 +101,7 @@
 
             <Button x:Name="updateButton" Content="Update" MaxWidth="64" MinWidth="64"  
                     Click="updateButton_Click" Visibility="Hidden"/>
-            <Separator Opacity="0" Width="16"/>
+            <Separator Opacity="0" Width="8"/>
             <Button x:Name="closeButon" Content="Close" MaxWidth="64" MinWidth="64" HorizontalAlignment="Right"
                     Click="closeButon_Click"  IsCancel="True"                  
                     />

@@ -90,5 +90,10 @@ namespace VMManagementTool
         {
             this.Close();
         }
+
+        private void OptionsMenuItemSelected(object sender, RoutedEventArgs e)
+        {
+            new OptionsWindow().ShowDialog();
+        }
     }
 }

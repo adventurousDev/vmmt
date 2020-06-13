@@ -29,5 +29,7 @@ namespace VMManagementTool
         public const string REMOTE_CONFIG_FILE_NAME = @"config.xml";
         public const string REMOTE_OPTIMIZATION_TEMPLATE_FILE_NAME = @"osot.xml";
         public const string CONFIG_FILE_URL = "https://www.dropbox.com/s/ukiu481to4i8ndn/config.xml?dl=1";
+        public const string USER_SETTINGS_FILE_PATH = @"Configuration\settings.json";
+
     }
 }

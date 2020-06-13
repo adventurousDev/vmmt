@@ -139,6 +139,9 @@
     <Compile Include="Services\CleanupManager.cs" />
     <Compile Include="Services\WinUpdatesManager.cs" />
     <Compile Include="Services\WinServiceUtils.cs" />
+    <Compile Include="UI\OptionsWindow.xaml.cs">
+      <DependentUpon>OptionsWindow.xaml</DependentUpon>
+    </Compile>
     <Compile Include="UI\OSOTDetailReport.xaml.cs">
       <DependentUpon>OSOTDetailReport.xaml</DependentUpon>
     </Compile>
@@ -172,6 +175,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="UI\HomePage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="UI\OptionsWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

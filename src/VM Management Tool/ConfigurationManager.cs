@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -18,6 +19,7 @@ namespace VMManagementTool
         private static readonly object instancelock = new object();
         private static ConfigurationManager instance = null;
         Dictionary<string, object> configuration;
+        Dictionary<string, Dictionary<string, object>> userSettings;
 
         public static ConfigurationManager Instance
         {
@@ -93,6 +95,14 @@ namespace VMManagementTool
             //becasue of the extracting we run this in bg worker
             updateProgressMsg?.Invoke("Fetching components");
             await Task.Run(() => TryFetchExternalTools()).ConfigureAwait(true);
+
+
+            updateProgressMsg?.Invoke("Loading user settings");
+            await Task.Run(LoadUserSettings).ConfigureAwait(true);
+
+            //set log level from settings
+            Log.LogLevel = GetUserSetting<int>("log", "level", 0);
+
             Log.Debug("ConfigurationManager.Init", "end");
 
         }
@@ -288,6 +298,110 @@ namespace VMManagementTool
             }
 
             return ret;
+        }
+
+        void LoadUserSettings()
+        {
+            try
+            {
+                if (File.Exists(Configs.USER_SETTINGS_FILE_PATH))
+                {
+                    var json = File.ReadAllText(Configs.USER_SETTINGS_FILE_PATH);
+                    userSettings = JsonConvert.DeserializeObject<Dictionary<string, Dictionary<string, object>>>(json);
+                }
+                else
+                {
+                    userSettings = GenerateDefaultSettings();
+                }
+            }
+            catch (Exception ex)
+            {
+                Log.Error("ConfigurationManager.LoadUserSettings", ex.Message);
+                userSettings = GenerateDefaultSettings();
+            }
+        }
+        Dictionary<string, Dictionary<string, object>> GenerateDefaultSettings()
+        {
+            var settings = new Dictionary<string, Dictionary<string, object>>
+            {
+                {
+                    "general", null
+                },
+                {
+                    "log",
+                    new Dictionary<string,object>
+                    {
+                        { "level", 0}
+                    }
+                },
+            };
+            return settings;
+        }
+        public T GetUserSetting<T>(string section, string key, T defaultt)
+        {
+            if (userSettings.TryGetValue(section, out var sectionDict))
+            {
+                var val = FetchDictValue<T>(sectionDict, key, defaultt);
+                return val;
+            }
+            return defaultt;
+        }
+        public void SaveUserSetting(string section, string key, object value, bool saveToDisk = true)
+        {
+            bool valueChanged = true;
+            if (userSettings.ContainsKey(section))
+            {
+                if (userSettings[section].ContainsKey(key))
+                {
+                    if (userSettings[section][key] == value)
+                    {
+                        //this will avoid saving to disk if there is no change
+                        valueChanged = false;
+                    }
+                    else
+                    {
+                        userSettings[section][key] = value;
+                        TriggerSettingChangeActions(section, key, value);
+                    }
+
+
+                }
+                else
+                {
+                    userSettings[section].Add(key, value);
+                }
+            }
+            else
+            {
+                //add new section
+                userSettings.Add(section, new Dictionary<string, object> { { key, value } });
+            }
+
+            if (saveToDisk && valueChanged)
+            {
+                SaveUserSettingsToDisk();
+            }
+
+        }
+        public void SaveUserSettingsToDisk()
+        {
+            var json = JsonConvert.SerializeObject(userSettings);
+            File.WriteAllText(Configs.USER_SETTINGS_FILE_PATH, json);
+        }
+
+        void TriggerSettingChangeActions(string section, string key, object value)
+        {
+            try
+            {
+                if (section.Equals("log") && key.Equals("level"))
+                {
+                    Log.LogLevel = (int)value;
+                }
+            }
+            catch (Exception ex)
+            {
+                Log.Error("ConfigurationManager.TriggerSettingChangeActions", $"Setting: {section}-{key} = {value} ; Exception: {ex.Message}");
+            }
         }
     }
 }

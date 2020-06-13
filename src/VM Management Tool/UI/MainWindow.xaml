@@ -16,7 +16,7 @@
             </MenuItem>
             <MenuItem Header="_Tools">
                 <MenuItem Header="Test" Click="MenuItem_Click"/>
-                <MenuItem Header="_Options..."/>
+                <MenuItem Header="_Options..." Click="OptionsMenuItemSelected"/>
                 
             </MenuItem>
             <MenuItem Header="_Help">

@@ -6,6 +6,7 @@
         xmlns:local="clr-namespace:VMManagementTool.UI"
         mc:Ignorable="d"
         ResizeMode="NoResize"
+        WindowStyle="ToolWindow"
         Title="Check for Updates" Height="250" Width="455">
     <Grid>
         <Grid.RowDefinitions>

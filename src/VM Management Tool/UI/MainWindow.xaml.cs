@@ -32,7 +32,7 @@ namespace VMManagementTool
             frame.Navigated += Frame_Navigated;
             if (args.Length > 1 && args[1].Equals("/resume"))
             {
-
+                ConfigurationManager.Instance.InitLight();
                 SystemUtils.DeleteResumeTask();
                 try
                 {
@@ -44,6 +44,7 @@ namespace VMManagementTool
                     Log.Info("MainWindow.MainWindow", "Unable to load saved session: starting from the beginning");
                     frame.Navigate(new HomePage());
                 }
+                
                 frame.Navigate(new RunWinUpdatesPage(true));
             }
             else

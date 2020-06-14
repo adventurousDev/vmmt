@@ -26,12 +26,12 @@
                         <ComboBox x:Name="logDetailLevelDropdown" HorizontalAlignment="Stretch" MinWidth="100" SelectedValuePath="Tag" >
                             <ComboBoxItem Content="Error" >
                                 <ComboBoxItem.Tag>
-                                    <sys:Int32>0</sys:Int32>
+                                    <sys:Int64>0</sys:Int64>
                                 </ComboBoxItem.Tag>
                             </ComboBoxItem>                            
                             <ComboBoxItem Content="Debug" >
                                 <ComboBoxItem.Tag>
-                                    <sys:Int32>2</sys:Int32>
+                                    <sys:Int64>2</sys:Int64>
                                 </ComboBoxItem.Tag>
                             </ComboBoxItem>
                         </ComboBox>

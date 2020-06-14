@@ -83,12 +83,14 @@ namespace VMManagementTool.Services
                 //todo deregister events before loosing reference
                 sDeleteProc = new Process();
                 var executable = Environment.Is64BitOperatingSystem ? "sdelete64.exe" : "sdelete.exe";
+                var path = Path.Combine(Configs.TOOLS_DIR, "SDelete", executable);
+                /*
                 var path = Path.Combine(Configs.SDELETE_FOLDER, executable);
                 if (executable == "sdelete64.exe" && !File.Exists(path))
                 {
                     //try using 32 bit because it is more probable to be there 
                     path = Path.Combine(@"C:\bwLehrpool\SDelete", "sdelete.exe");
-                }
+                }*/
                 sDeleteProc.StartInfo.FileName = path;
                 sDeleteProc.StartInfo.Arguments = "/accepteula -z c:";
                 sDeleteProc.StartInfo.UseShellExecute = true;

@@ -13,11 +13,17 @@ namespace VMManagementTool.Services
         const string RESTART_SHTASK_NAME = "VMManagementTool.Restart";
         public static void ScheduleAfterRestart()
         {
-            
+            DeleteResumeTask();
             var myExePath = Assembly.GetEntryAssembly().Location;
             var workDirPath = Path.GetDirectoryName(myExePath);
+            var psExecExecutable = Environment.Is64BitOperatingSystem ? "PsExec64.exe" : "PsExec.exe";
+            var psExecPath = Path.GetFullPath(Path.Combine(Configs.TOOLS_DIR, "PsExec", psExecExecutable));
+            var restartCmd = $"\"{psExecPath}\" -d -accepteula -i 1 -w \"{workDirPath}\" \"{myExePath}\" /resume";
+            var restartBatchFilePath = Path.GetFullPath("restart.bat");
+            File.WriteAllText(restartBatchFilePath, restartCmd);
             //an alternative to task scheduler could be Run/ RunOnce registy keys
-            var schCmd = $"schtasks.exe /create /tn \"{RESTART_SHTASK_NAME}\" /ru SYSTEM /sc ONLOGON /tr \"psexec -d -accepteula -i 1 -w '{workDirPath}' '{myExePath}' '/resume'\"";
+            //var schCmd = $"schtasks.exe /create /tn \"{RESTART_SHTASK_NAME}\" /ru SYSTEM /sc ONLOGON /tr \"'{psExecPath}' -d -accepteula -i 1 -w '{workDirPath}' '{myExePath}' '/resume'\"";
+            var schCmd = $"schtasks.exe /create /tn \"{RESTART_SHTASK_NAME}\" /ru SYSTEM /sc ONLOGON /tr \"'{restartBatchFilePath}'\"";
             //todo check that the task does not exist before attempting creation
             //and then reactivate the exception below
             var cmd = new ShellCommand(schCmd);
@@ -34,8 +40,10 @@ namespace VMManagementTool.Services
             var cmd = new ShellCommand(schCmd);
             if (!cmd.TryExecute(out _))
             {
-                Log.Error("SystemUtils.DeleteResumeTask", "Unable to delete resume task");
+                //Log.Error("SystemUtils.DeleteResumeTask", "Unable to delete resume task");
             }
+            
+            File.Delete("restart.bat");
         }
 
         public static void RestartSystem()

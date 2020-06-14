@@ -101,13 +101,55 @@ namespace VMManagementTool
             await Task.Run(LoadUserSettings).ConfigureAwait(true);
 
             //set log level from settings
-            Log.LogLevel = GetUserSetting<int>("log", "level", 0);
+            Log.LogLevel = (int)GetUserSetting<long>("log", "level", 0);
 
             Log.Debug("ConfigurationManager.Init", "end");
 
         }
+        //initialize the app skipping all the web operations
+        public void InitLight()
+        {
+            //1.load default 
+            var defaultConfig = LoadConfigFromXMLFile(Configs.DEFAULT_CONFIG_FILE_PATH);
+            Dictionary<string, object> remoteConfig = new Dictionary<string, object>();
+            try
+            {
+                //2.try dwonload the remote 
+                //create the configs dir in case it does not exist yet
+                Directory.CreateDirectory(Configs.CONFIGS_DIR);
+                var filePath = Path.Combine(Configs.CONFIGS_DIR, Configs.REMOTE_CONFIG_FILE_NAME);
 
+                
+                //3.try load the remote(new or old)
+                var remoteConfigFilePath = Path.Combine(Configs.CONFIGS_DIR, Configs.REMOTE_CONFIG_FILE_NAME);
+                if (File.Exists(remoteConfigFilePath))
+                {
+                    remoteConfig = LoadConfigFromXMLFile(remoteConfigFilePath);
+                }
+            }
+            catch (Exception ex)
+            {
+                Log.Error("ConfigurationManager.LoadConfiguraion", ex.Message);
+            }
 
+            //4.merge deafult and remote
+            //by adding anything from default missing in remote
+            foreach (var entry in defaultConfig)
+            {
+                if (!remoteConfig.ContainsKey(entry.Key))
+                {
+                    remoteConfig.Add(entry.Key, entry.Value);
+                }
+            }
+
+            configuration = remoteConfig;
+
+            //await Task.Run(LoadUserSettings).ConfigureAwait(true);
+            LoadUserSettings();
+
+            //set log level from settings
+            Log.LogLevel = (int)GetUserSetting<long>("log", "level", 0);
+        }
         private async Task TryFetchExternalTools()
         {
 
@@ -205,6 +247,7 @@ namespace VMManagementTool
         }
         private T FetchDictValue<T>(Dictionary<string, object> dict, string key, T defaultVal)
         {
+            
             if (dict.TryGetValue(key, out object val) && val is T castVal)
             {
                 return castVal;
@@ -225,7 +268,12 @@ namespace VMManagementTool
                 //create the configs dir in case it does not exist yet
                 Directory.CreateDirectory(Configs.CONFIGS_DIR);
                 var filePath = Path.Combine(Configs.CONFIGS_DIR, Configs.REMOTE_CONFIG_FILE_NAME);
-                await FileUtils.TryDownloadFile(Configs.CONFIG_FILE_URL, filePath, Configs.CONFIG_DOWNLOAD_TIMEOUT).ConfigureAwait(true);
+                
+                //using temp file because the old version was getting overridden by empty file when failing download
+                var tmpFile = Path.GetTempFileName();
+                var donwloaded = await FileUtils.TryDownloadFile(Configs.CONFIG_FILE_URL, tmpFile, Configs.CONFIG_DOWNLOAD_TIMEOUT).ConfigureAwait(true);
+                File.Delete(filePath);
+                File.Move(tmpFile, filePath);
                 //3.try load the remote(new or old)
                 var remoteConfigFilePath = Path.Combine(Configs.CONFIGS_DIR, Configs.REMOTE_CONFIG_FILE_NAME);
                 if (File.Exists(remoteConfigFilePath))

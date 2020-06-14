@@ -35,7 +35,8 @@ namespace VMManagementTool.UI
 
         void LoadValues()
         {
-            logDetailLevelDropdown.SelectedValue = ConfigurationManager.Instance.GetUserSetting<int>("log", "level", 0);
+            var val = ConfigurationManager.Instance.GetUserSetting<long>("log", "level", 0);
+            logDetailLevelDropdown.SelectedValue = val;
         }
         void SaveValues()
         {

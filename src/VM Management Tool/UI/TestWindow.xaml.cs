@@ -278,12 +278,15 @@ namespace VMManagementTool
 
         private async void testUpdate_Click(object sender, RoutedEventArgs e)
         {
+            /*
             Stopwatch st = new Stopwatch();
             st.Start();
 
             await ConfigurationManager.Instance.CheckFetchExternalTool("psexec", "PsExec.exe,PsExec64.exe,Eula.txt", "https://download.sysinternals.com/files/PSTools.zip", false, true);
             st.Stop();
-            this.LogUpdateInto($"Took: {st.ElapsedMilliseconds} ms");
+            this.LogUpdateInto($"Took: {st.ElapsedMilliseconds} ms");*/
+
+            SystemUtils.ScheduleAfterRestart();
         }
     }
 }

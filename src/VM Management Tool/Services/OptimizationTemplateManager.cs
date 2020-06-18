@@ -135,7 +135,18 @@ namespace VMManagementTool.Services
 
         public void RunDefaultStepsAsync()
         {
-            Task.Run(() => RunSteps((step) => (step.Category == Step.Categories.mandatory || step.Category == Step.Categories.recommended)));
+            //Task.Run(() => RunSteps((step) => (step.Category == Step.Categories.mandatory || step.Category == Step.Categories.recommended)));
+            Task.Run(() => RunSteps((step) => (step.DefaultSelected)));
+        }
+        public void RunAllStepsAsync()
+        {
+            //Task.Run(() => RunSteps((step) => (step.Category == Step.Categories.mandatory || step.Category == Step.Categories.recommended)));
+            Task.Run(() => RunSteps((step) => (true)));
+        }
+        public void RunSelectedStepsAsync(HashSet<string> stepIDsSelection)
+        {
+            //Task.Run(() => RunSteps((step) => (step.Category == Step.Categories.mandatory || step.Category == Step.Categories.recommended)));
+            Task.Run(() => RunSteps((step) => (stepIDsSelection.Contains(step.ID))));
         }
         void RunSteps(Func<Step, bool> conditionCheck = null)
         {

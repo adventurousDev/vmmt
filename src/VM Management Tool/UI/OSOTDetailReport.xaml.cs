@@ -11,6 +11,7 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
+using VMManagementTool.Session;
 
 namespace VMManagementTool.UI
 {
@@ -19,8 +20,8 @@ namespace VMManagementTool.UI
     /// </summary>
     public partial class OSOTDetailReport : Window
     {
-        VMMTOptimizationSession session;
-        public OSOTDetailReport(VMMTOptimizationSession session)
+        OptimizationSession session;
+        public OSOTDetailReport(OptimizationSession session)
         {
             InitializeComponent();
             this.session = session;
@@ -37,7 +38,7 @@ namespace VMManagementTool.UI
         void PrintResults()
         {
             theConsole.Document.Blocks.Clear();
-            foreach (var stepResult in session.OSOTResults ?? new List<(string, bool)>())
+            foreach (var stepResult in session.OSOTSessionState.Results ?? new List<(string, bool)>())
             {
                 if((successRadioBtn.IsChecked ?? false) && !stepResult.Item2)
                 {

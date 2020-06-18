@@ -45,8 +45,8 @@ namespace VMManagementTool
             WinUpdatesManager.Instance.UpdatesFound += Instance_UpdatesFound;
             WinUpdatesManager.Instance.ReadyToInstall += Instance_ReadyToInstall;
 
-            CleanupManager.Instance.NewInfo += LogUpdateInto;
-            CleanupManager.Instance.SDeleteProgressChanged += Instance_SDeleteProgressChanged;
+            //CleanupManager.Instance.NewInfo += LogUpdateInto;
+            //CleanupManager.Instance.SDeleteProgressChanged += Instance_SDeleteProgressChanged;
             this.Loaded += OnLoad;
             Closing += TestWindow_Closing;
         }

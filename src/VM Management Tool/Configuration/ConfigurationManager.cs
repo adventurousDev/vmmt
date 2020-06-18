@@ -1,6 +1,7 @@
 ﻿using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -8,7 +9,9 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Xml;
 using System.Xml.Linq;
+using VMManagementTool.Configuration;
 using VMManagementTool.Services;
 using VMManagementTool.UI;
 
@@ -20,7 +23,8 @@ namespace VMManagementTool
         private static ConfigurationManager instance = null;
         Dictionary<string, object> configuration;
         Dictionary<string, Dictionary<string, object>> userSettings;
-
+        public ReadOnlyCollection<OSOTTemplateMeta> OSOTTemplatesData { get { return osostTemplatesMetaList.AsReadOnly(); } }
+        List<OSOTTemplateMeta> osostTemplatesMetaList;
         public static ConfigurationManager Instance
         {
             get
@@ -39,6 +43,7 @@ namespace VMManagementTool
             }
         }
 
+       
 
         public string GetStringConfig(string key)
         {
@@ -87,9 +92,20 @@ namespace VMManagementTool
             var osotURL = GetStringConfig(CONFIG_KEY_OSOT_URL);
             if (osotURL != null)
             {
-                var filePath = Path.Combine(Configs.CONFIGS_DIR, Configs.REMOTE_OPTIMIZATION_TEMPLATE_FILE_NAME);
-                FileUtils.TryDownloadFile(osotURL, filePath, 5000);
+                var tmpFile = Path.GetTempFileName();
+                var osotFilePath = Path.Combine(Configs.CONFIGS_DIR, Configs.REMOTE_OPTIMIZATION_TEMPLATE_FILE_NAME);
+                var downloaded = await FileUtils.TryDownloadFile(osotURL, tmpFile, Configs.WebTimeouts.DOWNLOAD_TIMEOUT_MEDIUM).ConfigureAwait(true);
+                if (downloaded)
+                {
+                    File.Delete(osotFilePath);
+                    File.Move(tmpFile, osotFilePath);
+                }
+
+
             }
+
+            await Task.Run(LoadOSOTTemplatesMetadata).ConfigureAwait(true);
+
             Log.Debug("ConfigurationManager.Init", "osot xml done");
             //4. check/ download exteranl tools 
             //becasue of the extracting we run this in bg worker
@@ -119,7 +135,7 @@ namespace VMManagementTool
                 Directory.CreateDirectory(Configs.CONFIGS_DIR);
                 var filePath = Path.Combine(Configs.CONFIGS_DIR, Configs.REMOTE_CONFIG_FILE_NAME);
 
-                
+
                 //3.try load the remote(new or old)
                 var remoteConfigFilePath = Path.Combine(Configs.CONFIGS_DIR, Configs.REMOTE_CONFIG_FILE_NAME);
                 if (File.Exists(remoteConfigFilePath))
@@ -147,6 +163,7 @@ namespace VMManagementTool
             //await Task.Run(LoadUserSettings).ConfigureAwait(true);
             LoadUserSettings();
 
+            LoadOSOTTemplatesMetadata();
             //set log level from settings
             Log.LogLevel = (int)GetUserSetting<long>("log", "level", 0);
         }
@@ -235,11 +252,11 @@ namespace VMManagementTool
 
             if (isZipped)
             {
-                await FileUtils.TryDownloadAndUnzip(URL, missingFiles, toolDir, null).ConfigureAwait(false);
+                await FileUtils.TryDownloadAndUnzip(URL, missingFiles, toolDir, Configs.WebTimeouts.DOWNLOAD_TIMEOUT_LONG).ConfigureAwait(false);
             }
             else
             {
-                await FileUtils.TryDownloadFile(URL, Path.Combine(toolDir, files), null).ConfigureAwait(false);
+                await FileUtils.TryDownloadFile(URL, Path.Combine(toolDir, files), Configs.WebTimeouts.DOWNLOAD_TIMEOUT_LONG).ConfigureAwait(false);
             }
             Log.Debug("CheckFetchExternalTool", "End");
 
@@ -247,7 +264,7 @@ namespace VMManagementTool
         }
         private T FetchDictValue<T>(Dictionary<string, object> dict, string key, T defaultVal)
         {
-            
+
             if (dict.TryGetValue(key, out object val) && val is T castVal)
             {
                 return castVal;
@@ -267,15 +284,19 @@ namespace VMManagementTool
                 //2.try dwonload the remote 
                 //create the configs dir in case it does not exist yet
                 Directory.CreateDirectory(Configs.CONFIGS_DIR);
-                var filePath = Path.Combine(Configs.CONFIGS_DIR, Configs.REMOTE_CONFIG_FILE_NAME);
-                
+                var remoteConfigFilePath = Path.Combine(Configs.CONFIGS_DIR, Configs.REMOTE_CONFIG_FILE_NAME);
+
                 //using temp file because the old version was getting overridden by empty file when failing download
                 var tmpFile = Path.GetTempFileName();
-                var donwloaded = await FileUtils.TryDownloadFile(Configs.CONFIG_FILE_URL, tmpFile, Configs.CONFIG_DOWNLOAD_TIMEOUT).ConfigureAwait(true);
-                File.Delete(filePath);
-                File.Move(tmpFile, filePath);
+                var downloaded = await FileUtils.TryDownloadFile(Configs.CONFIG_FILE_URL, tmpFile, Configs.WebTimeouts.DOWNLOAD_TIMEOUT_SHORT).ConfigureAwait(true);
+                if (downloaded)
+                {
+                    File.Delete(remoteConfigFilePath);
+                    File.Move(tmpFile, remoteConfigFilePath);
+                }
+
                 //3.try load the remote(new or old)
-                var remoteConfigFilePath = Path.Combine(Configs.CONFIGS_DIR, Configs.REMOTE_CONFIG_FILE_NAME);
+                //var remoteConfigFilePath = Path.Combine(Configs.CONFIGS_DIR, Configs.REMOTE_CONFIG_FILE_NAME);
                 if (File.Exists(remoteConfigFilePath))
                 {
                     remoteConfig = LoadConfigFromXMLFile(remoteConfigFilePath);
@@ -450,6 +471,86 @@ namespace VMManagementTool
             {
                 Log.Error("ConfigurationManager.TriggerSettingChangeActions", $"Setting: {section}-{key} = {value} ; Exception: {ex.Message}");
             }
+        }
+
+        public void LoadOSOTTemplatesMetadata()
+        {
+            osostTemplatesMetaList = new List<OSOTTemplateMeta>();
+            //system one
+            //either the remote or the deafult if the former is not there
+            //for soem reason
+            var defaultTemplatePath = Configs.OPTIMIZATION_TEMPLATE_DEFAULT_PATH;
+            var remoteTemplatePath = Path.Combine(Configs.CONFIGS_DIR, Configs.REMOTE_OPTIMIZATION_TEMPLATE_FILE_NAME);
+            if (File.Exists(remoteTemplatePath))
+            {
+                var tempalteData = LoadTemplateMetaData(remoteTemplatePath);
+                osostTemplatesMetaList.Add(tempalteData);
+                tempalteData.Type = OSOTTemplateType.System;
+
+
+            }
+            else
+            {
+                var tempalteData = LoadTemplateMetaData(defaultTemplatePath);
+                osostTemplatesMetaList.Add(tempalteData);
+                tempalteData.Type = OSOTTemplateType.System;
+            }
+
+            //go over the user templates
+            var userTemplatesDir = Configs.USER_OPTIMIZATION_TEMPLATES_DIR;
+            if (Directory.Exists(userTemplatesDir))
+            {
+                foreach (var fileName in Directory.EnumerateFiles(userTemplatesDir))
+                {
+                    var filePath = Path.Combine(userTemplatesDir, fileName);
+                    var tempalteData = LoadTemplateMetaData(filePath);
+                    osostTemplatesMetaList.Add(tempalteData);
+                    tempalteData.Type = OSOTTemplateType.User;
+                }
+            }
+
+        }
+        OSOTTemplateMeta LoadTemplateMetaData(string templateFile)
+        {
+            try
+            {
+                var data = new OSOTTemplateMeta();
+                using (XmlReader reader = XmlReader.Create(templateFile))
+                {
+                    reader.MoveToContent();
+                    if (reader.LocalName == "sequence")
+                    {
+                        while (reader.MoveToNextAttribute())
+                        {
+                            switch (reader.Name)
+                            {
+                                case "name":
+                                    data.Name = reader.Value;
+                                    break;
+                                case "description":
+                                    data.Description = reader.Value;
+                                    break;
+                                case "version":
+                                    data.Version = reader.Value;
+                                    break;
+
+                            }
+                        }
+                    }
+
+                }
+                data.FilePath = templateFile;
+                return data;
+            }
+            catch (Exception ex)
+            {
+                Log.Error("ConfigurationManager.LoadTemplateMetaData", "file: " + templateFile + "  " + ex);
+                return null;
+            }
+
+
+
+
         }
     }
 }

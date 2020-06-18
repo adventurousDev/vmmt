@@ -99,18 +99,26 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
-    <Compile Include="ConfigurationManager.cs" />
+    <Compile Include="Configuration\ConfigurationManager.cs" />
+    <Compile Include="Configuration\OSOTTemplateMeta.cs" />
     <Compile Include="Log.cs" />
     <Compile Include="Services\FileManager.cs" />
     <Compile Include="Services\SystemUtils.cs" />
     <Compile Include="Services\WinUpdateStatus.cs" />
-    <Compile Include="Configs.cs" />
+    <Compile Include="Configuration\Configs.cs" />
+    <Compile Include="Session\CleanupSessionState.cs" />
+    <Compile Include="Session\OSOTSessionState.cs" />
+    <Compile Include="Session\SessionState.cs" />
+    <Compile Include="Session\WindowsUpdateSessionState.cs" />
     <Compile Include="Test\DummyOptimizationTemplateManager.cs" />
     <Compile Include="Test\DummyCleanupManager.cs" />
     <Compile Include="Test\DummyWinUpdateManager.cs" />
     <Compile Include="UIUtils\TextLookEnum.cs" />
     <Compile Include="UI\AdvanceConfigPage.xaml.cs">
       <DependentUpon>AdvanceConfigPage.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="UI\ChooseStepsWindow.xaml.cs">
+      <DependentUpon>ChooseStepsWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="UI\InitPage.xaml.cs">
       <DependentUpon>InitPage.xaml</DependentUpon>
@@ -148,8 +156,8 @@
     <Compile Include="UI\ReportPage.xaml.cs">
       <DependentUpon>ReportPage.xaml</DependentUpon>
     </Compile>
-    <Compile Include="UI\RunCleanupOptimizations.xaml.cs">
-      <DependentUpon>RunCleanupOptimizations.xaml</DependentUpon>
+    <Compile Include="UI\RunCleanupOptimizationsPage.xaml.cs">
+      <DependentUpon>RunCleanupOptimizationsPage.xaml</DependentUpon>
     </Compile>
     <Compile Include="UI\RunOSOTTempaltePage.xaml.cs">
       <DependentUpon>RunOSOTTempaltePage.xaml</DependentUpon>
@@ -160,9 +168,13 @@
     <Compile Include="UI\UpdateWindow.xaml.cs">
       <DependentUpon>UpdateWindow.xaml</DependentUpon>
     </Compile>
-    <Compile Include="VMMTOptimizationSession.cs" />
-    <Compile Include="VMMTSessionManager.cs" />
+    <Compile Include="Session\OptimizationSession.cs" />
+    <Compile Include="Session\SessionManager.cs" />
     <Page Include="UI\AdvanceConfigPage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="UI\ChooseStepsWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -190,7 +202,7 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="UI\RunCleanupOptimizations.xaml">
+    <Page Include="UI\RunCleanupOptimizationsPage.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

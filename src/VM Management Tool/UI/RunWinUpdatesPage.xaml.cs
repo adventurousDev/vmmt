@@ -16,6 +16,7 @@ using VMManagementTool.Test;
 using VMManagementTool.Services;
 using VMManagementTool.UIUtils;
 using System.ComponentModel;
+using VMManagementTool.Session;
 
 namespace VMManagementTool.UI
 {
@@ -28,13 +29,16 @@ namespace VMManagementTool.UI
         DummyWinUpdateManager winUpdateManager;
         volatile bool aborted = false;
         bool resumeInstall = false;
+        WindowsUpdateSessionState sessionParams;
         public RunWinUpdatesPage(bool resume = false)
         {
             InitializeComponent();
+            sessionParams = SessionManager.Instance.GetWinUpdateParams();
+
             resumeInstall = resume;
 
             Loaded += RunWinUpdatesPage_Loaded;
-            
+
 
             var hostWin = Application.Current.MainWindow;
             hostWin.Closing += HostWin_Closing;
@@ -43,12 +47,12 @@ namespace VMManagementTool.UI
 
         private void HostWin_Closing(object sender, CancelEventArgs e)
         {
-            
+
             Abort();
-            Cleanup().Wait() ;
+            Cleanup().Wait();
         }
 
-       
+
 
         private async void RunWinUpdatesPage_Loaded(object sender, RoutedEventArgs e)
         {
@@ -209,26 +213,45 @@ namespace VMManagementTool.UI
 
             if (success && !aborted)
             {
-                if (restartNeeded)
+                if (restartNeeded && sessionParams.RestartBehavior != WindowsUpdateSessionState.RestartBehaviors.Skip)
                 {
-                    StartInfiniteProgress("restarting the system...");
-                    VMMTSessionManager.Instance.SetWinUpdateResults(winUpdateManager?.GetResults());
-                    VMMTSessionManager.Instance.SaveSessionForResume();
-                    SystemUtils.ScheduleAfterRestart();
-                    SystemUtils.RestartSystem();
-                    return;
-                }
-                else
-                {
-                    //winUpdateManager  is null when we arrive here after resume
-                    //in that case the session data is already restored from disk
-                    if (winUpdateManager != null)
+                    bool restartAccepted = false;
+                    if (sessionParams.RestartBehavior == WindowsUpdateSessionState.RestartBehaviors.Ask)
                     {
-                        VMMTSessionManager.Instance.SetWinUpdateResults(winUpdateManager.GetResults());
+                        if (MessageBox.Show("Restart the PC to finish Windows Updates?", "Restart Required", MessageBoxButton.YesNo) == MessageBoxResult.Yes)
+                        {
+                            restartAccepted = true;
+                        }
+                        else
+                        {
+                            restartAccepted = false;
+                        }
+                    }
+                    else if (sessionParams.RestartBehavior == WindowsUpdateSessionState.RestartBehaviors.Automatic)
+                    {
+                        restartAccepted = true;
+                    }
+                    if (restartAccepted)
+                    {
+                        StartInfiniteProgress("restarting the system...");
+                        SessionManager.Instance.SetWinUpdateResults(winUpdateManager?.GetResults());
+                        SessionManager.Instance.SaveSessionForResume();
+                        SystemUtils.ScheduleAfterRestart();
+                        SystemUtils.RestartSystem();
+                        return;
                     }
 
-                    SetParagraphLook(installParagrath, TextLook.Completed);
                 }
+
+                //winUpdateManager  is null when we arrive here after resume
+                //in that case the session data is already restored from disk
+                if (winUpdateManager != null)
+                {
+                    SessionManager.Instance.SetWinUpdateResults(winUpdateManager.GetResults());
+                }
+
+                SetParagraphLook(installParagrath, TextLook.Completed);
+
 
 
 
@@ -267,7 +290,7 @@ namespace VMManagementTool.UI
             }
             StartInfiniteProgress("aborting...");
         }
-        
+
         async Task<bool> Prepare()
         {
             bool enabled = await WinServiceUtils.SetStartupTypeAsync(WinUpdatesManager.WUA_SERVICE_NAME, true, 60000).ConfigureAwait(false);
@@ -348,7 +371,7 @@ namespace VMManagementTool.UI
 
             if (aborted)
             {
-                VMMTSessionManager.Instance.SetWinUpdateResults(null);
+                SessionManager.Instance.SetWinUpdateResults(null);
             }
             StartInfiniteProgress("finishing...");
             await Task.Run(Cleanup).ConfigureAwait(false);
@@ -361,7 +384,7 @@ namespace VMManagementTool.UI
             //open the next Page
             Dispatcher.Invoke(() =>
             {
-                var page = new RunOSOTTempaltePage();
+                var page = SessionManager.Instance.GetNextSessionPage(); 
                 NavigationService.Navigate(page);
 
             }

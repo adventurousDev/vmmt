@@ -4,31 +4,137 @@
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
       xmlns:local="clr-namespace:VMManagementTool"
+      xmlns:sys="clr-namespace:System;assembly=mscorlib"
       mc:Ignorable="d" 
       d:DesignHeight="450" d:DesignWidth="800"
       Title="AdvanceConfigPage">
 
-    <Grid Background="#FFF3D1D1" >
-        <DockPanel >
-            <DockPanel DockPanel.Dock="Bottom" Margin="0,8,0,8">
+    <Grid >
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="16"/>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="16"/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="16"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="40"/>
+            <RowDefinition Height="16"/>
+        </Grid.RowDefinitions>
+        <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Grid.Row="1" Grid.Column="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <GroupBox Padding="16" Margin="16" Grid.Column="0">
+                <GroupBox.Header>
+                    <CheckBox Tag="top" x:Name="wuCheckBox" IsThreeState="False" Content="Perform Windows Updates" Checked="CheckBox_Checked" Unchecked="CheckBox_Checked"></CheckBox>
+                </GroupBox.Header>
+                <StackPanel Orientation="Vertical" IsEnabled="False">
+                    <StackPanel Orientation="Vertical">
+                        <Label  Margin="0,0,0,6" Padding="0" Content="Intermediate restarts:"/>
+                        <ComboBox x:Name="wuRestartDropdown" HorizontalAlignment="Stretch" MinWidth="100" SelectedValuePath="Tag" SelectedValue="0">
+                            <ComboBoxItem Content="Automatic" >
+                                <ComboBoxItem.Tag>
+                                    <sys:Int64>0</sys:Int64>
+                                </ComboBoxItem.Tag>
+                            </ComboBoxItem>
+                            <ComboBoxItem Content="Ask" IsEnabled="False">
+                                <ComboBoxItem.Tag>
+                                    <sys:Int64>1</sys:Int64>
+                                </ComboBoxItem.Tag>
+                            </ComboBoxItem>
+                            <ComboBoxItem Content="Skip" >
+                                <ComboBoxItem.Tag>
+                                    <sys:Int64>2</sys:Int64>
+                                </ComboBoxItem.Tag>
+                            </ComboBoxItem>
+                        </ComboBox>
+
+                    </StackPanel>
+                </StackPanel>
+
+            </GroupBox>
+            <GroupBox Padding="16" Margin="16" Grid.Column="1">
+                <GroupBox.Header>
+                    <CheckBox Tag="top" x:Name="osotCheckBox" IsThreeState="False" Content="Perform OSOT Optimizations" Checked="CheckBox_Checked" Unchecked="CheckBox_Checked"></CheckBox>
+                </GroupBox.Header>
+                <StackPanel Orientation="Vertical" IsEnabled="False">
+                    <StackPanel Orientation="Vertical">
+                        <Label  Margin="0,0,0,6" Padding="0" Content="Optimizations Template:"/>
+                        <ComboBox x:Name="osotTemplateDropDown" HorizontalAlignment="Stretch" MinWidth="100" SelectedValuePath="Tag"/>
 
 
-                <Button DockPanel.Dock="Right" Margin="0,0,16,0" Padding="8,0,8,0" Content="Run" Click="Button_Click"/>
-                <Button DockPanel.Dock="Right" Margin="0,0,16,0" Padding="8,0,8,0" Content="Back" Click="Button_Click_1" />
-                <StackPanel></StackPanel>
-            </DockPanel>
-            <Grid >
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition  Width="300*" MinWidth="192" />
-                    <ColumnDefinition Width="2" />
-                    <ColumnDefinition Width="700*" MinWidth="500"/>
-                </Grid.ColumnDefinitions>
-                <GridSplitter Grid.Column="1" Width="2" 
-                              ResizeBehavior="BasedOnAlignment" ResizeDirection="Columns" Background="#CECECE"
-                              HorizontalAlignment="Stretch"/>
-                <Rectangle Grid.Column="0" Fill="AliceBlue"/>
-                <Rectangle Grid.Column="2" Fill="#FFBCD3E7"/>
-            </Grid>
-        </DockPanel>
+
+                    </StackPanel>
+
+                    <GroupBox Header="Steps to run:" Margin="0,6,0,0" Padding="3">
+                        <StackPanel x:Name="stepsChoiceGroup" Orientation="Vertical">
+                            <RadioButton Content="Default"  GroupName="steps" IsChecked="True" IsThreeState="False">
+                                <RadioButton.Tag>
+                                    <sys:Int64>0</sys:Int64>
+                                </RadioButton.Tag>
+                            </RadioButton>
+                            <RadioButton Content="All"  GroupName="steps" IsThreeState="False">
+                                <RadioButton.Tag>
+                                    <sys:Int64>1</sys:Int64>
+                                </RadioButton.Tag>
+                            </RadioButton>
+                            <RadioButton x:Name="customStepsRadio" GroupName="steps" IsThreeState="False">
+                                <RadioButton.Tag>
+                                    <sys:Int64>2</sys:Int64>
+                                </RadioButton.Tag>
+
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="Custom"/>
+                                    <Separator Opacity="0" Width="6"/>
+                                    <TextBlock>           
+                                        <Hyperlink Click="ChooseStepsButtonClick">
+                                            choose
+                                        </Hyperlink>
+                                    </TextBlock>
+                                </StackPanel>
+
+
+                            </RadioButton>
+                        </StackPanel>
+                    </GroupBox>
+
+
+
+
+                </StackPanel>
+
+            </GroupBox>
+            <GroupBox Padding="16" Margin="16" Grid.Column="2">
+                <GroupBox.Header>
+                    <CheckBox Tag="top" x:Name="cleanupCheckBox" IsThreeState="False" Content="Perform Cleanup" Checked="CheckBox_Checked" Unchecked="CheckBox_Checked"></CheckBox>
+                </GroupBox.Header>
+                <StackPanel Orientation="Vertical" IsEnabled="False">
+                    <CheckBox Checked="CheckBox_Checked" Unchecked="CheckBox_Checked" IsThreeState="False" x:Name="chkbxDiskCleanup" Content="Disk Cleanup" />
+                    <CheckBox Checked="CheckBox_Checked" Unchecked="CheckBox_Checked" IsThreeState="False" x:Name="chkbxSdelete" Content="SDelete"/>
+                    <CheckBox Checked="CheckBox_Checked" Unchecked="CheckBox_Checked" IsThreeState="False" x:Name="chkbxDefrag" Content="Defrag"/>
+                    <CheckBox Checked="CheckBox_Checked" Unchecked="CheckBox_Checked" IsThreeState="False" x:Name="chkbxDism" Content="Dism"/>
+                </StackPanel>
+
+            </GroupBox>
+        </Grid>
+
+        <StackPanel Orientation="Horizontal"
+                    VerticalAlignment="Bottom"
+                    HorizontalAlignment="Right"
+                    Margin="0,0,11,11"
+                    Grid.Row="2"
+                    Grid.Column="1"
+                    >
+            <Button x:Name="backButton" Content="Back" Width="64" Click="BackButton_Click" />
+            <Separator Opacity="0" Width="8"/>
+            <Button x:Name="nextRunButton"  IsEnabled="False" Content="Run" MaxWidth="64" MinWidth="64" HorizontalAlignment="Right"
+                    Click="RunButton_Click"/>
+
+
+        </StackPanel>
+
     </Grid>
 </Page>

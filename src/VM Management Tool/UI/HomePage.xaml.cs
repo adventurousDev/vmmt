@@ -12,6 +12,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using VMManagementTool.Session;
 using VMManagementTool.UI;
 
 namespace VMManagementTool
@@ -44,9 +45,9 @@ namespace VMManagementTool
             }
             else
             {
-                VMMTSessionManager.Instance.StartOptimizationSession();
+                SessionManager.Instance.StartOptimizationSession(OptimizationSession.GenerateDefault());
                 //todo should the pages be passed the session id to explicitely belong to it?
-                var navTo = new RunWinUpdatesPage();
+                var navTo = SessionManager.Instance.GetNextSessionPage();
                 //var navTo = new RunOSOTTempaltePage();
                 //var navTo = new RunCleanupOptimizations();
                 NavigationService.Navigate(navTo);

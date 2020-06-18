@@ -14,6 +14,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 using VMManagementTool.Services;
+using VMManagementTool.Session;
 using VMManagementTool.UI;
 
 namespace VMManagementTool
@@ -36,7 +37,7 @@ namespace VMManagementTool
                 SystemUtils.DeleteResumeTask();
                 try
                 {
-                    VMMTSessionManager.Instance.LoadPausedSession();
+                    SessionManager.Instance.LoadPausedSession();
                 }
                 catch (Exception ex)
                 {

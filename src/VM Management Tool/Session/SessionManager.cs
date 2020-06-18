@@ -5,19 +5,21 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Controls;
 using VMManagementTool.Services;
+using VMManagementTool.UI;
 
-namespace VMManagementTool
+namespace VMManagementTool.Session
 {
-    class VMMTSessionManager
+    class SessionManager
     {
 
         private static readonly object instancelock = new object();
-        private static VMMTSessionManager instance = null;
+        private static SessionManager instance = null;
 
-        private VMMTOptimizationSession optimizationSession;
+        private OptimizationSession optimizationSession;
 
-        public static VMMTSessionManager Instance
+        public static SessionManager Instance
         {
             get
             {
@@ -27,7 +29,7 @@ namespace VMManagementTool
                     {
                         if (instance == null)
                         {
-                            instance = new VMMTSessionManager();
+                            instance = new SessionManager();
                         }
                     }
                 }
@@ -41,11 +43,11 @@ namespace VMManagementTool
         //public const string OSOT_RESULTS_KEY = "osotresults";
         //public const string CLEANUP_RESULTS_KEY = "cleanupresults";
 
-        public void StartOptimizationSession()
+        public void StartOptimizationSession(OptimizationSession optimizationSession)
         {
-            optimizationSession = new VMMTOptimizationSession();
+            this.optimizationSession = optimizationSession;
         }
-        public VMMTOptimizationSession FinishCurrentSession()
+        public OptimizationSession FinishCurrentSession()
         {
             var tmpRef = optimizationSession;
             optimizationSession = null;
@@ -54,15 +56,27 @@ namespace VMManagementTool
 
         public void SetWinUpdateResults(Dictionary<string, WinUpdateStatus> results)
         {
-            optimizationSession.WinUpdateResults = results;
+            optimizationSession.WindowsUpdateSessionState.Results = results;
         }
         public void SetOSOTResults(List<(string, bool)> results)
         {
-            optimizationSession.OSOTResults = results;
+            optimizationSession.OSOTSessionState.Results = results;
         }
         public void SetCleanupResults(List<(string, bool, int)> results)
         {
-            optimizationSession.CleanupResults = results;
+            optimizationSession.CleanupSessionState.Results = results;
+        }
+        public WindowsUpdateSessionState GetWinUpdateParams()
+        {
+            return optimizationSession.WindowsUpdateSessionState;
+        }
+        public OSOTSessionState GetOSOTParams()
+        {
+            return optimizationSession.OSOTSessionState;
+        }
+        public CleanupSessionState GetCleanupParams()
+        {
+            return optimizationSession.CleanupSessionState;
         }
 
         public static bool SavedSessionAvailable()
@@ -79,7 +93,7 @@ namespace VMManagementTool
             if (SavedSessionAvailable())
             {
                 string serializedSessionJson = File.ReadAllText(SAVED_SESSION_FILE);
-                optimizationSession = JsonConvert.DeserializeObject<VMMTOptimizationSession>(serializedSessionJson);
+                optimizationSession = JsonConvert.DeserializeObject<OptimizationSession>(serializedSessionJson);
 
                 //delte the file after loading 
                 File.Delete(SAVED_SESSION_FILE);
@@ -98,6 +112,34 @@ namespace VMManagementTool
             //setting this to null to make sure the session is not attmpted to be changed 
             //after serialization
             optimizationSession = null;
+        }
+
+        //todo rethink this 
+        //it feels wrong to create the UI elements in this "model" class
+        //this will also get problematic if pages have parameters that depend on caller situation
+        public Page GetNextSessionPage()
+        {
+            if (optimizationSession == null)
+            {
+                return null;
+            }
+            
+            if (optimizationSession.WindowsUpdateSessionState != null && optimizationSession.WindowsUpdateSessionState.Results == null)
+            {
+                return new RunWinUpdatesPage();
+            }
+
+            if (optimizationSession.OSOTSessionState != null && optimizationSession.OSOTSessionState.Results == null)
+            {
+                return new RunOSOTTempaltePage();
+            }
+
+            if (optimizationSession.CleanupSessionState != null && optimizationSession.CleanupSessionState.Results == null)
+            {
+                return new RunCleanupOptimizationsPage();
+            }
+
+            return new ReportPage();
         }
     }
 }

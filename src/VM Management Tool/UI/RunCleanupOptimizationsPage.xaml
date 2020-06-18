@@ -1,4 +1,4 @@
-﻿<Page x:Class="VMManagementTool.UI.RunCleanupOptimizations"
+﻿<Page x:Class="VMManagementTool.UI.RunCleanupOptimizationsPage"
       xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
@@ -35,7 +35,7 @@
             HorizontalAlignment="Center"
             >
 
-            <RichTextBox Background="{x:Null}" SpellCheck.IsEnabled="False"
+            <RichTextBox x:Name="textArea" Background="{x:Null}" SpellCheck.IsEnabled="False"
                          BorderBrush="{x:Null}"
                          IsReadOnly="True"
                          IsEnabled="True"
@@ -47,7 +47,7 @@
                          Margin="0,0,0,32"
                          FontSize="14"
                          >
-                <FlowDocument x:Name="bulletListFD">
+                <!--<FlowDocument>
 
                     <List MarkerStyle="Disc" Margin="0" >
                         <ListItem>
@@ -67,12 +67,17 @@
                                 Defrag
                             </Paragraph>
                         </ListItem>
-                        
+
+                        <ListItem >
+                            <Paragraph x:Name="dismParagrath" Foreground="{DynamicResource {x:Static SystemColors.GrayTextBrushKey}}">
+                                Dism
+                            </Paragraph>
+                        </ListItem>
                     </List>
 
 
 
-                </FlowDocument>
+                </FlowDocument>-->
             </RichTextBox>
             <Label
                

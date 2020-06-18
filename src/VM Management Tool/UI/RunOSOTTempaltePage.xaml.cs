@@ -14,6 +14,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using VMManagementTool.Services;
+using VMManagementTool.Session;
 using VMManagementTool.Test;
 
 namespace VMManagementTool.UI
@@ -27,9 +28,11 @@ namespace VMManagementTool.UI
         //DummyOptimizationTemplateManager optimizationTemplateManager;
         const int INDEFINITE_PROGRESS = -1;
         volatile bool aborted = false;
+        OSOTSessionState sessionParams;
         public RunOSOTTempaltePage()
         {
             InitializeComponent();
+            sessionParams = SessionManager.Instance.GetOSOTParams();
             Loaded += RunOSOTTempaltePage_Loaded;
             var hostWin = Application.Current.MainWindow;
             hostWin.Closing += HostWin_Closing;
@@ -38,7 +41,7 @@ namespace VMManagementTool.UI
 
         private void HostWin_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
-            
+
             Abort();
         }
 
@@ -63,13 +66,24 @@ namespace VMManagementTool.UI
             optimizationTemplateManager.RunProgressChanged += OptimizationTemplateManager_RunProgressChanged;
             optimizationTemplateManager.RunCompleted += OptimizationTemplateManager_RunCompleted;
             //todo get the path from approapriate source
-            string templatePath = Configs.OPTIMIZATION_TEMPLATE_DEFAULT_PATH;
+            string templatePath = sessionParams.OSOTTemplateMetadata.FilePath;
             try
             {
                 //the loading can fail; then we just need to finsihproceed to the next page
                 await optimizationTemplateManager.LoadAsync(templatePath);
+                switch (sessionParams.StepsChoiceOption)
+                {
+                    case OSOTSessionState.StepsChoice.Default:
+                        optimizationTemplateManager.RunDefaultStepsAsync();
+                        break;
+                    case OSOTSessionState.StepsChoice.All:
+                        optimizationTemplateManager.RunAllStepsAsync();
+                        break;
+                    case OSOTSessionState.StepsChoice.Custom:
+                        optimizationTemplateManager.RunSelectedStepsAsync(sessionParams.CustomStepsChoice);
+                        break;
 
-                optimizationTemplateManager.RunDefaultStepsAsync();
+                }
             }
             catch (Exception ex)
             {
@@ -88,7 +102,7 @@ namespace VMManagementTool.UI
             FinishAndProceed();
 
         }
-        
+
         private void OptimizationTemplateManager_RunProgressChanged(int progress, string stepName)
         {
             SetProgress(progress, $"executing: {stepName}");
@@ -128,11 +142,11 @@ namespace VMManagementTool.UI
         {
             if (aborted)
             {
-                VMMTSessionManager.Instance.SetOSOTResults(null);
+                SessionManager.Instance.SetOSOTResults(null);
             }
             else
             {
-                VMMTSessionManager.Instance.SetOSOTResults(optimizationTemplateManager?.GetResults());
+                SessionManager.Instance.SetOSOTResults(optimizationTemplateManager?.GetResults());
             }
 
             if (optimizationTemplateManager != null)
@@ -152,7 +166,7 @@ namespace VMManagementTool.UI
             //open the next Page
             Dispatcher.Invoke(() =>
             {
-                var page = new RunCleanupOptimizations();
+                var page = SessionManager.Instance.GetNextSessionPage(); 
                 NavigationService.Navigate(page);
 
             }

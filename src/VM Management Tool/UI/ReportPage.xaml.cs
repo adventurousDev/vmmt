@@ -13,6 +13,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using VMManagementTool.Services;
+using VMManagementTool.Session;
 
 namespace VMManagementTool.UI
 {
@@ -44,11 +45,11 @@ namespace VMManagementTool.UI
 
                 //VMMTSessionManager.Instance.LoadPausedSession();
 
-                var session = VMMTSessionManager.Instance.FinishCurrentSession();
+                var session = SessionManager.Instance.FinishCurrentSession();
 
-                var winUpdateResults = session.WinUpdateResults;
-                var osotResults = session.OSOTResults;
-                var cleanupResults = session.CleanupResults;
+                var winUpdateResults = session.WindowsUpdateSessionState.Results;
+                var osotResults = session.OSOTSessionState.Results;
+                var cleanupResults = session.CleanupSessionState.Results;
                 if (winUpdateResults != null)
                 {
                     theConsole.AppendText($"Windwos Updates: {(winUpdateResults.Count == 0 ? "no updates found" : "")}" + Environment.NewLine);
@@ -118,7 +119,7 @@ namespace VMManagementTool.UI
 
         }
 
-        void ShowOSOTDetailsDialog(VMMTOptimizationSession session)
+        void ShowOSOTDetailsDialog(OptimizationSession session)
         {
             var dialog = new OSOTDetailReport(session);
             dialog.ShowDialog();

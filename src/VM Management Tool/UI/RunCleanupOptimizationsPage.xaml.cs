@@ -14,6 +14,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using VMManagementTool.Services;
+using VMManagementTool.Session;
 using VMManagementTool.Test;
 using VMManagementTool.UIUtils;
 
@@ -22,30 +23,83 @@ namespace VMManagementTool.UI
     /// <summary>
     /// Interaction logic for RunCleanupOptimizations.xaml
     /// </summary>
-    public partial class RunCleanupOptimizations : Page, IDisposable
+    public partial class RunCleanupOptimizationsPage : Page
     {
         const int INDEFINITE_PROGRESS = -1;
 
         CleanupManager cleanupManager;
         //DummyCleanupManager cleanupManager;
-
+        CleanupSessionState sessionParams;
         bool aborted = false;
-        public RunCleanupOptimizations()
+
+        Paragraph cleanmgrParagrath;
+        Paragraph sdeleteParagrath;
+        Paragraph defragParagrath;
+        Paragraph dismParagrath;
+        public RunCleanupOptimizationsPage()
         {
             InitializeComponent();
+            sessionParams = SessionManager.Instance.GetCleanupParams();
+            BuildUIList();
+
+
             Loaded += RunCleanupOptimizations_Loaded;
             var hostWin = Application.Current.MainWindow;
             hostWin.Closing += HostWin_Closing;
             Unloaded += (s, e) => { hostWin.Closing -= HostWin_Closing; };
+
+        }
+
+        private void BuildUIList()
+        {
+            FlowDocument flowDocument = new FlowDocument();
+            List list = new List();
+
+            list.MarkerStyle = TextMarkerStyle.Disc;
+            list.Margin = new Thickness(0);
+
+            if (sessionParams.RunDiskCleanmgr)
+            {
+                cleanmgrParagrath = new Paragraph(new Run(CleanupManager.TOOL_NAME_CLEANMGR));
+                cleanmgrParagrath.Tag = CleanupManager.TOOL_NAME_CLEANMGR;
+                list.ListItems.Add(new ListItem(cleanmgrParagrath));
+            }
+            if (sessionParams.RunSDelete)
+            {
+                sdeleteParagrath = new Paragraph(new Run(CleanupManager.TOOL_NAME_SDELETE));
+                sdeleteParagrath.Tag = CleanupManager.TOOL_NAME_SDELETE;
+                list.ListItems.Add(new ListItem(sdeleteParagrath));
+            }
+            if (sessionParams.RunDefrag)
+            {
+                defragParagrath = new Paragraph(new Run(CleanupManager.TOOL_NAME_DEFRAG));
+                defragParagrath.Tag = CleanupManager.TOOL_NAME_DEFRAG;
+                list.ListItems.Add(new ListItem(defragParagrath));
+            }
+            if (sessionParams.RunDism)
+            {
+                dismParagrath = new Paragraph(new Run(CleanupManager.TOOL_NAME_DISM));
+                dismParagrath.Tag = CleanupManager.TOOL_NAME_DISM;
+                list.ListItems.Add(new ListItem(dismParagrath));
+            }
+
+            flowDocument.Blocks.Add(list);
+
+            textArea.Document = flowDocument;
+
+        }
+        Paragraph FindToolTextParagrath(string toolName)
+        {
+            return (textArea.Document.Blocks.FirstBlock as List).ListItems.FirstOrDefault((li) => li.Blocks.FirstBlock.Tag.ToString().Equals(toolName)).Blocks.FirstBlock as Paragraph;
         }
 
         private void HostWin_Closing(object sender, CancelEventArgs e)
         {
-            
+
             Abort();
         }
 
-        
+
 
         private async void RunCleanupOptimizations_Loaded(object sender, RoutedEventArgs e)
         {
@@ -54,17 +108,80 @@ namespace VMManagementTool.UI
             cleanupManager = new CleanupManager();
             //cleanupManager = new DummyCleanupManager();
 
+
+            cleanupManager.ToolCompleted += CleanupManager_ToolCompleted;
+
             //for smoother user experience
             await Task.Delay(500);
 
-            //run cleanmgr
-            SetParagraphLook(cleanmgrParagrath, TextLook.Processing);
+
+            //run next
+            var next2Run = GetNextTool();
+            if (next2Run == null)
+            {
+                FinishAndProceed();
+                return;
+            }
+
+            SetParagraphLook(next2Run, TextLook.Processing);
             SetProgress(INDEFINITE_PROGRESS, "");
-
-            cleanupManager.CleanmgrCompleted += WinOptimizationsManager_CleanmgrCompleted;
-            cleanupManager.StartCleanmgr();
+            cleanupManager.StartTool(next2Run);
         }
+        string GetNextTool()
+        {
+            if (sessionParams.RunDiskCleanmgr && !cleanupManager.HasCompleted(CleanupManager.TOOL_NAME_CLEANMGR))
+            {
+                return CleanupManager.TOOL_NAME_CLEANMGR;
+            }
+            if (sessionParams.RunSDelete && !cleanupManager.HasCompleted(CleanupManager.TOOL_NAME_SDELETE))
+            {
+                return CleanupManager.TOOL_NAME_SDELETE;
+            }
+            if (sessionParams.RunDefrag && !cleanupManager.HasCompleted(CleanupManager.TOOL_NAME_DEFRAG))
+            {
+                return CleanupManager.TOOL_NAME_DEFRAG;
+            }
+            if (sessionParams.RunDism && !cleanupManager.HasCompleted(CleanupManager.TOOL_NAME_DISM))
+            {
+                return CleanupManager.TOOL_NAME_DISM;
+            }
+            return null;
 
+        }
+        private async void CleanupManager_ToolCompleted(string toolName, bool success)
+        {
+            ResetProgress();
+            if (success)
+            {
+                SetParagraphLook(toolName, TextLook.Completed);
+
+            }
+            else
+            {
+                SetParagraphLook(toolName, TextLook.Skipped);
+
+            }
+            string nextTool = GetNextTool();
+            if (nextTool != null)
+            {
+                SetParagraphLook(nextTool, TextLook.Processing);
+                await Task.Delay(500);
+                if (aborted)
+                {
+                    SetParagraphLook(nextTool, TextLook.Skipped);
+                    FinishAndProceed();
+                    return;
+                }
+
+                SetProgress(INDEFINITE_PROGRESS, "");
+                cleanupManager.StartTool(nextTool);
+            }
+            else
+            {
+                FinishAndProceed();
+            }
+        }
+        /* OLD compleation handling
         private async void WinOptimizationsManager_CleanmgrCompleted(bool success)
         {
             ResetProgress();
@@ -94,8 +211,8 @@ namespace VMManagementTool.UI
             SetProgress(INDEFINITE_PROGRESS, "");
             //proceed to sdelete
             //winOptimizationsManager.ProgressChanged += WinOptimizationsManager_ProgressChanged;
-            
-            cleanupManager.SdeleteCompleted += WinOptimizationsManager_SdeleteCompleted;           
+
+            cleanupManager.SdeleteCompleted += WinOptimizationsManager_SdeleteCompleted;
             cleanupManager.StartSdelete();
         }
 
@@ -146,7 +263,7 @@ namespace VMManagementTool.UI
 
             FinishAndProceed();
         }
-
+        */
 
 
         private void abortButton_Click(object sender, RoutedEventArgs e)
@@ -156,7 +273,7 @@ namespace VMManagementTool.UI
         private void Abort()
         {
             aborted = true;
-            cleanupManager.Abort();
+            cleanupManager?.Abort();
         }
         void SetProgress(int value, string label)
         {
@@ -180,8 +297,9 @@ namespace VMManagementTool.UI
             SetProgress(0, "");
         }
 
-        void SetParagraphLook(Paragraph paragraph, TextLook look)
+        void SetParagraphLook(string toolName, TextLook look)
         {
+            Paragraph paragraph = FindToolTextParagrath(toolName);
             Dispatcher.Invoke(() =>
             {
                 FontWeight fontWeight = FontWeights.Normal;
@@ -221,19 +339,18 @@ namespace VMManagementTool.UI
         {
             if (aborted)
             {
-                VMMTSessionManager.Instance.SetCleanupResults(null);
+                SessionManager.Instance.SetCleanupResults(null);
             }
             else
             {
-                VMMTSessionManager.Instance.SetCleanupResults(cleanupManager?.GetResults());
+                SessionManager.Instance.SetCleanupResults(cleanupManager?.GetResults());
             }
-            
+
             //deregister events(jsut in case)
             if (cleanupManager != null)
             {
-                cleanupManager.CleanmgrCompleted -= WinOptimizationsManager_CleanmgrCompleted;
-                cleanupManager.SdeleteCompleted -= WinOptimizationsManager_SdeleteCompleted;
-                cleanupManager.DefragCompleted -= WinOptimizationsManager_DefragCompleted;
+                cleanupManager.ToolCompleted -= CleanupManager_ToolCompleted;
+
             }
 
             SetProgress(INDEFINITE_PROGRESS, "finishing...");
@@ -246,8 +363,8 @@ namespace VMManagementTool.UI
             //open the next Page
             Dispatcher.Invoke(() =>
                 {
-                    var page = new ReportPage();
-                    NavigationService.Navigate(page);
+                    var nextPage = SessionManager.Instance.GetNextSessionPage();
+                    NavigationService.Navigate(nextPage);
 
                 }
             );
@@ -255,9 +372,6 @@ namespace VMManagementTool.UI
 
         }
 
-        public void Dispose()
-        {
-            cleanupManager?.Dispose();
-        }
+
     }
 }

@@ -37,7 +37,7 @@ namespace VMManagementTool
 
 
 
-
+        private HashSet<string> stepsSelection;
 
         private void BackButton_Click(object sender, RoutedEventArgs e)
         {
@@ -59,6 +59,10 @@ namespace VMManagementTool
                 session.OSOTSessionState = new OSOTSessionState();
                 session.OSOTSessionState.StepsChoiceOption = (StepsChoice)stepsChoiceGroup.Children.OfType<RadioButton>().FirstOrDefault((r) => r.IsChecked ?? false).Tag;
                 session.OSOTSessionState.OSOTTemplateMetadata = (OSOTTemplateMeta)osotTemplateDropDown.SelectedItem;
+                if (session.OSOTSessionState.StepsChoiceOption == StepsChoice.Custom)
+                {
+                    session.OSOTSessionState.CustomStepsChoice = stepsSelection ?? new HashSet<string>();
+                }
             }
 
             if (cleanupCheckBox.IsChecked ?? false)
@@ -122,8 +126,13 @@ namespace VMManagementTool
 
         private void ChooseStepsButtonClick(object sender, RoutedEventArgs e)
         {
-            customStepsRadio.IsChecked = true;
-            new ChooseStepsWindow().ShowDialog();
+
+            var selectDialog = new ChooseStepsWindow((OSOTTemplateMeta)osotTemplateDropDown.SelectedItem);
+            if (selectDialog.ShowDialog() ?? false && selectDialog.Selection.Count > 0)
+            {
+                customStepsRadio.IsChecked = true;
+                stepsSelection = selectDialog.Selection;
+            }
 
         }
     }

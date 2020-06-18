@@ -1,7 +1,9 @@
 ﻿using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -16,18 +18,38 @@ namespace VMManagementTool.Services.Optimization
             mandatory
 
         }
-
-        public string Name { get; private set; }
-        public string Description { get; private set; }
-        public Categories Category { get; private set; }
-        public bool DefaultSelected { get; private set; }
-        public bool RebootRequired { get; private set; }
+        // get => name; set { name = value; OnPropertyChanged(); }
+        public string Name { get; set; }
+        public string Description { get; set; }
+        public Categories Category { get; set; }
+        public bool DefaultSelected { get; set; }
+        public bool RebootRequired { get; set; }
         [JsonIgnore]
         public Group Parent { get; set; }
         public Action_ Action { get; private set; }
 
         [JsonIgnore]
         public string ID { get { return Name; } }
+        bool? selected = false;
+        [JsonIgnore]
+        public bool? UISelected { get { return selected; } set { SetUISelected(value, true); } }
+        public void SetUISelected(bool? selected, bool updateParent)
+        {
+            if (selected == this.selected)
+            {
+                return;
+            }
+            this.selected = selected;
+
+            if (updateParent)
+            {
+                Parent?.OnChildSelectionChanged();
+            }
+
+            OnPropertyChanged("UISelected");
+
+        }
+
         //condition could later be transformed to multiple conditions
         //according to XML schema 
         //so this should stay private and the evaluation be performed via a method?
@@ -44,6 +66,10 @@ namespace VMManagementTool.Services.Optimization
             Condition = condition;
         }
 
-
+        public event PropertyChangedEventHandler PropertyChanged;
+        protected void OnPropertyChanged(string name)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
+        }
     }
 }

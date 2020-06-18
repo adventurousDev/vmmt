@@ -47,9 +47,9 @@ namespace VMManagementTool.UI
 
                 var session = SessionManager.Instance.FinishCurrentSession();
 
-                var winUpdateResults = session.WindowsUpdateSessionState.Results;
-                var osotResults = session.OSOTSessionState.Results;
-                var cleanupResults = session.CleanupSessionState.Results;
+                var winUpdateResults = session.WindowsUpdateSessionState?.Results;
+                var osotResults = session.OSOTSessionState?.Results;
+                var cleanupResults = session.CleanupSessionState?.Results;
                 if (winUpdateResults != null)
                 {
                     theConsole.AppendText($"Windwos Updates: {(winUpdateResults.Count == 0 ? "no updates found" : "")}" + Environment.NewLine);

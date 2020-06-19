@@ -234,7 +234,7 @@ namespace VMManagementTool.UI
                     if (restartAccepted)
                     {
                         StartInfiniteProgress("restarting the system...");
-                        SessionManager.Instance.SetWinUpdateResults(winUpdateManager?.GetResults());
+                        SessionManager.Instance.SetWinUpdateResults(winUpdateManager.GetResults());
                         SessionManager.Instance.SaveSessionForResume();
                         SystemUtils.ScheduleAfterRestart();
                         SystemUtils.RestartSystem();
@@ -371,7 +371,7 @@ namespace VMManagementTool.UI
 
             if (aborted)
             {
-                SessionManager.Instance.SetWinUpdateResults(null);
+                SessionManager.Instance.SetWinUpdateAborted();
             }
             StartInfiniteProgress("finishing...");
             await Task.Run(Cleanup).ConfigureAwait(false);

@@ -60,7 +60,7 @@ namespace VMManagementTool.Services
             }
             catch (Exception ex)
             {
-                Log.Error("UpdateManager.IsNewerVersionAvailable", ex.Message);
+                Log.Error("UpdateManager.IsNewerVersionAvailable", ex.ToString());
                 return false;
             }
 

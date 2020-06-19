@@ -118,7 +118,7 @@ namespace VMManagementTool.Services
             catch (Exception ex)
             {
 
-                Log.Error("OptimizationTemplateManager.Load", ex.Message);
+                Log.Error("OptimizationTemplateManager.Load", ex.ToString());
                 throw;
             }
 

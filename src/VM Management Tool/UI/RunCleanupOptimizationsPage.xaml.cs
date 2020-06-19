@@ -129,6 +129,10 @@ namespace VMManagementTool.UI
         }
         string GetNextTool()
         {
+            if (aborted)
+            {
+                return null;
+            }
             if (sessionParams.RunDiskCleanmgr && !cleanupManager.HasCompleted(CleanupManager.TOOL_NAME_CLEANMGR))
             {
                 return CleanupManager.TOOL_NAME_CLEANMGR;
@@ -299,9 +303,10 @@ namespace VMManagementTool.UI
 
         void SetParagraphLook(string toolName, TextLook look)
         {
-            Paragraph paragraph = FindToolTextParagrath(toolName);
+           
             Dispatcher.Invoke(() =>
             {
+                Paragraph paragraph = FindToolTextParagrath(toolName);
                 FontWeight fontWeight = FontWeights.Normal;
                 TextDecorationCollection textDecorations = null;
                 var textColorBrush = SystemColors.ControlTextBrush;
@@ -339,7 +344,7 @@ namespace VMManagementTool.UI
         {
             if (aborted)
             {
-                SessionManager.Instance.SetCleanupResults(null);
+                SessionManager.Instance.SetCleanupAborted();
             }
             else
             {

@@ -402,7 +402,7 @@ namespace VMManagementTool.Services
             }
             catch (Exception ex)
             {
-                Log.Error("CleanupManager.DefragProc_Exited::(disable defragsvc)", ex.Message);
+                Log.Error("CleanupManager.DefragProc_Exited::(disable defragsvc)", ex.ToString());
             }
             //DefragCompleted?.Invoke(defragProc.ExitCode == 0);
             ToolCompleted?.Invoke(TOOL_NAME_DEFRAG, exitCode == 0);

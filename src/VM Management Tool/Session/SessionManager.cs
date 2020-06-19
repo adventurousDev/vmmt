@@ -73,13 +73,26 @@ namespace VMManagementTool.Session
         {
             optimizationSession.WindowsUpdateSessionState.Results = results;
         }
+        public void SetWinUpdateAborted()
+        {
+            optimizationSession.WindowsUpdateSessionState.IsAborted = true;
+        }
+
         public void SetOSOTResults(List<(string, bool)> results)
         {
             optimizationSession.OSOTSessionState.Results = results;
         }
+        public void SetOSOTAborted()
+        {
+            optimizationSession.OSOTSessionState.IsAborted = true;
+        }
         public void SetCleanupResults(List<(string, bool, int)> results)
         {
             optimizationSession.CleanupSessionState.Results = results;
+        }
+        public void SetCleanupAborted()
+        {
+            optimizationSession.CleanupSessionState.IsAborted = true;
         }
         public WindowsUpdateSessionState GetWinUpdateParams()
         {

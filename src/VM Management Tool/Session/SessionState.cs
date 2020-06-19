@@ -8,5 +8,6 @@ namespace VMManagementTool.Session
 {
     public abstract class SessionState
     {
+        public bool IsAborted { get; set; }
     }
 }

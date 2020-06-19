@@ -52,69 +52,82 @@ namespace VMManagementTool.UI
                 var cleanupResults = session.CleanupSessionState?.Results;
                 if (winUpdateResults != null)
                 {
-                    theConsole.AppendText($"Windwos Updates: {(winUpdateResults.Count == 0 ? "no updates found" : "")}" + Environment.NewLine);
-
-                    foreach (var updateTitle in winUpdateResults.Keys)
+                    if (!session.WindowsUpdateSessionState.IsAborted)
                     {
-                        var updateStatus = winUpdateResults[updateTitle];
-                        var outTitle = updateTitle + "(" + string.Join(",", updateStatus.KBIds) + ")";
-                        theConsole.AppendText($"        {outTitle} - {(updateStatus.IsInstalled ? "successfully installed" : "failed to install: " + updateStatus.Error)}{Environment.NewLine}");
+                        theConsole.AppendText($"Windows Updates: {(winUpdateResults.Count == 0 ? "no updates found" : "")}" + Environment.NewLine);
+
+                        foreach (var updateTitle in winUpdateResults.Keys)
+                        {
+                            var updateStatus = winUpdateResults[updateTitle];
+                            var outTitle = updateTitle + "(" + string.Join(",", updateStatus.KBIds) + ")";
+                            theConsole.AppendText($"        {outTitle} - {(updateStatus.IsInstalled ? "successfully installed" : "failed to install: " + updateStatus.Error)}{Environment.NewLine}");
+                        }
+
+
+                        theConsole.AppendText(Environment.NewLine);
                     }
-
-
-                    theConsole.AppendText(Environment.NewLine);
+                    else
+                    {
+                        theConsole.AppendText($"Windows Updates: aborted" + Environment.NewLine);
+                    }
+                    
                 }
-                else
-                {
-                    theConsole.AppendText($"Windwos Updates: aborted" + Environment.NewLine);
-                }
+                
 
                 if (osotResults != null)
                 {
 
+                    if (!session.OSOTSessionState.IsAborted)
+                    {
+                        var successfulCount = osotResults.Count((st) => st.Item2);
+                        var fails = osotResults.Count - successfulCount;
+                        //theConsole.AppendText($"OSOT Template: {successfulCount} - succeeded; {fails} - failed" + Environment.NewLine);
+                        Paragraph para = new Paragraph();
+                        para.Margin = new Thickness(0); // remove indent between paragraphs
 
-                    var successfulCount = osotResults.Count((st) => st.Item2);
-                    var fails = osotResults.Count - successfulCount;
-                    //theConsole.AppendText($"OSOT Template: {successfulCount} - succeeded; {fails} - failed" + Environment.NewLine);
-                    Paragraph para = new Paragraph();
-                    para.Margin = new Thickness(0); // remove indent between paragraphs
-
-                    Hyperlink link = new Hyperlink();
-                    link.IsEnabled = true;
-                    link.Inlines.Add("view details");
-                    link.Click += (x, y) => ShowOSOTDetailsDialog(session);
+                        Hyperlink link = new Hyperlink();
+                        link.IsEnabled = true;
+                        link.Inlines.Add("view details");
+                        link.Click += (x, y) => ShowOSOTDetailsDialog(session);
 
 
-                    para.Inlines.Add(new Run($"OSOT Template Steps: {successfulCount} - succeeded; {fails} - failed ("));
-                    para.Inlines.Add(link);
-                    para.Inlines.Add(new Run(")"));
+                        para.Inlines.Add(new Run($"OSOT Template Steps: {successfulCount} - succeeded; {fails} - failed ("));
+                        para.Inlines.Add(link);
+                        para.Inlines.Add(new Run(")"));
 
-                    theConsole.Document.Blocks.Add(para);
-                    theConsole.AppendText(Environment.NewLine);
+                        theConsole.Document.Blocks.Add(para);
+                        theConsole.AppendText(Environment.NewLine);
+                    }
+                    else
+                    {
+                        theConsole.AppendText($"OSOT Template Steps: aborted" + Environment.NewLine);
+                    }
+
                 }
-                else
-                {
-                    theConsole.AppendText($"OSOT Template Steps: aborted" + Environment.NewLine);
-                }
+                
 
                 if (cleanupResults != null)
                 {
-                    theConsole.AppendText($"Cleanup:" + Environment.NewLine);
-
-                    foreach (var cleanupResult in cleanupResults)
+                    if (!session.CleanupSessionState.IsAborted)
                     {
-                        theConsole.AppendText($"        {cleanupResult.Item1} - {(cleanupResult.Item2 ? "success" : $"fail:(code {cleanupResult.Item3})")}{Environment.NewLine}");
+                        theConsole.AppendText($"Cleanup:" + Environment.NewLine);
+
+                        foreach (var cleanupResult in cleanupResults)
+                        {
+                            theConsole.AppendText($"        {cleanupResult.Item1} - {(cleanupResult.Item2 ? "success" : $"fail:(code {cleanupResult.Item3})")}{Environment.NewLine}");
+                        }
+                    }
+                    else
+                    {
+                        theConsole.AppendText($"Cleanup: aborted" + Environment.NewLine);
                     }
                 }
-                else
-                {
-                    theConsole.AppendText($"Cleanup: aborted" + Environment.NewLine);
-                }
+               
             }
             catch (Exception ex)
             {
 
-                Log.Error("ReportPage.PrintResults", ex.Message);
+                Log.Error("ReportPage.PrintResults", ex.ToString());
             }
 
         }

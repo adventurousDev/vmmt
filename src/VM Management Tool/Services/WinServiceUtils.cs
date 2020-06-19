@@ -47,7 +47,7 @@ namespace VMManagementTool.Services
             }
             catch (Exception ex)
             {
-                Log.Error("WinServiceUtils.StopServiceAsync", ex.Message);
+                Log.Error("WinServiceUtils.StopServiceAsync", ex.ToString());
                 return false;
             }
             finally
@@ -92,7 +92,7 @@ namespace VMManagementTool.Services
             }
             catch (Exception ex)
             {
-                Log.Error("WinServiceUtils.StartServiceAsync", ex.Message);
+                Log.Error("WinServiceUtils.StartServiceAsync", ex.ToString());
                 return false;
             }
             finally

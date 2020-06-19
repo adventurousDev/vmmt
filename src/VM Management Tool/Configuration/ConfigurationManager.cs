@@ -145,7 +145,7 @@ namespace VMManagementTool
             }
             catch (Exception ex)
             {
-                Log.Error("ConfigurationManager.LoadConfiguraion", ex.Message);
+                Log.Error("ConfigurationManager.LoadConfiguraion", ex.ToString());
             }
 
             //4.merge deafult and remote
@@ -304,7 +304,7 @@ namespace VMManagementTool
             }
             catch (Exception ex)
             {
-                Log.Error("ConfigurationManager.LoadConfiguraion", ex.Message);
+                Log.Error("ConfigurationManager.LoadConfiguraion", ex.ToString());
             }
 
             //4.merge deafult and remote
@@ -385,7 +385,7 @@ namespace VMManagementTool
             }
             catch (Exception ex)
             {
-                Log.Error("ConfigurationManager.LoadUserSettings", ex.Message);
+                Log.Error("ConfigurationManager.LoadUserSettings", ex.ToString());
                 userSettings = GenerateDefaultSettings();
             }
         }
@@ -469,7 +469,7 @@ namespace VMManagementTool
             }
             catch (Exception ex)
             {
-                Log.Error("ConfigurationManager.TriggerSettingChangeActions", $"Setting: {section}-{key} = {value} ; Exception: {ex.Message}");
+                Log.Error("ConfigurationManager.TriggerSettingChangeActions", $"Setting: {section}-{key} = {value} ; Exception: {ex.ToString()}");
             }
         }
 

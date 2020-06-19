@@ -42,7 +42,7 @@ namespace VMManagementTool
                 }
                 catch (Exception ex)
                 {
-                    Log.Error("MainWindow.MainWindow", ex.Message);
+                    Log.Error("MainWindow.MainWindow", ex.ToString());
                     Log.Info("MainWindow.MainWindow", "Unable to load saved session: starting from the beginning");
                     frame.Navigate(new HomePage());
                     return;

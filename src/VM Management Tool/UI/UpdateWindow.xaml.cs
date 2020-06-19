@@ -98,7 +98,7 @@ namespace VMManagementTool.UI
             }
             catch (Exception ex)
             {
-                Log.Error("UpdateWindow.updateButton_Click", ex.Message);
+                Log.Error("UpdateWindow.updateButton_Click", ex.ToString());
                 progressPanel.Visibility = Visibility.Hidden;
                 notfoundPanel.Visibility = Visibility.Visible;
                 notFoundText.Text = "Update failed(see log for details)";

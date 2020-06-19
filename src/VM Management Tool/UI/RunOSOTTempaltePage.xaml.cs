@@ -142,7 +142,7 @@ namespace VMManagementTool.UI
         {
             if (aborted)
             {
-                SessionManager.Instance.SetOSOTResults(null);
+                SessionManager.Instance.SetOSOTAborted();
             }
             else
             {

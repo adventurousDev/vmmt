@@ -34,7 +34,7 @@ namespace VMManagementTool.Services
             }
             catch (Exception ex)
             {
-                Log.Error("FileManager.TryDownloadFile", ex.Message);
+                Log.Error("FileManager.TryDownloadFile", ex.ToString());
                 return false;
             }
             finally

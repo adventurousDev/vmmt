@@ -22,10 +22,11 @@ namespace VMManagementTool.UI
     /// </summary>
     public partial class ChooseStepsWindow : Window
     {
-        List<Group> testdata;
+      
         OSOTTemplateMeta template;
-        OptimizationTemplateManager otManager;
+        public OptimizationTemplateManager OtManager { get; set; }
         public HashSet<string> Selection { get; private set; } = new HashSet<string>();
+       
         public ChooseStepsWindow(OSOTTemplateMeta template)
         {
             InitializeComponent();
@@ -38,21 +39,28 @@ namespace VMManagementTool.UI
 
 
         }
-        
+
         private async void ChooseStepsWindow_Loaded(object sender, RoutedEventArgs e)
         {
             try
             {
                 Loaded -= ChooseStepsWindow_Loaded;
-                otManager = new OptimizationTemplateManager();
-                Mouse.OverrideCursor = Cursors.Wait;
+                if (OtManager == null)
+                {
+                    OtManager = new OptimizationTemplateManager();
+                    Mouse.OverrideCursor = Cursors.Wait;
 
-                await otManager.LoadAsync(template.FilePath);
-                //treeView.ItemsSource = testdata;
-                treeView.LayoutUpdated += TreeView_LayoutUpdated;
-                treeView.ItemsSource = otManager.RootGroups;
-                
-                
+                    await OtManager.LoadAsync(template.FilePath);
+                    //treeView.ItemsSource = testdata;
+                    treeView.LayoutUpdated += TreeView_LayoutUpdated;
+                    treeView.ItemsSource = OtManager.RootGroups;
+                    
+                }
+                else
+                {
+                    treeView.ItemsSource = OtManager.RootGroups;
+                }
+
             }
             catch (Exception ex)
             {
@@ -70,7 +78,7 @@ namespace VMManagementTool.UI
         private void okButton_Click(object sender, RoutedEventArgs e)
         {
             DialogResult = true;
-            Selection = new HashSet<string>(otManager.GetSelectedSteps().Select((s) => s.ID));
+            Selection = new HashSet<string>(OtManager.GetSelectedSteps().Select((s) => s.ID));
 
         }
         List<Group> GenDummyData()

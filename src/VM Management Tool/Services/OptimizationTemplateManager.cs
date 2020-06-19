@@ -12,13 +12,13 @@ using VMManagementTool.Services.Optimization.Actions;
 
 namespace VMManagementTool.Services
 {
-    class OptimizationTemplateManager
+    public class OptimizationTemplateManager
     {
 
         const string OS_REF_METADATA_KEY = "osdefinitions";
 
         public Dictionary<string, object> Metadata { get; set; }
-        public IList<Group> RootGroups;
+        public IList<Group> RootGroups { get; set; }
 
         //events 
         public event Action<string> NewInfo;

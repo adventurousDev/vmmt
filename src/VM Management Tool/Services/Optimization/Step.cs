@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace VMManagementTool.Services.Optimization
 {
-    class Step : IGroupChild
+    public class Step : IGroupChild
     {
         public enum Categories
         {

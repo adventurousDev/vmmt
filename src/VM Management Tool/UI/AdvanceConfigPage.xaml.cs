@@ -13,6 +13,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using VMManagementTool.Configuration;
+using VMManagementTool.Services;
 using VMManagementTool.Session;
 using VMManagementTool.UI;
 using static VMManagementTool.Session.OSOTSessionState;
@@ -32,10 +33,14 @@ namespace VMManagementTool
             osotTemplateDropDown.ItemsSource = ConfigurationManager.Instance.OSOTTemplatesData;
             osotTemplateDropDown.DisplayMemberPath = "Name";
             osotTemplateDropDown.SelectedItem = ConfigurationManager.Instance.OSOTTemplatesData.Where((otmd) => otmd.Type == Configuration.OSOTTemplateType.System).FirstOrDefault();
+            osotTemplateDropDown.SelectionChanged += OsotTemplateDropDown_SelectionChanged;
 
         }
-
-
+        OptimizationTemplateManager templateManagerCache;
+        private void OsotTemplateDropDown_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            templateManagerCache = null;
+        }
 
         private HashSet<string> stepsSelection;
 
@@ -128,10 +133,16 @@ namespace VMManagementTool
         {
 
             var selectDialog = new ChooseStepsWindow((OSOTTemplateMeta)osotTemplateDropDown.SelectedItem);
+            if (templateManagerCache != null)
+            {
+                selectDialog.OtManager = templateManagerCache;
+            }
+
             if (selectDialog.ShowDialog() ?? false && selectDialog.Selection.Count > 0)
             {
                 customStepsRadio.IsChecked = true;
                 stepsSelection = selectDialog.Selection;
+                templateManagerCache = selectDialog.OtManager;
             }
 
         }

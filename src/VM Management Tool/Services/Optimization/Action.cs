@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace VMManagementTool.Services.Optimization
 {
-    abstract class Action_
+    public abstract class Action_
     {
         public enum StatusResult
         {

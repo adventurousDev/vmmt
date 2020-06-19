@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace VMManagementTool.Services.Optimization
 {
-    class Group : IGroupChild
+    public class Group : IGroupChild
     {
 
         public string Name { get; private set; }

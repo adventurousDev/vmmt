@@ -2,7 +2,7 @@
 
 namespace VMManagementTool.Services.Optimization
 {
-    internal interface IGroupChild : INotifyPropertyChanged
+    public interface IGroupChild : INotifyPropertyChanged
     {
         Group Parent { get; set; }
         bool? UISelected { get; set; }

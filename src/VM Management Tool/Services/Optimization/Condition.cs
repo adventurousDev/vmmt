@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace VMManagementTool.Services.Optimization
 {
-    class Condition
+    public class Condition
     {
         
     }

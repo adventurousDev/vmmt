@@ -34,13 +34,16 @@
                 <StackPanel Orientation="Vertical" IsEnabled="False">
                     <StackPanel Orientation="Vertical">
                         <Label  Margin="0,0,0,6" Padding="0" Content="Intermediate restarts:"/>
-                        <ComboBox x:Name="wuRestartDropdown" HorizontalAlignment="Stretch" MinWidth="100" SelectedValuePath="Tag" SelectedValue="0">
+                        <ComboBox x:Name="wuRestartDropdown" HorizontalAlignment="Stretch" MinWidth="100" SelectedValuePath="Tag" >
+                            <ComboBox.SelectedValue>
+                                <sys:Int64>0</sys:Int64>
+                            </ComboBox.SelectedValue>
                             <ComboBoxItem Content="Automatic" >
                                 <ComboBoxItem.Tag>
                                     <sys:Int64>0</sys:Int64>
                                 </ComboBoxItem.Tag>
                             </ComboBoxItem>
-                            <ComboBoxItem Content="Ask" IsEnabled="False">
+                            <ComboBoxItem Content="Ask">
                                 <ComboBoxItem.Tag>
                                     <sys:Int64>1</sys:Int64>
                                 </ComboBoxItem.Tag>
@@ -63,7 +66,7 @@
                 <StackPanel Orientation="Vertical" IsEnabled="False">
                     <StackPanel Orientation="Vertical">
                         <Label  Margin="0,0,0,6" Padding="0" Content="Optimizations Template:"/>
-                        <ComboBox x:Name="osotTemplateDropDown" HorizontalAlignment="Stretch" MinWidth="100" SelectedValuePath="Tag"/>
+                        <ComboBox x:Name="osotTemplateDropDown" HorizontalAlignment="Stretch" MinWidth="100" SelectedValuePath=""/>
 
 
 

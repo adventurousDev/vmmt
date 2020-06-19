@@ -24,6 +24,9 @@
                     <StackPanel Orientation="Vertical">
                         <Label  Margin="0,0,0,6" Padding="0" Content="Detail level:"/>
                         <ComboBox x:Name="logDetailLevelDropdown" HorizontalAlignment="Stretch" MinWidth="100" SelectedValuePath="Tag" >
+                            <ComboBox.SelectedValue>
+                                <sys:Int64>0</sys:Int64>
+                            </ComboBox.SelectedValue>
                             <ComboBoxItem Content="Error" >
                                 <ComboBoxItem.Tag>
                                     <sys:Int64>0</sys:Int64>

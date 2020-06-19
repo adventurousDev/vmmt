@@ -11,7 +11,7 @@ using VMManagementTool.UI;
 
 namespace VMManagementTool.Session
 {
-    class SessionManager
+    public class SessionManager
     {
 
         private static readonly object instancelock = new object();
@@ -36,21 +36,36 @@ namespace VMManagementTool.Session
                 return instance;
             }
         }
-
+        
         const string SAVED_SESSION_FILE = "session.json";
-
+        public enum SessionState
+        {
+            None,            
+            Paused,
+            Active
+        }
         //public const string WIN_UPDATE_RESULTS_KEY = "winupdateresults";
         //public const string OSOT_RESULTS_KEY = "osotresults";
         //public const string CLEANUP_RESULTS_KEY = "cleanupresults";
-
+        public event Action<SessionState> SessionStateChanged;
         public void StartOptimizationSession(OptimizationSession optimizationSession)
         {
             this.optimizationSession = optimizationSession;
+            SessionStateChanged?.Invoke(SessionState.Active);
+        }
+        public void ResumeOptimizationSession()
+        {
+            if (optimizationSession == null)
+            {
+                throw new Exception("No sesson loaded to resume");
+            }
+            SessionStateChanged?.Invoke(SessionState.Active);
         }
         public OptimizationSession FinishCurrentSession()
         {
             var tmpRef = optimizationSession;
             optimizationSession = null;
+            SessionStateChanged?.Invoke(SessionState.None);
             return tmpRef;
         }
 
@@ -94,11 +109,12 @@ namespace VMManagementTool.Session
             {
                 string serializedSessionJson = File.ReadAllText(SAVED_SESSION_FILE);
                 optimizationSession = JsonConvert.DeserializeObject<OptimizationSession>(serializedSessionJson);
-
+                SessionStateChanged?.Invoke(SessionState.Paused);
                 //delte the file after loading 
                 File.Delete(SAVED_SESSION_FILE);
 
             }
+
         }
         public void SaveSessionForResume()
         {
@@ -123,7 +139,7 @@ namespace VMManagementTool.Session
             {
                 return null;
             }
-            
+
             if (optimizationSession.WindowsUpdateSessionState != null && optimizationSession.WindowsUpdateSessionState.Results == null)
             {
                 return new RunWinUpdatesPage();

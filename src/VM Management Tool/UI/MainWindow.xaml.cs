@@ -27,6 +27,7 @@ namespace VMManagementTool
         public MainWindow()
         {
             InitializeComponent();
+            SessionManager.Instance.SessionStateChanged += Instance_SessionStateChanged;
 
             var args = Environment.GetCommandLineArgs();
             var dir = Directory.GetCurrentDirectory();
@@ -44,8 +45,10 @@ namespace VMManagementTool
                     Log.Error("MainWindow.MainWindow", ex.Message);
                     Log.Info("MainWindow.MainWindow", "Unable to load saved session: starting from the beginning");
                     frame.Navigate(new HomePage());
+                    return;
                 }
-                
+
+                SessionManager.Instance.ResumeOptimizationSession();
                 frame.Navigate(new RunWinUpdatesPage(true));
             }
             else
@@ -55,13 +58,25 @@ namespace VMManagementTool
             }
         }
 
-        private void Frame_Navigated(object sender, System.Windows.Navigation.NavigationEventArgs e)
+        private void Instance_SessionStateChanged(SessionManager.SessionState newState)
         {
-            if(e.Content is InitPage)
+            if (newState == SessionManager.SessionState.Active)
             {
                 menu.IsEnabled = false;
             }
             else
+            {
+                menu.IsEnabled = true;
+            }
+        }
+
+        private void Frame_Navigated(object sender, System.Windows.Navigation.NavigationEventArgs e)
+        {
+            if (e.Content is InitPage)
+            {
+                menu.IsEnabled = false;
+            }
+            else if (e.Content is HomePage)
             {
                 menu.IsEnabled = true;
             }
@@ -79,7 +94,7 @@ namespace VMManagementTool
         private void AboutMenuItemSelected(object sender, RoutedEventArgs e)
         {
             var version = Assembly.GetExecutingAssembly().GetName().Version;
-            
+
             MessageBox.Show($"Version: {version.ToString(3)}");
         }
 

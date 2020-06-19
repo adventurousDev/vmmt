@@ -51,7 +51,7 @@ namespace VMManagementTool
             if (wuCheckBox.IsChecked ?? false)
             {
                 session.WindowsUpdateSessionState = new WindowsUpdateSessionState();
-                session.WindowsUpdateSessionState.RestartBehavior = (RestartBehaviors)wuRestartDropdown.SelectedItem;
+                session.WindowsUpdateSessionState.RestartBehavior = (RestartBehaviors)wuRestartDropdown.SelectedValue;
             }
 
             if (osotCheckBox.IsChecked ?? false)

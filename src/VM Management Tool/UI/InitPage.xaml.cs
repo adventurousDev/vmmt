@@ -30,11 +30,12 @@ namespace VMManagementTool.UI
         {
             Loaded += InitPage_Loaded;
 
-
+            /*
             await ConfigurationManager.Instance.Init(
                 (text) => { Dispatcher.Invoke(() => progressLabel.Content = text); }
                 ).ConfigureAwait(true);
-
+                */
+            ConfigurationManager.Instance.InitLight();
 
             var navTo = new HomePage();
             NavigationService.Navigate(navTo);

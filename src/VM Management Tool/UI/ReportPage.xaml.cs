@@ -64,7 +64,7 @@ namespace VMManagementTool.UI
                         }
 
 
-                        theConsole.AppendText(Environment.NewLine);
+                        //theConsole.AppendText(Environment.NewLine);
                     }
                     else
                     {

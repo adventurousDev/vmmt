@@ -49,7 +49,7 @@ namespace VMManagementTool.UI
                     continue;
                 }
 
-                theConsole.AppendText($"{stepResult.Item1} - {(stepResult.Item2 ? "success" : "fail")}{Environment.NewLine}");
+                theConsole.AppendText($"{stepResult.Item1} - {(stepResult.Item2 ? "success" : "fail")} {Environment.NewLine}");
             }
         }
 

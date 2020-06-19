@@ -203,11 +203,11 @@ namespace VMManagementTool.Services.Optimization.Actions
                 string keyName = RegistryUtils.NormalizeHive(Params[PARAM_NAME_KEY]);
                 using (var baseKey = RegistryUtils.GetBaseRegistryKey(keyName, RegistryView.Registry64))
                 {
-                    var keyRelativePath = keyName.Substring(keyName.IndexOf('\\')+1);
+                    var keyRelativePath = keyName.Substring(keyName.IndexOf('\\') + 1);
                     //todo should we care if the value does not exist in the first place?
                     baseKey.DeleteSubKeyTree(keyRelativePath, false);
                     return true;
-                    
+
                 }
             }
             catch (Exception ex)
@@ -222,14 +222,22 @@ namespace VMManagementTool.Services.Optimization.Actions
             try
             {
                 string keyName = RegistryUtils.NormalizeHive(Params[PARAM_NAME_KEY]);
-                //create the key, or open it if already there
-                using (RegistryKey theKey = RegistryUtils.CreateOrOpenRegistryKey(keyName, RegistryView.Registry64))//todo get the view dynamically
+               //checkign if it is at all there, because if it is not 
+               //or the keys in path are not, the subsecuent code would create those
+                if (this.CheckStatus() != StatusResult.Match)
                 {
-                    //check if value name and data is available 
-                    if (Params.TryGetValue(PARAM_NAME_VALUE, out string valueName))
+
+                    //create the key, or open it if already there
+                    using (RegistryKey theKey = RegistryUtils.CreateOrOpenRegistryKey(keyName, RegistryView.Registry64))//todo get the view dynamically
                     {
-                        theKey.DeleteValue(valueName, false);
+                        //check if value name and data is available 
+                        if (Params.TryGetValue(PARAM_NAME_VALUE, out string valueName))
+                        {
+                            theKey.DeleteValue(valueName, false);
+                        }
                     }
+
+
                 }
                 return true;
             }
@@ -251,11 +259,13 @@ namespace VMManagementTool.Services.Optimization.Actions
             var fileName = Params[PARAM_NAME_FILENAME];
             string args = $"reg load \"{keyName}\" \"{fileName}\"";
 
-            var shellCommand = new ShellCommand( args);
+            var shellCommand = new ShellCommand(args);
 
-            if(shellCommand.TryExecute(out string output))
+            if (shellCommand.TryExecute(out string output))
             {
-                if(output.TrimEnd() == "The operation completed successfully.")
+                //this check is problematic because of localization 
+                //so for now any non-failure is sucess
+                //if (output.TrimEnd() == "The operation completed successfully.")
                 {
                     return true;
                 }
@@ -276,7 +286,9 @@ namespace VMManagementTool.Services.Optimization.Actions
 
             if (shellCommand.TryExecute(out string output))
             {
-                if (output.TrimEnd() == "The operation completed successfully.")
+                //this check is problematic because of localization 
+                //so for now any non-failure is sucess
+                //if (output.TrimEnd() == "The operation completed successfully.")
                 {
                     return true;
                 }

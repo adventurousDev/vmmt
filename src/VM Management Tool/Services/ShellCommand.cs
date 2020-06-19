@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Security.Principal;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -12,7 +13,7 @@ namespace VMManagementTool.Services
         public string Command { get; set; }
         public string Arguments { get; set; }
 
-        public ShellCommand(string args)
+        public ShellCommand(string args) : this("/c " + args, @"c:\windows\sysnative\cmd.exe")
         {
             //Command = cmd;
             //had to switch to full path w/ sysnative
@@ -20,15 +21,27 @@ namespace VMManagementTool.Services
             //as the OS
             //for isntance there was a problem with DISM returning 11, 
             //when running it from 32 bit app on 64 bit Windows which is realted to that
-            Command = @"c:\windows\sysnative\cmd.exe";
-            Arguments = "/c " + args;
+            //Command = @"c:\windows\sysnative\cmd.exe";
+            //Arguments = "/c " + args;
         }
         public ShellCommand(string args, string cmd)
         {
             Command = cmd;
+            if (WindowsIdentity.GetCurrent().IsSystem)
+            {
+                args = TranslateSystemPaths(args);
+            }
             Arguments = args;
         }
 
+        string TranslateSystemPaths(string data)
+        {
+            //Sometimes %USERPROFILE%\.. env var is used to find the C:\Users folder. This 
+            //does not work for SYSTEM because its profile is in system32, but the PUBLIC seems to be 
+            //constant for all users. This is hacky, but so is user relying on %USERPROFILE%, and the change
+            //should happen there.
+            return data.Replace("%USERPROFILE%", "%PUBLIC%");
+        }
 
         public bool TryExecute(out string output, int timeout = 30000)
         {

@@ -7,8 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Runtime.InteropServices;
 using Microsoft.Win32;
-using System.Management.Automation;
-using System.Collections.ObjectModel;
+
 
 namespace VMManagementTool.Services
 {
@@ -43,6 +42,7 @@ namespace VMManagementTool.Services
         Process sDeleteProc;
         Process cleanmgrProc;
         Process defragProc;
+        Process dismProc;
 
         //public event Action<string> NewInfo;
         //public event Action<int> SDeleteExited;
@@ -69,7 +69,26 @@ namespace VMManagementTool.Services
         long lastSdeleteProgressTime = 0;
         int lastProgress = 0;
 
+        public void StartTool(string name)
+        {
+            switch (name)
+            {
+                case TOOL_NAME_CLEANMGR:
+                    StartCleanmgr();
+                    break;
+                case TOOL_NAME_DISM:
+                    StartDism();
+                    break;
+                case TOOL_NAME_SDELETE:
+                    StartSdelete();
+                    break;
+                case TOOL_NAME_DEFRAG:
+                    StartDefrag();
+                    break;
+               
 
+            }
+        }
 
         //SDELETE -----------------------------------------------------------
         public void StartSdelete()
@@ -106,7 +125,7 @@ namespace VMManagementTool.Services
                 //sDeleteProc.StartInfo.RedirectStandardOutput = true;
                 //sDeleteProc.StartInfo.RedirectStandardError = true;
 
-                sDeleteProc.EnableRaisingEvents = true;
+                //sDeleteProc.EnableRaisingEvents = true;
                 //sDeleteProc.OutputDataReceived += SDeleteProc_OutputDataReceived;
                 //sDeleteProc.ErrorDataReceived += SDeleteProc_ErrorDataReceived;
                 sDeleteProc.Exited += SDeleteProc_Exited;
@@ -126,10 +145,7 @@ namespace VMManagementTool.Services
         private void SDeleteProc_Exited(object sender, EventArgs e)
         {
             var exitCode = sDeleteProc.ExitCode;
-            Info($"Finished execution. Exit code: {exitCode}");
             //removing events just in case
-            //sDeleteProc.OutputDataReceived -= SDeleteProc_OutputDataReceived;
-            sDeleteProc.ErrorDataReceived -= SDeleteProc_ErrorDataReceived;
             sDeleteProc.Exited -= SDeleteProc_Exited;
             sDeleteProc.Close();
             sDeleteProc = null;
@@ -141,82 +157,11 @@ namespace VMManagementTool.Services
             ToolCompleted?.Invoke(TOOL_NAME_SDELETE, exitCode == 0);
         }
 
-        private void SDeleteProc_ErrorDataReceived(object sender, DataReceivedEventArgs e)
-        {
-            Info($"Sdelete process Error: {e.Data}");
-            //SDeleteError?.Invoke(e.Data);
-        }
-        [Obsolete]
-        private void SDeleteProc_OutputDataReceived(object sender, DataReceivedEventArgs e)
-        {
-            if (e.Data == null)
-            {
-                return;
-            }
-            Info($"Sdelete process Info: {e.Data}");
-            string stage = e.Data;
-            int progress = 0;//no progress
-            var percentageIndex = e.Data.LastIndexOf('%');
-            if (percentageIndex > 0)
-            {
-                var spaceBeforePercentageIndex = e.Data.LastIndexOf(' ', percentageIndex);
-                var percentageString = e.Data.Substring(spaceBeforePercentageIndex + 1, percentageIndex - spaceBeforePercentageIndex - 1);
-                stage = e.Data.Substring(0, spaceBeforePercentageIndex - 1);
-                progress = int.Parse(percentageString);
-            }
-
-            if (e.Data.StartsWith("Cleaning MFT"))
-            {
-                stage = "Cleaning MFT";
-                progress = -8;//indefinite progress
-            }
-
-            //throtle progress for smooth UI
-            var now = DateTime.UtcNow.Ticks;
-            long elapsed = ((now - lastSdeleteProgressTime) / 10000);
-
-            //update progress no more often than 100 ms
-            //and only if the value changed: to avoid the indefinite
-            //if (progress != lastSdeleteProgressTime && elapsed >= 5)//disabled throttling 
-            {
-
-                lastProgress = progress;
-                lastSdeleteProgressTime = now;
-
-                //ProgressChanged?.Invoke(progress, stage);
-                //SDeleteProgressChanged?.Invoke(stage, progress);
 
 
-            }
-
-        }
-
+      
 
         //CLEANMGR ----------------------------------------------------------
-        public void StartTool(string name)
-        {
-            switch (name)
-            {
-                case TOOL_NAME_CLEANMGR:
-                    StartCleanmgr();
-                    break;
-                case TOOL_NAME_SDELETE:
-                    StartSdelete();
-                    break;
-                case TOOL_NAME_DEFRAG:
-                    StartDefrag();
-                    break;
-                case TOOL_NAME_DISM:
-                    StartDism();
-                    break;
-
-            }
-        }
-
-        private void StartDism()
-        {
-            throw new NotImplementedException();
-        }
 
         private void PrepareCleanmgrRegistry()
         {
@@ -235,8 +180,6 @@ namespace VMManagementTool.Services
                 RegistryKey key = volumeCahches.OpenSubKey(keyname, true);
 
                 key.SetValue($"StateFlags{CLEANMGR_STATEFLAGS_ID}", "2", Microsoft.Win32.RegistryValueKind.DWord);
-                //Registry.SetValue(key.Name, $"StateFlags{CLEANMGR_STATEFLAGS_ID}", "2", Microsoft.Win32.RegistryValueKind.DWord);
-                //Info(key.GetValue($"StateFlags{CLEANMGR_STATEFLAGS_ID}").ToString()); // Replace KEY_NAME with what you're looking for
             }
             volumeCahches.Close();
             root.Close();
@@ -254,7 +197,7 @@ namespace VMManagementTool.Services
                     //SDeleteError?.Invoke("SDelete is already running");
                     return;
                 }
-                Info("Starting cleanmgr...");
+               
                 PrepareCleanmgrRegistry();
 
                 //todo deregister events before loosing reference
@@ -267,15 +210,15 @@ namespace VMManagementTool.Services
                 cleanmgrProc.StartInfo.RedirectStandardError = true;
 
                 cleanmgrProc.EnableRaisingEvents = true;
-                cleanmgrProc.OutputDataReceived += CleanmgrProc_OutputDataReceived;
-                cleanmgrProc.ErrorDataReceived += CleanmgrProc_ErrorDataReceived;
+                //cleanmgrProc.OutputDataReceived += CleanmgrProc_OutputDataReceived;
+                //cleanmgrProc.ErrorDataReceived += CleanmgrProc_ErrorDataReceived;
                 cleanmgrProc.Exited += CleanmgrProc_Exited;
 
 
                 cleanmgrProc.Start();
                 cleanmgrProc.BeginErrorReadLine();
                 cleanmgrProc.BeginOutputReadLine();
-                Info($"started cleanmgr; PID = {cleanmgrProc.Id}");
+                
             }
             catch (Exception e)
             {
@@ -288,7 +231,6 @@ namespace VMManagementTool.Services
         private void CleanmgrProc_Exited(object sender, EventArgs e)
         {
             var exitCode = cleanmgrProc.ExitCode;
-            Info($"Finished execution. Exit code: {exitCode}");
             results.Add((TOOL_NAME_CLEANMGR, exitCode == 0, exitCode));
             //CleanmgrCompleted?.Invoke(exitCode == 0);
             ToolCompleted?.Invoke(TOOL_NAME_CLEANMGR, exitCode == 0);
@@ -298,20 +240,9 @@ namespace VMManagementTool.Services
 
         }
 
-        private void CleanmgrProc_ErrorDataReceived(object sender, DataReceivedEventArgs e)
-        {
-            Info($"cleanmgr process Error: {e.Data}");
-            //todo handle the error
-        }
+       
 
-        private void CleanmgrProc_OutputDataReceived(object sender, DataReceivedEventArgs e)
-        {
-            if (e.Data == null)
-            {
-                return;
-            }
-            Info($"cleanmgr process Info: {e.Data}");
-        }
+        
 
         //DEFRAG ------------------------------------------------------------
         public void StartDefrag()
@@ -334,7 +265,7 @@ namespace VMManagementTool.Services
                     return;
                 }
                 defragProcExited = false;
-                Info("Starting defrag...");
+                
                 //PrepareCleanmgrRegistry();
 
                 //todo deregister events before loosing reference
@@ -366,28 +297,9 @@ namespace VMManagementTool.Services
             }
         }
 
-        private void DefragProc_ErrorDataReceived(object sender, DataReceivedEventArgs e)
-        {
-            Info($"defrag process Error: {e.Data}");
-        }
+       
 
-        private void DefragProc_OutputDataReceived(object sender, DataReceivedEventArgs e)
-        {
-            var output = e.Data;
-            if (e.Data == null && defragProcExited)
-            {
-                var exitCode = defragProc.ExitCode;
-                bool hasExited = defragProc.HasExited;
-                defragProc.Close();
-                defragProc = null;
-                Info($"Finished execution. Exit code: {exitCode}; really exited {hasExited}; ");
-            }
-            else
-            {
-                Info($"defrag process Info: {output}");
-
-            }
-        }
+       
 
         private void DefragProc_Exited(object sender, EventArgs e)
         {
@@ -410,6 +322,71 @@ namespace VMManagementTool.Services
 
         }
 
+        //DISM
+        private void StartDism()
+        {
+            Task.Run(() => RunDism());
+        }
+
+        private void RunDism()
+        {
+            try
+            {
+                if (dismProc != null)
+                {
+                    //SDeleteError?.Invoke("SDelete is already running");
+                    Log.Error("CleanupManager.RunDism", "Dism is already running");
+                    ToolCompleted?.Invoke(TOOL_NAME_SDELETE, false);
+                    return;
+                }
+
+                
+                dismProc = new Process();
+                
+                var path =  Environment.ExpandEnvironmentVariables("%windir%\\sysnative\\dism.exe");
+
+               
+                dismProc.StartInfo.FileName = path;
+                //todo check the OS version because these commands do not exist on Win 7
+               
+                //test
+                //dismProc.StartInfo.Arguments = "/Online /Cleanup-Image /AnalyzeComponentStore";
+                dismProc.StartInfo.Arguments = " /Online /Cleanup-Image /StartComponentCleanup";
+                dismProc.StartInfo.UseShellExecute = true;
+                dismProc.StartInfo.CreateNoWindow = false;
+                //sDeleteProc.StartInfo.RedirectStandardOutput = true;
+                //sDeleteProc.StartInfo.RedirectStandardError = true;
+
+                dismProc.EnableRaisingEvents = true;
+                //sDeleteProc.OutputDataReceived += SDeleteProc_OutputDataReceived;
+                //sDeleteProc.ErrorDataReceived += SDeleteProc_ErrorDataReceived;
+                dismProc.Exited += DismProc_Exited;
+
+
+                dismProc.Start();
+                //sDeleteProc.BeginErrorReadLine();
+                //sDeleteProc.BeginOutputReadLine();
+            }
+            catch (Exception e)
+            {
+                Log.Error("CleanupManager.RunDism", e.Message);
+            }
+        }
+
+        private void DismProc_Exited(object sender, EventArgs e)
+        {
+            var exitCode = dismProc.ExitCode;
+            //removing events just in case
+            dismProc.Exited -= DismProc_Exited;
+            dismProc.Close();
+            dismProc = null;
+
+            //SDeleteExited?.Invoke(exitCode);
+
+            results.Add((TOOL_NAME_DISM, exitCode == 0, exitCode));
+            //SdeleteCompleted?.Invoke(exitCode == 0);
+            ToolCompleted?.Invoke(TOOL_NAME_DISM, exitCode == 0);
+        }
 
         //MISC ----------------------------------------------------------------
         [DllImport("User32")]
@@ -438,6 +415,11 @@ namespace VMManagementTool.Services
                     defragProc.Kill();
                     //defragProc.StandardInput.Close();
                 }
+                if (dismProc != null && !dismProc.HasExited)
+                {
+                    dismProc.Kill();
+                    
+                }
             }
             catch (Exception e)
             {
@@ -446,12 +428,7 @@ namespace VMManagementTool.Services
 
         }
 
-        //debug only
-        private void Info(string text)
-        {
-            //NewInfo?.Invoke(text);
-            Log.Debug("CleanupManager", text);
-        }
+       
 
         public List<(string, bool, int)> GetResults()
         {
@@ -467,6 +444,7 @@ namespace VMManagementTool.Services
             cleanmgrProc?.Dispose();
             defragProc?.Dispose();
             sDeleteProc?.Dispose();
+            dismProc?.Dispose();
         }
     }
 }

@@ -137,6 +137,10 @@ namespace VMManagementTool.UI
             {
                 return CleanupManager.TOOL_NAME_CLEANMGR;
             }
+            if (sessionParams.RunDism && !cleanupManager.HasCompleted(CleanupManager.TOOL_NAME_DISM))
+            {
+                return CleanupManager.TOOL_NAME_DISM;
+            }
             if (sessionParams.RunSDelete && !cleanupManager.HasCompleted(CleanupManager.TOOL_NAME_SDELETE))
             {
                 return CleanupManager.TOOL_NAME_SDELETE;
@@ -145,10 +149,7 @@ namespace VMManagementTool.UI
             {
                 return CleanupManager.TOOL_NAME_DEFRAG;
             }
-            if (sessionParams.RunDism && !cleanupManager.HasCompleted(CleanupManager.TOOL_NAME_DISM))
-            {
-                return CleanupManager.TOOL_NAME_DISM;
-            }
+           
             return null;
 
         }

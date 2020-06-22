@@ -1,17 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
 using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
-using System.Windows.Shapes;
 using VMManagementTool.Test;
 using VMManagementTool.Services;
 using VMManagementTool.UIUtils;
@@ -293,7 +284,7 @@ namespace VMManagementTool.UI
 
         async Task<bool> Prepare()
         {
-            bool enabled = await WinServiceUtils.SetStartupTypeAsync(WinUpdatesManager.WUA_SERVICE_NAME, true, 60000).ConfigureAwait(false);
+            bool enabled = WinServiceUtils.TrySetStartupType(WinUpdatesManager.WUA_SERVICE_NAME, true);
             if (!enabled)
             {
                 return false;
@@ -325,7 +316,7 @@ namespace VMManagementTool.UI
 
             }
             await WinServiceUtils.StopServiceAsync(WinUpdatesManager.WUA_SERVICE_NAME, 60000).ConfigureAwait(false);
-            await WinServiceUtils.SetStartupTypeAsync(WinUpdatesManager.WUA_SERVICE_NAME, false, 60000).ConfigureAwait(false);
+            WinServiceUtils.TrySetStartupType(WinUpdatesManager.WUA_SERVICE_NAME, false);
         }
 
         void SetParagraphLook(Paragraph paragraph, TextLook look)

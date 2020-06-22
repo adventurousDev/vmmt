@@ -1,10 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Management.Automation;
+﻿using Microsoft.Win32;
+using System;
 using System.ServiceProcess;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace VMManagementTool.Services
@@ -124,7 +120,7 @@ namespace VMManagementTool.Services
         /// <exception cref="System.Exception">When get-service PS cmdlet fails</exception>
         public static string GetStartupType(string serviceName)
         {
-
+            /*
             using (PowerShell shell = PowerShell.Create())
             {
                 shell.AddCommand("get-service").AddParameter("name", serviceName);
@@ -139,13 +135,14 @@ namespace VMManagementTool.Services
                 {
                     throw new Exception($"The service {serviceName} not found.");
                 }
-            }
+            }*/
+            return GetServiceStartupModeReg(serviceName);
 
         }
         /// <exception cref="System.Exception">When set-service PS cmdlet fails</exception>
         public static void SetStartupType(string serviceName, string startupType)
         {
-
+            /*
             using (PowerShell shell = PowerShell.Create())
             {
                 shell.AddCommand("set-service").AddParameter("name", serviceName);
@@ -156,13 +153,14 @@ namespace VMManagementTool.Services
                 {
                     throw new Exception("Errors setting service startup mode");
                 }
-            }
+            }*/
+            SetServiceStartupModeCMD(serviceName, startupType);
 
 
 
         }
 
-        public static async Task<bool> SetStartupTypeAsync(string serviceName, bool enabled, int timeout)
+        public static bool TrySetStartupType(string serviceName, bool enabled)
         {
             string startupType = "";
             if (enabled)
@@ -176,31 +174,8 @@ namespace VMManagementTool.Services
 
             try
             {
-                using (PowerShell shell = PowerShell.Create())
-                {
-                    shell.AddCommand("set-service").AddParameter("name", serviceName);
-                    shell.AddParameter("startuptype", startupType);
-
-                    var result = shell.BeginInvoke();
-                    DateTime utcNow = DateTime.UtcNow;
-
-                    while (!result.IsCompleted)
-                    {
-                        if ((DateTime.UtcNow.Ticks - utcNow.Ticks) / 10000 > timeout)
-                        {
-                            return false;
-                        }
-                        await Task.Delay(200).ConfigureAwait(false);
-
-
-                    }
-                    if (shell.HadErrors)
-                    {
-                        return false;
-                    }
-
-                    return true;
-                }
+                SetServiceStartupModeCMD(serviceName, startupType);
+                return true;
             }
             catch (Exception e)
             {
@@ -208,6 +183,78 @@ namespace VMManagementTool.Services
                 return false;
             }
 
+        }
+
+        public static void SetServiceStartupModeCMD(string serviceName, string startupMode)
+        {
+            //<boot|system|auto|demand|disabled|delayed-auto>
+            string modeStr;
+            switch (startupMode)
+            {
+                //ps to sc string translation
+                case "automatic":
+                    modeStr = "auto";
+                    break;
+                case "manual":
+                    modeStr = "demand";
+                    break;
+                case "disabled":
+                    modeStr = "disabled";
+                    break;
+                default:
+                    throw new Exception("Unsupported service strat mode: "+startupMode) ;
+                    break;
+            }
+            var args = $"sc config {serviceName} start={modeStr}";
+            var cmd = new ShellCommand(args);
+            if (cmd.TryExecute(out string scOutput))
+            {
+                Log.Debug("WinServiceUtils.SetServiceStartupModeCMD", "sc output: " + scOutput);
+            }
+            else
+            {
+                throw new Exception("Setting service start mode via sc failed:");
+            }
+
+
+        }
+        public static string GetServiceStartupModeReg(string serviceName)
+        {
+            using (RegistryKey serviceKey = Registry.LocalMachine.OpenSubKey($@"SYSTEM\CurrentControlSet\Services\{serviceName}", false))
+            {
+                if (serviceKey != null)
+                {
+                    int mode = (int)serviceKey.GetValue("Start");
+                    string modeStr;
+                    switch (mode)
+                    {
+                        case 0:
+                            modeStr = "boot";
+                            break;
+                        case 1:
+                            modeStr = "system";
+                            break;
+                        case 2:
+                            modeStr = "automatic";
+                            break;
+                        case 3:
+                            modeStr = "manual";
+                            break;
+                        case 4:
+                            modeStr = "disabled";
+                            break;
+                        default:
+                            modeStr = "unknown";
+                            break;
+                    }
+
+                    return modeStr;
+                }
+                else
+                {
+                    throw new Exception($"Service {serviceName} does not exist");
+                }
+            }
         }
     }
 }

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Security.Principal;
 using System.Text;
@@ -13,7 +14,7 @@ namespace VMManagementTool.Services
         public string Command { get; set; }
         public string Arguments { get; set; }
 
-        public ShellCommand(string args) : this("/c " + args, @"c:\windows\sysnative\cmd.exe")
+        public ShellCommand(string args) : this("/c " + args, Path.Combine(SystemUtils.GetSystem32Path(true), "cmd.exe"))
         {
             //Command = cmd;
             //had to switch to full path w/ sysnative
@@ -21,8 +22,7 @@ namespace VMManagementTool.Services
             //as the OS
             //for isntance there was a problem with DISM returning 11, 
             //when running it from 32 bit app on 64 bit Windows which is realted to that
-            //Command = @"c:\windows\sysnative\cmd.exe";
-            //Arguments = "/c " + args;
+           
         }
         public ShellCommand(string args, string cmd)
         {

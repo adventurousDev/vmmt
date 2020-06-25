@@ -42,7 +42,7 @@ namespace VMManagementTool.Services
             {
                 //Log.Error("SystemUtils.DeleteResumeTask", "Unable to delete resume task");
             }
-            
+
             File.Delete("restart.bat");
         }
 
@@ -56,5 +56,17 @@ namespace VMManagementTool.Services
             }
         }
 
+        public static string GetSystem32Path(bool avoidRedirect) 
+        {
+            
+            if (Environment.Is64BitOperatingSystem && !Environment.Is64BitProcess && avoidRedirect)
+            {
+                return Environment.ExpandEnvironmentVariables("%windir%\\sysnative");
+            }
+            else
+            {
+                return Environment.ExpandEnvironmentVariables("%windir%\\system32");
+            }
+        }
     }
 }

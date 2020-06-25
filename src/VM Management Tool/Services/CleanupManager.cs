@@ -165,7 +165,7 @@ namespace VMManagementTool.Services
 
         private void PrepareCleanmgrRegistry()
         {
-            //todo will this(64 view) cause errror on 32 system?
+            
             RegistryKey root = RegistryKey.OpenBaseKey(RegistryHive.LocalMachine, RegistryView.Registry64);
             RegistryKey volumeCahches = root.OpenSubKey(@"SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\VolumeCaches", true);
 
@@ -270,7 +270,7 @@ namespace VMManagementTool.Services
 
                 //todo deregister events before loosing reference
                 defragProc = new Process();
-                defragProc.StartInfo.FileName = Path.Combine(@"C:\Windows\Sysnative", "Defrag.exe");
+                defragProc.StartInfo.FileName = Path.Combine(SystemUtils.GetSystem32Path(true), "Defrag.exe"); 
 
                 defragProc.StartInfo.Arguments = $"/C /O /H /U";
                 defragProc.StartInfo.UseShellExecute = true;
@@ -343,7 +343,7 @@ namespace VMManagementTool.Services
                 
                 dismProc = new Process();
                 
-                var path =  Environment.ExpandEnvironmentVariables("%windir%\\sysnative\\dism.exe");
+                var path = Path.Combine(SystemUtils.GetSystem32Path(true) ,"dism.exe");
 
                
                 dismProc.StartInfo.FileName = path;

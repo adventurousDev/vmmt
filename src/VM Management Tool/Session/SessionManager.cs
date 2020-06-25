@@ -75,26 +75,34 @@ namespace VMManagementTool.Session
             return tmpRef;
         }
 
-        public void SetWinUpdateResults(Dictionary<string, WinUpdateStatus> results)
+        public void SetWinUpdateResults(Dictionary<string, WinUpdateStatus> results, bool completed = true)
         {
             optimizationSession.WindowsUpdateSessionState.Results = results;
+            optimizationSession.WindowsUpdateSessionState.IsCompleted = completed;
         }
         public void SetWinUpdateAborted()
         {
             optimizationSession.WindowsUpdateSessionState.IsAborted = true;
         }
+        public void SetWinUpdateCompleted()
+        {
+            optimizationSession.WindowsUpdateSessionState.IsCompleted = true;
+        }
 
-        public void SetOSOTResults(List<(string, bool)> results)
+        public void SetOSOTResults(List<(string, bool)> results, bool completed = true)
         {
             optimizationSession.OSOTSessionState.Results = results;
+            optimizationSession.OSOTSessionState.IsCompleted = completed;
         }
         public void SetOSOTAborted()
         {
             optimizationSession.OSOTSessionState.IsAborted = true;
+
         }
-        public void SetCleanupResults(List<(string, bool, int)> results)
+        public void SetCleanupResults(List<(string, bool, int)> results, bool completed = true)
         {
             optimizationSession.CleanupSessionState.Results = results;
+            optimizationSession.CleanupSessionState.IsCompleted = completed;
         }
         public void SetCleanupAborted()
         {
@@ -159,19 +167,19 @@ namespace VMManagementTool.Session
                 return null;
             }
 
-            if (optimizationSession.WindowsUpdateSessionState != null && optimizationSession.WindowsUpdateSessionState.Results == null
+            if (optimizationSession.WindowsUpdateSessionState != null && !optimizationSession.WindowsUpdateSessionState.IsCompleted
                 && !optimizationSession.WindowsUpdateSessionState.IsAborted)
             {
                 return new RunWinUpdatesPage();
             }
 
-            if (optimizationSession.OSOTSessionState != null && optimizationSession.OSOTSessionState.Results == null
+            if (optimizationSession.OSOTSessionState != null && !optimizationSession.OSOTSessionState.IsCompleted
                 && !optimizationSession.OSOTSessionState.IsAborted)
             {
                 return new RunOSOTTempaltePage();
             }
 
-            if (optimizationSession.CleanupSessionState != null && optimizationSession.CleanupSessionState.Results == null
+            if (optimizationSession.CleanupSessionState != null && !optimizationSession.CleanupSessionState.IsCompleted
                 && !optimizationSession.CleanupSessionState.IsAborted)
             {
                 return new RunCleanupOptimizationsPage();
@@ -196,7 +204,7 @@ namespace VMManagementTool.Session
                 {
                     stage.State = SessionStage.States.Aborted;
                 }
-                else if (optimizationSession.WindowsUpdateSessionState.Results != null)
+                else if (optimizationSession.WindowsUpdateSessionState.IsCompleted)
                 {
                     stage.State = SessionStage.States.Processed;
                 }
@@ -220,7 +228,7 @@ namespace VMManagementTool.Session
                 {
                     stage.State = SessionStage.States.Aborted;
                 }
-                else if (optimizationSession.OSOTSessionState.Results != null)
+                else if (optimizationSession.OSOTSessionState.IsCompleted)
                 {
                     stage.State = SessionStage.States.Processed;
                 }
@@ -244,7 +252,7 @@ namespace VMManagementTool.Session
                 {
                     stage.State = SessionStage.States.Aborted;
                 }
-                else if (optimizationSession.CleanupSessionState.Results != null)
+                else if (optimizationSession.CleanupSessionState.IsCompleted)
                 {
                     stage.State = SessionStage.States.Processed;
                 }

@@ -40,7 +40,7 @@ namespace VMManagementTool.UI
         }
         void SaveValues()
         {
-            ConfigurationManager.Instance.SaveUserSetting("log", "level", (int)logDetailLevelDropdown.SelectedValue, false);
+            ConfigurationManager.Instance.SaveUserSetting("log", "level", Convert.ToInt32(logDetailLevelDropdown.SelectedValue), false);
             ConfigurationManager.Instance.SaveUserSettingsToDisk();
             
 

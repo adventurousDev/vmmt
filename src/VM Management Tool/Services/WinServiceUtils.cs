@@ -179,7 +179,7 @@ namespace VMManagementTool.Services
             }
             catch (Exception e)
             {
-                Log.Error("WinServiceUtils.SetStartupTypeAsync", e.Message);
+                Log.Error("WinServiceUtils.SetStartupTypeAsync", e.ToString());
                 return false;
             }
 

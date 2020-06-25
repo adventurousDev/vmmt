@@ -187,7 +187,7 @@ namespace VMManagementTool.Services
             }
             catch (Exception e)
             {
-                Log.Error("OptimizationTemplateManager.RunSteps", e.Message);
+                Log.Error("OptimizationTemplateManager.RunSteps", e.ToString());
             }
 
             RunCompleted?.Invoke(!abortionsRequested);

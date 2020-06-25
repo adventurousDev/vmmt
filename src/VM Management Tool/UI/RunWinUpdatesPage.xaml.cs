@@ -234,12 +234,7 @@ namespace VMManagementTool.UI
 
                 }
 
-                //winUpdateManager  is null when we arrive here after resume
-                //in that case the session data is already restored from disk
-                if (winUpdateManager != null)
-                {
-                    SessionManager.Instance.SetWinUpdateResults(winUpdateManager.GetResults());
-                }
+
 
                 SetParagraphLook(installParagrath, TextLook.Completed);
 
@@ -364,6 +359,12 @@ namespace VMManagementTool.UI
             {
                 SessionManager.Instance.SetWinUpdateAborted();
             }
+            //when we arrive here after resume
+            //in that case the session data is already restored from disk
+            else if (!resumeInstall)
+            {
+                SessionManager.Instance.SetWinUpdateResults(winUpdateManager.GetResults());
+            }
             StartInfiniteProgress("finishing...");
             await Task.Run(Cleanup).ConfigureAwait(false);
 
@@ -374,7 +375,7 @@ namespace VMManagementTool.UI
             //open the next Page 
             Dispatcher.Invoke(() =>
             {
-                var page = SessionManager.Instance.GetNextSessionPage(); 
+                var page = SessionManager.Instance.GetNextSessionPage();
                 NavigationService.Navigate(page);
 
             }

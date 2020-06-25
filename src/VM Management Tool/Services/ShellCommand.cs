@@ -75,7 +75,7 @@ namespace VMManagementTool.Services
             }
             catch (Exception e)
             {
-                Log.Error("ShellCommand.TryExecute", e.Message);
+                Log.Error("ShellCommand.TryExecute", e.ToString());
                 return false;
 
             }

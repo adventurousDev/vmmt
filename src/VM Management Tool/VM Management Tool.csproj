@@ -105,6 +105,7 @@
     <Compile Include="Configuration\Configs.cs" />
     <Compile Include="Session\CleanupSessionState.cs" />
     <Compile Include="Session\OSOTSessionState.cs" />
+    <Compile Include="Session\SessionStage.cs" />
     <Compile Include="Session\SessionState.cs" />
     <Compile Include="Session\WindowsUpdateSessionState.cs" />
     <Compile Include="Test\DummyOptimizationTemplateManager.cs" />

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -24,6 +25,7 @@ namespace VMManagementTool
     /// </summary>
     public partial class MainWindow : Window
     {
+        public ObservableCollection<SessionStage> SessionStages { get; set; } = new ObservableCollection<SessionStage>();
         public MainWindow()
         {
             InitializeComponent();
@@ -63,10 +65,13 @@ namespace VMManagementTool
             if (newState == SessionManager.SessionState.Active)
             {
                 menu.IsEnabled = false;
+                progressionSidebar.Visibility = Visibility.Visible;
+                progressItems.ItemsSource = SessionStages;
             }
             else
             {
                 menu.IsEnabled = true;
+                //progressionSidebar.Visibility = Visibility.Collapsed;
             }
         }
 
@@ -80,6 +85,17 @@ namespace VMManagementTool
             {
                 menu.IsEnabled = true;
             }
+            if(SessionManager.Instance.CurrentState == SessionManager.SessionState.Active)
+            {
+                SessionStages.Clear();
+                var stages = SessionManager.Instance.GetSessionStages();
+                if (stages != null)
+                {
+                    stages.ForEach(SessionStages.Add);
+                }
+            }
+                
+
         }
 
         private void MenuItem_Click(object sender, RoutedEventArgs e)

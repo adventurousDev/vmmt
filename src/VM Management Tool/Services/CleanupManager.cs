@@ -11,29 +11,9 @@ using Microsoft.Win32;
 
 namespace VMManagementTool.Services
 {
-    class CleanupManager : IDisposable//todo cleanup and exception handlign in main methods(especially async)
+    class CleanupManager : IDisposable
     {
-        private static readonly object instancelock = new object();
-        private static CleanupManager instance = null;
-        //todo remove the singleton if unused
-        public static CleanupManager Instance
-        {
-            get
-            {
-                if (instance == null)
-                {
-                    lock (instancelock)
-                    {
-                        if (instance == null)
-                        {
-                            instance = new CleanupManager();
-                        }
-                    }
-                }
-                return instance;
-            }
-        }
-
+        
         public const string TOOL_NAME_CLEANMGR = "Disk Cleanup";
         public const string TOOL_NAME_SDELETE = "SDelete";
         public const string TOOL_NAME_DEFRAG = "Defrag";
@@ -107,7 +87,7 @@ namespace VMManagementTool.Services
                     return;
                 }
 
-                //todo deregister events before loosing reference
+                
                 sDeleteProc = new Process();
                 var executable = Environment.Is64BitOperatingSystem ? "sdelete64.exe" : "sdelete.exe";
                 var path = Path.Combine(Configs.TOOLS_DIR, "SDelete", executable);
@@ -200,7 +180,7 @@ namespace VMManagementTool.Services
                
                 PrepareCleanmgrRegistry();
 
-                //todo deregister events before loosing reference
+                
                 cleanmgrProc = new Process();
                 cleanmgrProc.StartInfo.FileName = "cleanmgr.exe";
                 cleanmgrProc.StartInfo.Arguments = $"/sagerun:{CLEANMGR_STATEFLAGS_ID}";
@@ -268,7 +248,7 @@ namespace VMManagementTool.Services
                 
                 //PrepareCleanmgrRegistry();
 
-                //todo deregister events before loosing reference
+                
                 defragProc = new Process();
                 defragProc.StartInfo.FileName = Path.Combine(SystemUtils.GetSystem32Path(true), "Defrag.exe"); 
 
@@ -332,6 +312,10 @@ namespace VMManagementTool.Services
         {
             try
             {
+                if (Environment.OSVersion.Version < new Version("6.3"))
+                {
+                    throw new Exception("Dism cleanup commands are only supported starting Windows 8.1");
+                }
                 if (dismProc != null)
                 {
                     //SDeleteError?.Invoke("SDelete is already running");
@@ -347,7 +331,7 @@ namespace VMManagementTool.Services
 
                
                 dismProc.StartInfo.FileName = path;
-                //todo check the OS version because these commands do not exist on Win 7
+                
                
                 //test
                 //dismProc.StartInfo.Arguments = "/Online /Cleanup-Image /AnalyzeComponentStore";

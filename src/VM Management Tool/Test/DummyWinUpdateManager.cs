@@ -172,7 +172,7 @@ namespace VMManagementTool.Test
 
         public void Dispose()
         {
-            throw new NotImplementedException();
+            //throw new NotImplementedException();
         }
         public Dictionary<string, WinUpdateStatus> GetResults()
         {

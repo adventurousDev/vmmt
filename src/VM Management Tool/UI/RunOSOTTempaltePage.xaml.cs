@@ -65,7 +65,7 @@ namespace VMManagementTool.UI
 
             optimizationTemplateManager.RunProgressChanged += OptimizationTemplateManager_RunProgressChanged;
             optimizationTemplateManager.RunCompleted += OptimizationTemplateManager_RunCompleted;
-            //todo get the path from approapriate source
+            
             string templatePath = sessionParams.OSOTTemplateMetadata.FilePath;
             try
             {
@@ -98,7 +98,7 @@ namespace VMManagementTool.UI
         private void OptimizationTemplateManager_RunCompleted(bool successful)
         {
             //cleanup and proceed to the next page 
-            //todo also fetch and save the status for report
+            
             FinishAndProceed();
 
         }
@@ -162,7 +162,7 @@ namespace VMManagementTool.UI
 
             //a delay for user to have the last look
             await Task.Delay(500);
-            //todo save the state if not yet done by now
+            
             //open the next Page
             Dispatcher.Invoke(() =>
             {

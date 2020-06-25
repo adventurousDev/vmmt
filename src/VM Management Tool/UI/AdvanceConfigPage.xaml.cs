@@ -29,6 +29,13 @@ namespace VMManagementTool
         public AdvanceConfigPage()
         {
             InitializeComponent();
+            //Dism is only spupported starting in win 8.1 so hide its options
+            if (Environment.OSVersion.Version < new Version("6.3"))
+            {
+                chkbxDism.IsChecked = false;
+                chkbxDism.IsEnabled = false;
+                chkbxDism.Visibility = Visibility.Collapsed;
+            }
 
             osotTemplateDropDown.ItemsSource = ConfigurationManager.Instance.OSOTTemplatesData;
             osotTemplateDropDown.DisplayMemberPath = "Name";

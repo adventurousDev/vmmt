@@ -137,8 +137,7 @@ namespace VMManagementTool.Services
                 else
                 {
                     //if the key is jsut the hive we have to return it
-                    //opening it again because using is gonna dispose the used one
-                    //todo test this
+                    //opening it again because using is gonna dispose the used one                    
                     return RegistryKey.OpenBaseKey(GetRegistryHive(keyAbsPath), registryView);
                 }
 
@@ -165,8 +164,7 @@ namespace VMManagementTool.Services
                 else
                 {
                     //if the key is jsut the hive we have to return it
-                    //opening it again because using is gonna dispose the used one
-                    //todo test this
+                    //opening it again because using is gonna dispose the used one                    
                     return RegistryKey.OpenBaseKey(GetRegistryHive(keyAbsPath), registryView);
                 }
             }

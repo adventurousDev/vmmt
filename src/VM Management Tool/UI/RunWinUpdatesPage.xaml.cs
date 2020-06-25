@@ -16,8 +16,8 @@ namespace VMManagementTool.UI
     /// </summary>
     public partial class RunWinUpdatesPage : Page
     {
-        //WinUpdatesManager winUpdateManager;
-        DummyWinUpdateManager winUpdateManager;
+        WinUpdatesManager winUpdateManager;
+        //DummyWinUpdateManager winUpdateManager;
         volatile bool aborted = false;
         bool resumeInstall = false;
         WindowsUpdateSessionState sessionParams;
@@ -72,8 +72,8 @@ namespace VMManagementTool.UI
                     return;
                 }
                 //start with checking for updates right away
-                //winUpdateManager = new WinUpdatesManager();
-                winUpdateManager = new DummyWinUpdateManager();
+                winUpdateManager = new WinUpdatesManager();
+                //winUpdateManager = new DummyWinUpdateManager();
 
                 winUpdateManager.CheckCompleted += WinUpdateManager_CheckCompleted;
                 winUpdateManager.ProgressChanged += WinUpdateManager_ProgressChanged;
@@ -371,8 +371,7 @@ namespace VMManagementTool.UI
             //a delay for user to have the last look
             await Task.Delay(500).ConfigureAwait(false);
 
-            //todo save the state if not yet done by now
-            //open the next Page
+            //open the next Page 
             Dispatcher.Invoke(() =>
             {
                 var page = SessionManager.Instance.GetNextSessionPage(); 

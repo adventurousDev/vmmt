@@ -24,8 +24,7 @@ namespace VMManagementTool.Services
             //an alternative to task scheduler could be Run/ RunOnce registy keys
             //var schCmd = $"schtasks.exe /create /tn \"{RESTART_SHTASK_NAME}\" /ru SYSTEM /sc ONLOGON /tr \"'{psExecPath}' -d -accepteula -i 1 -w '{workDirPath}' '{myExePath}' '/resume'\"";
             var schCmd = $"schtasks.exe /create /tn \"{RESTART_SHTASK_NAME}\" /ru SYSTEM /sc ONLOGON /tr \"'{restartBatchFilePath}'\"";
-            //todo check that the task does not exist before attempting creation
-            //and then reactivate the exception below
+            
             var cmd = new ShellCommand(schCmd);
             if (!cmd.TryExecute(out _))
             {

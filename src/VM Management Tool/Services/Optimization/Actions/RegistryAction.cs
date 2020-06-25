@@ -117,7 +117,7 @@ namespace VMManagementTool.Services.Optimization.Actions
             }
             else
             {
-                using (RegistryKey theKey = RegistryUtils.GetRegistryKey(keyName, RegistryView.Registry64))//todo get the view dynamically
+                using (RegistryKey theKey = RegistryUtils.GetRegistryKey(keyName, RegistryView.Registry64))
                 {
                     if (theKey == null)
                     {
@@ -169,7 +169,7 @@ namespace VMManagementTool.Services.Optimization.Actions
             {
                 string keyName = RegistryUtils.NormalizeHive(Params[PARAM_NAME_KEY]);
                 //create the key, or open it if already there
-                using (RegistryKey theKey = RegistryUtils.CreateOrOpenRegistryKey(keyName, RegistryView.Registry64))//todo get the view dynamically
+                using (RegistryKey theKey = RegistryUtils.CreateOrOpenRegistryKey(keyName, RegistryView.Registry64))
                 {
                     //check if value name and data is available 
                     if (Params.TryGetValue(PARAM_NAME_VALUE, out string valueName)
@@ -204,7 +204,7 @@ namespace VMManagementTool.Services.Optimization.Actions
                 using (var baseKey = RegistryUtils.GetBaseRegistryKey(keyName, RegistryView.Registry64))
                 {
                     var keyRelativePath = keyName.Substring(keyName.IndexOf('\\') + 1);
-                    //todo should we care if the value does not exist in the first place?
+                    
                     baseKey.DeleteSubKeyTree(keyRelativePath, false);
                     return true;
 
@@ -228,7 +228,8 @@ namespace VMManagementTool.Services.Optimization.Actions
                 {
 
                     //create the key, or open it if already there
-                    using (RegistryKey theKey = RegistryUtils.CreateOrOpenRegistryKey(keyName, RegistryView.Registry64))//todo get the view dynamically
+                    //the 64 view allows to always go to main branch(on 32 bit OS it means 32 bit view)
+                    using (RegistryKey theKey = RegistryUtils.CreateOrOpenRegistryKey(keyName, RegistryView.Registry64))
                     {
                         //check if value name and data is available 
                         if (Params.TryGetValue(PARAM_NAME_VALUE, out string valueName))

@@ -41,9 +41,9 @@ namespace VMManagementTool
         public TestWindow()
         {
             InitializeComponent();
-            WinUpdatesManager.Instance.NewInfo += LogUpdateInto;
-            WinUpdatesManager.Instance.UpdatesFound += Instance_UpdatesFound;
-            WinUpdatesManager.Instance.ReadyToInstall += Instance_ReadyToInstall;
+            //WinUpdatesManager.Instance.NewInfo += LogUpdateInto;
+            //WinUpdatesManager.Instance.UpdatesFound += Instance_UpdatesFound;
+            //WinUpdatesManager.Instance.ReadyToInstall += Instance_ReadyToInstall;
 
             //CleanupManager.Instance.NewInfo += LogUpdateInto;
             //CleanupManager.Instance.SDeleteProgressChanged += Instance_SDeleteProgressChanged;
@@ -112,7 +112,7 @@ namespace VMManagementTool
         {
             //
             //WinUpdatesManager.Instance.LoadHsitory();
-            WinUpdatesManager.Instance.CheckForUpdates((bool)onlineCheckBox.IsChecked);
+            //WinUpdatesManager.Instance.CheckForUpdates((bool)onlineCheckBox.IsChecked);
         }
 
         private void LogUpdateInto(string msg)
@@ -132,7 +132,7 @@ namespace VMManagementTool
 
         private void Download_Click(object sender, RoutedEventArgs e)
         {
-            WinUpdatesManager.Instance.DownloadUpdates();
+            //WinUpdatesManager.Instance.DownloadUpdates();
         }
 
         private void abortD_Click(object sender, RoutedEventArgs e)
@@ -153,7 +153,7 @@ namespace VMManagementTool
 
         private void install_Click(object sender, RoutedEventArgs e)
         {
-            WinUpdatesManager.Instance.InstallUpdates();
+            //WinUpdatesManager.Instance.InstallUpdates();
         }
 
         private void abortInstall_Click(object sender, RoutedEventArgs e)
@@ -215,13 +215,13 @@ namespace VMManagementTool
 
         private void cleanmgrBtn_Click(object sender, RoutedEventArgs e)
         {
-            CleanupManager.Instance.RunCleanmgr();
+            //CleanupManager.Instance.RunCleanmgr();
         }
 
         private void hidewindow_Click(object sender, RoutedEventArgs e)
         {
             //WinOptimizationsManager.Instance.HideCleanMgrWndow();
-            CleanupManager.Instance.Abort();
+            //CleanupManager.Instance.Abort();
         }
 
         private void cleanmgrReg_Click(object sender, RoutedEventArgs e)
@@ -232,7 +232,7 @@ namespace VMManagementTool
         private void defragBtn_Click(object sender, RoutedEventArgs e)
         {
             //WinOptimizationsManager.Instance.RunDefragPS();
-            CleanupManager.Instance.RunDefrag();
+            //CleanupManager.Instance.RunDefrag();
         }
 
         private void loadButton_Click(object sender, RoutedEventArgs e)

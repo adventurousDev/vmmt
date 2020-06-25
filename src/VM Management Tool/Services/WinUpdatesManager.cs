@@ -11,27 +11,7 @@ namespace VMManagementTool.Services
     {
         public const string WUA_SERVICE_NAME = "wuauserv";
 
-        private static readonly object instancelock = new object();
-        private static WinUpdatesManager instance = null;
-
-        //todo does this really need to be a singleton?
-        public static WinUpdatesManager Instance
-        {
-            get
-            {
-                if (instance == null)
-                {
-                    lock (instancelock)
-                    {
-                        if (instance == null)
-                        {
-                            instance = new WinUpdatesManager();
-                        }
-                    }
-                }
-                return instance;
-            }
-        }
+      
 
         IUpdateSession3 updateSession;
 
@@ -189,7 +169,7 @@ namespace VMManagementTool.Services
                 }
                 else if (updateCollection.Count > 0)
                 {
-                    ReadyToInstall?.Invoke();//todo remove this for production
+                    //ReadyToInstall?.Invoke();
                     DownloadCompleted?.Invoke(true);
 
                 }
@@ -250,7 +230,7 @@ namespace VMManagementTool.Services
                     CheckCompleted?.Invoke(false);
                     return;
                 }
-                //todo could updates partially fail: the result above not success, but still some  updates available? 
+                
                 Info($"Found {searchResult.Updates.Count} updates:" + Environment.NewLine);
 
                 foreach (IUpdate update in searchResult.Updates)
@@ -317,7 +297,7 @@ namespace VMManagementTool.Services
                 }
                 else
                 {
-                    ReadyToInstall?.Invoke();
+                    //ReadyToInstall?.Invoke();
                     DownloadCompleted?.Invoke(true);
 
                 }

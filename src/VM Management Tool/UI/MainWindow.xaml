@@ -15,7 +15,7 @@
                 <MenuItem Header="E_xit" Click="ExitMenuItemSelected"/>
             </MenuItem>
             <MenuItem Header="_Tools">
-                <MenuItem Header="Test" Click="MenuItem_Click"/>
+                <!--MenuItem Header="Test" Click="MenuItem_Click"/-->
                 <MenuItem Header="_Options..." Click="OptionsMenuItemSelected"/>
                 
             </MenuItem>

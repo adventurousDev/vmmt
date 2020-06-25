@@ -18,8 +18,7 @@ namespace VMManagementTool
         public const string OPTIMIZATION_TEMPLATE_DEFAULT_PATH = @"Resources\Defaults\osot.xml";
         
 
-        //todo because of EULA the executable needs to be downloaded
-        //because it can not be distributed with the app
+        
         public const string SDELETE_FOLDER = @"C:\bwLehrpool\SDelete";
 
         public const bool DEBUG = true;

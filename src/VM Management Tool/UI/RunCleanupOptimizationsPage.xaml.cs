@@ -365,7 +365,7 @@ namespace VMManagementTool.UI
 
             //a delay for user to have the last look
             await Task.Delay(500);
-            //todo save the state if not yet done by now
+           
             //open the next Page
             Dispatcher.Invoke(() =>
                 {

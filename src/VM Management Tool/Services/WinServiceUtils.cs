@@ -205,7 +205,7 @@ namespace VMManagementTool.Services
                     throw new Exception("Unsupported service strat mode: "+startupMode) ;
                     break;
             }
-            var args = $"sc config {serviceName} start={modeStr}";
+            var args = $"sc config {serviceName} start= {modeStr}";
             var cmd = new ShellCommand(args);
             if (cmd.TryExecute(out string scOutput))
             {

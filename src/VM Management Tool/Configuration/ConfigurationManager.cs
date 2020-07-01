@@ -63,6 +63,9 @@ namespace VMManagementTool
 
         public async Task Init(Action<string> updateProgressMsg = null)
         {
+            //todo remove debug log level here
+            Log.LogLevel = 2;
+
             Log.Debug("ConfigurationManager.Init", "start");
             updateProgressMsg?.Invoke("Updating cofigurations");
             //1. load configuration
@@ -125,6 +128,7 @@ namespace VMManagementTool
         //initialize the app skipping all the web operations
         public void InitLight()
         {
+            Log.Debug("ConfigurationManager.InitLight", "start init");
             //1.load default 
             var defaultConfig = LoadConfigFromXMLFile(Configs.DEFAULT_CONFIG_FILE_PATH);
             Dictionary<string, object> remoteConfig = new Dictionary<string, object>();
@@ -166,9 +170,11 @@ namespace VMManagementTool
             LoadOSOTTemplatesMetadata();
             //set log level from settings
             Log.LogLevel = (int)GetUserSetting<long>("log", "level", 0);
+            Log.Debug("ConfigurationManager.InitLight", "done init");
         }
         private async Task TryFetchExternalTools()
         {
+            Log.Debug("ConfigurationManager.TryFetchExternalTools", "start");
 
             if (configuration.TryGetValue(CONFIG_KEY_EXTERNAL_TOOLS, out object toolsObj) && toolsObj is List<Dictionary<string, object>> toolConfigList)
             {
@@ -200,11 +206,12 @@ namespace VMManagementTool
 
                 }
             }
+            Log.Debug("ConfigurationManager.TryFetchExternalTools", "done");
         }
 
         public async Task CheckFetchExternalTool(string name, string files, string URL, bool forceUpdate, bool isZipped)
         {
-            Log.Debug("CheckFetchExternalTool", "Start");
+            Log.Debug("ConfigurationManager.CheckFetchExternalTool", "start");
             //1. check if the files are already there or if they need to be fetched
             var toolDir = Path.Combine(Configs.TOOLS_DIR, name);
             HashSet<string> missingFiles = new HashSet<string>();
@@ -258,7 +265,7 @@ namespace VMManagementTool
             {
                 await FileUtils.TryDownloadFile(URL, Path.Combine(toolDir, files), Configs.WebTimeouts.DOWNLOAD_TIMEOUT_LONG).ConfigureAwait(false);
             }
-            Log.Debug("CheckFetchExternalTool", "End");
+            Log.Debug("ConfigurationManager.CheckFetchExternalTool", "done");
 
 
         }
@@ -276,6 +283,8 @@ namespace VMManagementTool
         }
         public async Task LoadConfiguraion()
         {
+            Log.Debug("ConfigurationManager.LoadConfiguraion", "start");
+
             //1.load default 
             var defaultConfig = LoadConfigFromXMLFile(Configs.DEFAULT_CONFIG_FILE_PATH);
             Dictionary<string, object> remoteConfig = new Dictionary<string, object>();
@@ -318,6 +327,7 @@ namespace VMManagementTool
             }
 
             configuration = remoteConfig;
+            Log.Debug("ConfigurationManager.LoadConfiguraion", "done");
 
 
 
@@ -400,7 +410,7 @@ namespace VMManagementTool
                     "log",
                     new Dictionary<string,object>
                     {
-                        { "level", 0}
+                        { "level", 2}
                     }
                 },
             };
@@ -475,6 +485,8 @@ namespace VMManagementTool
 
         public void LoadOSOTTemplatesMetadata()
         {
+            Log.Debug("ConfigurationManager.LoadOSOTTemplatesMetadata", "start");
+
             osostTemplatesMetaList = new List<OSOTTemplateMeta>();
             //system one
             //either the remote or the deafult if the former is not there
@@ -508,6 +520,8 @@ namespace VMManagementTool
                     tempalteData.Type = OSOTTemplateType.User;
                 }
             }
+            Log.Debug("ConfigurationManager.LoadOSOTTemplatesMetadata", "done");
+
 
         }
         OSOTTemplateMeta LoadTemplateMetaData(string templateFile)

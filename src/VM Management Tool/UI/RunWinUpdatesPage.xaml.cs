@@ -301,7 +301,7 @@ namespace VMManagementTool.UI
 
                 //in case there is still somehting going on at the moment
                 //todo can this cause problems?
-                winUpdateManager.AbortAll();
+                //winUpdateManager.AbortAll();
 
                 winUpdateManager.CleanUp();
 

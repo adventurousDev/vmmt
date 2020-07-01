@@ -45,7 +45,7 @@ namespace VMManagementTool.Services
         //todo remove, or refactor to return results and w/ exception handling
         public void LoadHsitory()
         {
-            Info("Loading update history...");
+            DebugLog("Loading update history...");
 
             //todo should the session object be unique?
             var session = new UpdateSession();
@@ -54,10 +54,10 @@ namespace VMManagementTool.Services
             searcher.Online = false;
 
             var hist = searcher.QueryHistory(0, int.MaxValue);//session.QueryHistory("", 0, int.MaxValue);
-            Info($"There are {hist.Count} update history entries: ");
+            DebugLog($"There are {hist.Count} update history entries: ");
             foreach (var item in hist)
             {
-                Info(Dump(item));
+                DebugLog(Dump(item));
             }
         }
         public void AbortAll()
@@ -71,7 +71,7 @@ namespace VMManagementTool.Services
             catch (Exception ex)
             {
 
-                Log.Error("WinUpdatesManager::AbortAll", ex.ToString());
+                VMManagementTool.Log.Error("WinUpdatesManager::AbortAll", ex.ToString());
 
             }
 
@@ -91,19 +91,19 @@ namespace VMManagementTool.Services
             catch (Exception ex)
             {
 
-                Log.Error("WinUpdatesManager::CleanUp", ex.ToString());
+                VMManagementTool.Log.Error("WinUpdatesManager::CleanUp", ex.ToString());
 
             }
         }
         void AbortChecking()
         {
-            Info("Requesting abort...");
+            DebugLog("Requesting abort...");
             searchJob_?.RequestAbort();
 
         }
         void AbortDownload()
         {
-            Info("Requesting abort downlaod...");
+            DebugLog("Requesting abort downlaod...");
             downloadJob_?.RequestAbort();
 
         }
@@ -118,14 +118,14 @@ namespace VMManagementTool.Services
 
             try
             {
-                Info("Checking for updates...");
+                DebugLog("Checking for updates...");
                 updateSession = new UpdateSession();
 
                 updateSearcher = updateSession.CreateUpdateSearcher();
                 updateSearcher.Online = online;
 
 
-                Info("Update searcher params are: " + Dump(updateSearcher));
+                DebugLog("Update searcher params are: " + Dump(updateSearcher));
 
 
 
@@ -134,7 +134,7 @@ namespace VMManagementTool.Services
             catch (Exception ex)
             {
 
-                Log.Error("WinUpdatesManager.CheckForUpdates", ex.ToString());
+                VMManagementTool.Log.Error("WinUpdatesManager.CheckForUpdates", ex.ToString());
                 await Task.Yield();
                 CheckCompleted?.Invoke(false);
             }
@@ -163,7 +163,7 @@ namespace VMManagementTool.Services
                     updateDownloader = updateSession.CreateUpdateDownloader();
 
                     updateDownloader.Updates = updateCollection;
-                    Info("Update downloader params are: " + Dump(updateDownloader));
+                    DebugLog("Update downloader params are: " + Dump(updateDownloader));
 
                     downloadJob_ = updateDownloader.BeginDownload(this, this, null);
                 }
@@ -177,7 +177,7 @@ namespace VMManagementTool.Services
             catch (Exception ex)
             {
 
-                Log.Error("WinUpdatesManager.DownloadUpdates", ex.ToString());
+                VMManagementTool.Log.Error("WinUpdatesManager.DownloadUpdates", ex.ToString());
                 //this will allow the caller UI method to finish and 
                 //the event will be handled like expected asyncronously
                 await Task.Yield();
@@ -194,14 +194,16 @@ namespace VMManagementTool.Services
                 updateInstaller = updateSession.CreateUpdateInstaller();
 
                 updateInstaller.Updates = updateCollection;
-                Info("Starting update installation: " + Dump(updateInstaller));
+                updateInstaller.AllowSourcePrompts = false;
+                
+                DebugLog("Starting update installation: " + Dump(updateInstaller));
                 //var result = updateInstaller.RunWizard("Fucking hell!!!");
                 //OnInstallationComplete(result);
                 installationJob_ = updateInstaller.BeginInstall(this, this, null);
             }
             catch (Exception ex)
             {
-                Log.Error("WinUpdatesManager::InstallUpdates", ex.ToString());
+                VMManagementTool.Log.Error("WinUpdatesManager::InstallUpdates", ex.ToString());
 
                 //this will allow the caller UI method to finish and 
                 //the event will be handled like expected asyncronously
@@ -224,18 +226,18 @@ namespace VMManagementTool.Services
             {
                 var searchResult = updateSearcher.EndSearch(searchJob);
 
-                if (searchResult.ResultCode != OperationResultCode.orcSucceeded)
+                if (searchResult.ResultCode != OperationResultCode.orcSucceeded && searchResult.ResultCode != OperationResultCode.orcSucceededWithErrors)
                 {
-                    Info($"Update search failed with code: {searchResult.ResultCode}");
+                    DebugLog($"Update search failed with code: {searchResult.ResultCode}");
                     CheckCompleted?.Invoke(false);
                     return;
                 }
                 
-                Info($"Found {searchResult.Updates.Count} updates:" + Environment.NewLine);
+                DebugLog($"Found {searchResult.Updates.Count} updates:" + Environment.NewLine);
 
                 foreach (IUpdate update in searchResult.Updates)
                 {
-                    Info(Dump(update));
+                    DebugLog(Dump(update));
                 }
                 /*
                 Info($"There are {searchResult.RootCategories.Count} cateories:" + Environment.NewLine);
@@ -289,9 +291,9 @@ namespace VMManagementTool.Services
                 var downloadResult = updateDownloader.EndDownload(downloadJob);
 
                 //todo could downloads partially fail: the result above not success, but still some  updates available for install? 
-                if (downloadResult.ResultCode != OperationResultCode.orcSucceeded)
+                if (downloadResult.ResultCode != OperationResultCode.orcSucceeded && downloadResult.ResultCode != OperationResultCode.orcSucceededWithErrors)
                 {
-                    Info($"Download failed with code: {downloadResult.ResultCode}");
+                    DebugLog($"Download failed with code: {downloadResult.ResultCode}");
                     //return;
                     DownloadCompleted?.Invoke(false);
                 }
@@ -315,7 +317,7 @@ namespace VMManagementTool.Services
                     }
 
 
-                    Info($"Download status for update {title}: {resultCode}");
+                    DebugLog($"Download status for update {title}: {resultCode}");
 
                 }
             }
@@ -332,9 +334,9 @@ namespace VMManagementTool.Services
         {
             try
             {
-                Info($"Download progress: {callbackArgs.Progress.PercentComplete}%; " +
+                DebugLog($"Download progress: {callbackArgs.Progress.PercentComplete}%; " +
                         $"update {downloadJob.Updates[callbackArgs.Progress.CurrentUpdateIndex].Title}: {callbackArgs.Progress.CurrentUpdatePercentComplete}%");
-                Info(Dump(callbackArgs.Progress));
+                DebugLog(Dump(callbackArgs.Progress));
                 ProgressChanged?.Invoke(callbackArgs.Progress.PercentComplete, downloadJob.Updates[callbackArgs.Progress.CurrentUpdateIndex].Title);
             }
             catch (Exception ex)
@@ -367,9 +369,9 @@ namespace VMManagementTool.Services
         void OnInstallationComplete(IInstallationResult installResult)
         {
             //todo can there be partial success, and we miss some results?
-            if (installResult.ResultCode != OperationResultCode.orcSucceeded)
+            if (installResult.ResultCode != OperationResultCode.orcSucceeded && installResult.ResultCode != OperationResultCode.orcSucceededWithErrors)
             {
-                Info($"Installation failed with code: {installResult.ResultCode}");
+                DebugLog($"Installation failed with code: {installResult.ResultCode}");
                 InstallationCompleted?.Invoke(false, false);
                 return;
             }
@@ -392,9 +394,9 @@ namespace VMManagementTool.Services
                     updateResults[title].IsInstalled = true;
                 }
 
-                Info($"Installation status for update {title}: {resultCode}");
+                DebugLog($"Installation status for update {title}: {resultCode}");
             }
-            Info($"Is reboot required? : {installResult.RebootRequired}");
+            DebugLog($"Is reboot required? : {installResult.RebootRequired}");
 
 
             InstallationCompleted?.Invoke(true, installResult.RebootRequired);
@@ -406,7 +408,7 @@ namespace VMManagementTool.Services
         {
             try
             {
-                Info($"Install progress: {callbackArgs.Progress.PercentComplete}%; " +
+                DebugLog($"Install progress: {callbackArgs.Progress.PercentComplete}%; " +
                        $"Update {installationJob.Updates[callbackArgs.Progress.CurrentUpdateIndex].Title}: {callbackArgs.Progress.CurrentUpdatePercentComplete}%");
                 //Info(Dump(callbackArgs.Progress));
                 ProgressChanged?.Invoke(callbackArgs.Progress.PercentComplete, installationJob.Updates[callbackArgs.Progress.CurrentUpdateIndex].Title);
@@ -419,7 +421,7 @@ namespace VMManagementTool.Services
 
         //------- Misc -------------------------------------------------------------------
 
-        void Info(string text)
+        void DebugLog(string text)
         {
             //NewInfo?.Invoke(text);
             Log.Debug("WindowsUpdate", text);

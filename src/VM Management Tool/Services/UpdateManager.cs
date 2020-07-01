@@ -36,6 +36,8 @@ namespace VMManagementTool.Services
 
         public async Task<bool> CheckForUpdates()
         {
+            Log.Debug("UpdateManager.CheckForUpdates", "start");
+
             try
             {
                 if (updateData == null)
@@ -54,16 +56,19 @@ namespace VMManagementTool.Services
 
                 var newVer = updateData[UPDATE_DATA_VERSION_KEY].ToString();
                 Version newVersion = new Version(newVer);
+
+                Log.Debug("UpdateManager.CheckForUpdates", "end");
+                
                 return newVersion > Assembly.GetExecutingAssembly().GetName().Version;
 
-
+                
             }
             catch (Exception ex)
             {
                 Log.Error("UpdateManager.IsNewerVersionAvailable", ex.ToString());
                 return false;
             }
-
+            
 
         }
 

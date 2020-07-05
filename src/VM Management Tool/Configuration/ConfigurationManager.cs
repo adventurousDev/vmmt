@@ -410,7 +410,7 @@ namespace VMManagementTool
                     "log",
                     new Dictionary<string,object>
                     {
-                        { "level", 2}
+                        { "level", (long)2}
                     }
                 },
             };

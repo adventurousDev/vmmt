@@ -43,32 +43,40 @@ namespace VMManagementTool.Services
                 if (updateData == null)
                 {
                     string updateManifestJSON;
-                    using (var client = new HttpClient())
+                    using (HttpClientHandler handler = new HttpClientHandler())
                     {
-                        //1. downlaod the json manifest
-                        var resp = await client.GetAsync(manifestURL);
-                        updateManifestJSON = await resp.Content.ReadAsStringAsync();
-                    }
+                        handler.Proxy = null;
+                        handler.UseProxy = false;
+                        using (var client = new HttpClient(handler))
+                        {
+                            client.Timeout = TimeSpan.FromMilliseconds(Configs.WebTimeouts.DOWNLOAD_TIMEOUT_SHORT);
+                            //1. downlaod the json manifest
+                            var resp = await client.GetAsync(manifestURL);
+                            updateManifestJSON = await resp.Content.ReadAsStringAsync();
+                        }
 
-                    //2. parse it and get the remote version                
-                    updateData = JsonConvert.DeserializeObject<Dictionary<string, object>>(updateManifestJSON);
+                        //2. parse it and get the remote version                
+                        updateData = JsonConvert.DeserializeObject<Dictionary<string, object>>(updateManifestJSON);
+
+                    }
+                      
                 }
 
                 var newVer = updateData[UPDATE_DATA_VERSION_KEY].ToString();
                 Version newVersion = new Version(newVer);
 
                 Log.Debug("UpdateManager.CheckForUpdates", "end");
-                
+
                 return newVersion > Assembly.GetExecutingAssembly().GetName().Version;
 
-                
+
             }
             catch (Exception ex)
             {
                 Log.Error("UpdateManager.IsNewerVersionAvailable", ex.ToString());
                 return false;
             }
-            
+
 
         }
 

@@ -129,7 +129,7 @@ namespace VMManagementTool.Services
 
 
 
-                searchJob_ = updateSearcher.BeginSearch("IsInstalled=0", this, null);
+                searchJob_ = updateSearcher.BeginSearch("IsInstalled=0  and IsHidden = 0 and BrowseOnly=0", this, null);
             }
             catch (Exception ex)
             {
@@ -239,14 +239,14 @@ namespace VMManagementTool.Services
                 {
                     DebugLog(Dump(update));
                 }
-                /*
-                Info($"There are {searchResult.RootCategories.Count} cateories:" + Environment.NewLine);
+
+                DebugLog($"There are {searchResult.RootCategories.Count} cateories:" + Environment.NewLine);
 
                 foreach (ICategory category in searchResult.RootCategories)
                 {
-                    Info(Dump(category));
+                    DebugLog(Dump(category));
                 }
-                */
+                
 
                 if (searchResult.Updates.Count > 0)
                 {

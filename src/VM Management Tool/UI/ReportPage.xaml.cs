@@ -97,6 +97,7 @@ namespace VMManagementTool.UI
 
                         theConsole.Document.Blocks.Add(para);
                         theConsole.AppendText(Environment.NewLine);
+                        theConsole.AppendText(Environment.NewLine);
                     }
                     else
                     {

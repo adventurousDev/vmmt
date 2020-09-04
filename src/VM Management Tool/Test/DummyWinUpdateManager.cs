@@ -139,7 +139,7 @@ namespace VMManagementTool.Test
                 updateResults[title].IsInstalled = true;
             }
 
-            bool reboot = true;
+            bool reboot = false;
             InstallationCompleted?.Invoke(true, reboot);
 
         }

@@ -27,8 +27,8 @@ namespace VMManagementTool.UI
     {
         const int INDEFINITE_PROGRESS = -1;
 
-        CleanupManager cleanupManager;
-        //DummyCleanupManager cleanupManager;
+        //CleanupManager cleanupManager;
+        DummyCleanupManager cleanupManager;
         CleanupSessionState sessionParams;
         bool aborted = false;
 
@@ -105,8 +105,8 @@ namespace VMManagementTool.UI
         {
             Log.Debug("RunCleanupOptimizations", "Cleanup Page Loaded");
             Loaded -= RunCleanupOptimizations_Loaded;
-            cleanupManager = new CleanupManager();
-            //cleanupManager = new DummyCleanupManager();
+            //cleanupManager = new CleanupManager();
+            cleanupManager = new DummyCleanupManager();
 
 
             cleanupManager.ToolCompleted += CleanupManager_ToolCompleted;

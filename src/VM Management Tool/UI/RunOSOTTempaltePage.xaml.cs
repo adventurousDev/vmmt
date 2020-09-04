@@ -24,8 +24,8 @@ namespace VMManagementTool.UI
     /// </summary>
     public partial class RunOSOTTempaltePage : Page
     {
-        OptimizationTemplateManager optimizationTemplateManager;
-        //DummyOptimizationTemplateManager optimizationTemplateManager;
+        //OptimizationTemplateManager optimizationTemplateManager;
+        DummyOptimizationTemplateManager optimizationTemplateManager;
         const int INDEFINITE_PROGRESS = -1;
         volatile bool aborted = false;
         OSOTSessionState sessionParams;
@@ -53,8 +53,8 @@ namespace VMManagementTool.UI
             SetProgress(INDEFINITE_PROGRESS, "loading the template...");
 
 
-            optimizationTemplateManager = new OptimizationTemplateManager();
-            //optimizationTemplateManager = new DummyOptimizationTemplateManager();
+            //optimizationTemplateManager = new OptimizationTemplateManager();
+            optimizationTemplateManager = new DummyOptimizationTemplateManager();
 
             //for debuging
             //SetProgress(INDEFINITE_PROGRESS, Directory.GetCurrentDirectory());

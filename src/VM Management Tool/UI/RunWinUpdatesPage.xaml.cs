@@ -16,8 +16,8 @@ namespace VMManagementTool.UI
     /// </summary>
     public partial class RunWinUpdatesPage : Page
     {
-        WinUpdatesManager winUpdateManager;
-        //DummyWinUpdateManager winUpdateManager;
+        //WinUpdatesManager winUpdateManager;
+        DummyWinUpdateManager winUpdateManager;
         volatile bool aborted = false;
         bool resumeInstall = false;
         WindowsUpdateSessionState sessionParams;
@@ -72,8 +72,8 @@ namespace VMManagementTool.UI
                     return;
                 }
                 //start with checking for updates right away
-                winUpdateManager = new WinUpdatesManager();
-                //winUpdateManager = new DummyWinUpdateManager();
+                //winUpdateManager = new WinUpdatesManager();
+                winUpdateManager = new DummyWinUpdateManager();
 
                 winUpdateManager.CheckCompleted += WinUpdateManager_CheckCompleted;
                 winUpdateManager.ProgressChanged += WinUpdateManager_ProgressChanged;

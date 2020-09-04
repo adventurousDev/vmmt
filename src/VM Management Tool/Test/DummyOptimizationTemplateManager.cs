@@ -50,5 +50,20 @@ namespace VMManagementTool.Test
             await Task.Delay(50);
             return;
         }
+
+        internal void RunDefaultStepsAsync()
+        {
+            RunDefaultSteps();
+        }
+
+        internal void RunAllStepsAsync()
+        {
+            RunDefaultSteps();
+        }
+
+        internal void RunSelectedStepsAsync(HashSet<string> customStepsChoice)
+        {
+            RunDefaultSteps();
+        }
     }
 }

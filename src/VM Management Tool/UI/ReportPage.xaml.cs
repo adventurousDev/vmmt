@@ -143,5 +143,13 @@ namespace VMManagementTool.UI
         {
             Application.Current.Shutdown();
         }
+
+       
+
+        private void homeButton_Click(object sender, RoutedEventArgs e)
+        {
+            var navTo = new HomePage();
+            NavigationService.Navigate(navTo);
+        }
     }
 }

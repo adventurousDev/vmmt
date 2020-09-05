@@ -84,6 +84,7 @@ namespace VMManagementTool
             else if (e.Content is HomePage)
             {
                 menu.IsEnabled = true;
+                progressionSidebar.Visibility = Visibility.Collapsed;
             }
             if(SessionManager.Instance.CurrentState == SessionManager.SessionState.Active)
             {

@@ -46,6 +46,11 @@ namespace VMManagementTool.UI
                 //VMMTSessionManager.Instance.LoadPausedSession();
 
                 var session = SessionManager.Instance.FinishCurrentSession();
+                if (session.IsAborted)
+                {
+                    theConsole.AppendText($"The optimization session aborted.");
+                    return;
+                }
 
                 var winUpdateResults = session.WindowsUpdateSessionState?.Results;
                 var osotResults = session.OSOTSessionState?.Results;

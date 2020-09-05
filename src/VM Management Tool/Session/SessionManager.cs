@@ -166,6 +166,11 @@ namespace VMManagementTool.Session
             {
                 return null;
             }
+            //if the session is aborted move it to report page
+            if (optimizationSession.IsAborted)
+            {
+                return new ReportPage();
+            }
 
             if (optimizationSession.WindowsUpdateSessionState != null && !optimizationSession.WindowsUpdateSessionState.IsCompleted
                 && !optimizationSession.WindowsUpdateSessionState.IsAborted)
@@ -200,11 +205,11 @@ namespace VMManagementTool.Session
                 //&& optimizationSession.WindowsUpdateSessionState.Results == null
                 var stage = new SessionStage();
                 stage.Title = "Windows Updates";
-                if (optimizationSession.WindowsUpdateSessionState.IsAborted)
+                if (optimizationSession.WindowsUpdateSessionState.IsAborted || optimizationSession.IsAborted)
                 {
                     stage.State = SessionStage.States.Aborted;
                 }
-                else if (optimizationSession.WindowsUpdateSessionState.IsCompleted)
+                else if (optimizationSession.WindowsUpdateSessionState.IsCompleted )
                 {
                     stage.State = SessionStage.States.Processed;
                 }
@@ -224,7 +229,7 @@ namespace VMManagementTool.Session
             {
                 var stage = new SessionStage();
                 stage.Title = "OSOT Optimizations";
-                if (optimizationSession.OSOTSessionState.IsAborted)
+                if (optimizationSession.OSOTSessionState.IsAborted || optimizationSession.IsAborted)
                 {
                     stage.State = SessionStage.States.Aborted;
                 }
@@ -248,7 +253,7 @@ namespace VMManagementTool.Session
             {
                 var stage = new SessionStage();
                 stage.Title = "Cleanup";
-                if (optimizationSession.CleanupSessionState.IsAborted)
+                if (optimizationSession.CleanupSessionState.IsAborted || optimizationSession.IsAborted)
                 {
                     stage.State = SessionStage.States.Aborted;
                 }
@@ -278,6 +283,10 @@ namespace VMManagementTool.Session
 
 
             return stages;
+        }
+        public void SetAllAborted()
+        {
+            optimizationSession.IsAborted = true;
         }
     }
 }

@@ -9,6 +9,7 @@ namespace VMManagementTool.Session
 {
     public class OptimizationSession
     {
+        public bool IsAborted { get; set; }
         public WindowsUpdateSessionState WindowsUpdateSessionState { get; set; }
         public OSOTSessionState OSOTSessionState { get; set; }
         public CleanupSessionState CleanupSessionState { get; set; }

@@ -252,7 +252,7 @@ namespace VMManagementTool.UI
             FinishAndProceed();
         }
 
-        private void abortButton_Click(object sender, RoutedEventArgs e)
+        private void abortStepButton_Click(object sender, RoutedEventArgs e)
         {
             Abort();
 
@@ -386,6 +386,12 @@ namespace VMManagementTool.UI
             );
 
 
+        }
+
+        private void abortButton_Click(object sender, RoutedEventArgs e)
+        {            
+            SessionManager.Instance.SetAllAborted();
+            Abort();
         }
     }
 }

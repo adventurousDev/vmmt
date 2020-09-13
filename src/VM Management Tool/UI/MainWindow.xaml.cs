@@ -129,5 +129,11 @@ namespace VMManagementTool
         {
             new OptionsWindow().ShowDialog();
         }
+
+        private void ViewHelpItemSelected(object sender, RoutedEventArgs e)
+        {
+            var helpUrl = ConfigurationManager.Instance.GetStringConfig(ConfigurationManager.CONFIG_KEY_HELP_URL);
+            System.Diagnostics.Process.Start(helpUrl);
+        }
     }
 }

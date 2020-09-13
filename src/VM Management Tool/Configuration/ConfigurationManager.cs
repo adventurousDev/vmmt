@@ -60,6 +60,7 @@ namespace VMManagementTool
         public const string CONFIG_KEY_EXTERNAL_TOOLS_FORCE_UPDATE = "forceUpdate";
         public const string CONFIG_KEY_EXTERNAL_TOOLS_FILES = "files";
         public const string CONFIG_KEY_EXTERNAL_TOOLS_URL = "URL";
+        public const string CONFIG_KEY_HELP_URL = "helpURL";
 
         public async Task Init(Action<string> updateProgressMsg = null)
         {

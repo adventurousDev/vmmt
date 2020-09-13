@@ -273,7 +273,11 @@ namespace VMManagementTool.UI
 
         private void abortStepButton_Click(object sender, RoutedEventArgs e)
         {
-            Abort();
+            MessageBoxResult messageBoxResult = MessageBox.Show("Are you sure you want to skip Cleanup step?", "Skip Confirmation", MessageBoxButton.YesNo);
+            if (messageBoxResult == MessageBoxResult.Yes)
+            {
+                Abort();
+            }
         }
         private void Abort()
         {
@@ -380,8 +384,12 @@ namespace VMManagementTool.UI
 
         private void abortButton_Click(object sender, RoutedEventArgs e)
         {
-            SessionManager.Instance.SetAllAborted();
-            Abort();
+            MessageBoxResult messageBoxResult = MessageBox.Show("Are you sure you want to abort the optimization process?", "Abort Confirmation", MessageBoxButton.YesNo);
+            if (messageBoxResult == MessageBoxResult.Yes)
+            {
+                SessionManager.Instance.SetAllAborted();
+                Abort();
+            }
         }
     }
 }

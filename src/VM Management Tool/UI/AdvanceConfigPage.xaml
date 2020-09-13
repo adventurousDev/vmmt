@@ -61,7 +61,7 @@
             </GroupBox>
             <GroupBox Padding="16" Margin="16" Grid.Column="1">
                 <GroupBox.Header>
-                    <CheckBox Tag="top" x:Name="osotCheckBox" IsThreeState="False" Content="Perform OSOT Optimizations" Checked="CheckBox_Checked" Unchecked="CheckBox_Checked"></CheckBox>
+                    <CheckBox Tag="top" x:Name="osotCheckBox" IsThreeState="False" Content="Perform System Optimizations" Checked="CheckBox_Checked" Unchecked="CheckBox_Checked"></CheckBox>
                 </GroupBox.Header>
                 <StackPanel Orientation="Vertical" IsEnabled="False">
                     <StackPanel Orientation="Vertical">

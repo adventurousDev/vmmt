@@ -29,7 +29,7 @@
             HorizontalAlignment="Center"
             >
             <TextBlock Foreground="Black" FontSize="16" Margin="0,0,0,16">
-                Wellcome to VM Management Tool
+                Welcome to VM Management Tool
             </TextBlock>
             <RichTextBox Background="{x:Null}" SpellCheck.IsEnabled="False"
                          BorderBrush="{x:Null}"
@@ -42,32 +42,31 @@
                          >
                 <FlowDocument MaxPageWidth="450">
                     <Paragraph >
-                        This program performs required maintanance and optimization
-                        of the Windows virtual desktop images. Specifically the following tasks are performed:
+                        This program performs required maintenance and optimization of the Windows virtual desktop images. Specifically, the following tasks are performed:
 
                     </Paragraph>
                     <List MarkerStyle="Disc" Margin="0">
                         <ListItem>
                             <Paragraph>
-                                <Bold>Windwos Updates
+                                <Bold>Windows Updates
                                 </Bold>
                             </Paragraph>
                         </ListItem>
                         <ListItem>
                             <Paragraph>
-                                <Bold>System optimization(template-based)</Bold>
+                                <Bold>System Optimizations(template-based)</Bold>
                             </Paragraph>
                         </ListItem>
                         <ListItem>
                             <Paragraph>
-                                <Bold>Disk space optimizarion and cleanup</Bold>
+                                <Bold>Disk Space Optimizations</Bold>
                             </Paragraph>
                         </ListItem>
                     </List>
                     <Paragraph >
                         To run all the recommended optimizations, please select "Basic" and click "Run".
                         <LineBreak/>
-                        To review and edit optimization configurationschoose the "Advanced" option and click "Configure".
+                        To review and edit optimization configurations, choose the "Advanced" option, and click "Configure".
                     </Paragraph>
                    
 

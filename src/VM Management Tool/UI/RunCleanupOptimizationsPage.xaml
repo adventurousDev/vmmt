@@ -25,7 +25,7 @@
                    VerticalAlignment="Top"
                    HorizontalAlignment="Center"
                    >
-                Cleanup
+                Disk Space Optimizations
         </TextBlock>
         <StackPanel 
             Grid.Row="1"

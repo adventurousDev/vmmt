@@ -14,7 +14,7 @@ namespace VMManagementTool
         public const int LOGLEVEL_DEBUG = 2;
         static object locker = new object();
         public static int LogLevel { get; set; } = 0;
-        const string LOG_FILE = "log.log";
+        public const string LOG_FILE = "log.log";
         public static void Error(string tag, string message)
         {
 

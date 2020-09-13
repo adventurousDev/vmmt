@@ -40,10 +40,11 @@
                         </ComboBox>
 
                     </StackPanel>
+                    <Button Content="Export..." Margin="0,8,0,0" Click="Button_Click"/>
 
                 </WrapPanel>
             </TabItem>
-
+            
         </TabControl>
         <StackPanel Orientation="Horizontal"
                     VerticalAlignment="Bottom"

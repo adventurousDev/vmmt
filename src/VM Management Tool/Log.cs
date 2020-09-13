@@ -39,7 +39,7 @@ namespace VMManagementTool
         }
         static void WriteToFile(string msg)
         {
-            var time = DateTime.Now.ToString("dd.MM.yyyy hh:mm:ss.fff");
+            var time = DateTime.Now.ToString("dd.MM.yyyy HH:mm:ss.fff");
             
             lock (locker)
             {                

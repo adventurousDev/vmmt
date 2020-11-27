@@ -1,2 +1,4 @@
-# VM Management Tool
+## VM Management Tool
 
+## License
+See the [LICENSE](LICENSE.md) file for license rights and limitations (MIT).

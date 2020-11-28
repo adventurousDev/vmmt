@@ -38,7 +38,7 @@ namespace VMManagementTool
             }
 
             osotTemplateDropDown.ItemsSource = ConfigurationManager.Instance.OSOTTemplatesData;
-            osotTemplateDropDown.DisplayMemberPath = "Name";
+            osotTemplateDropDown.DisplayMemberPath = "ID";
             osotTemplateDropDown.SelectedItem = ConfigurationManager.Instance.OSOTTemplatesData.Where((otmd) => otmd.Type == Configuration.OSOTTemplateType.System).FirstOrDefault();
             osotTemplateDropDown.SelectionChanged += OsotTemplateDropDown_SelectionChanged;
 

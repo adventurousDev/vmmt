@@ -16,7 +16,12 @@
         </Grid.RowDefinitions>
         <TabControl  Grid.Row="1" TabStripPlacement="Left" Padding="16">
 
-            <TabItem Header="General">
+            <TabItem Header="Optimization Templates"  >
+                <WrapPanel Orientation="Vertical" HorizontalAlignment="Left" VerticalAlignment="Top">
+                    <Button x:Name="importButton" Content="Import..." Margin="0,0,0,8" Click="importButton_Click" />
+                    <ListBox x:Name="templatesListBox" Height="150" Width="250"/>
+                    <Button x:Name="deleteButton" Content="Delete" Margin="0,8,0,0" IsEnabled="False" Click="deleteButton_Click"/>
+                </WrapPanel>
 
             </TabItem>
             <TabItem Header="Log"  >
@@ -44,6 +49,7 @@
 
                 </WrapPanel>
             </TabItem>
+           
             
         </TabControl>
         <StackPanel Orientation="Horizontal"

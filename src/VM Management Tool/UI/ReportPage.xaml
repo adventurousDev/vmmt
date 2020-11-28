@@ -46,7 +46,7 @@
                     >
             <Button x:Name="homeButton" Content="Start Over" Width="64" Click="homeButton_Click" />
             <Separator Opacity="0" Width="8"/>
-            <Button x:Name="closeButton" Content="Close" MaxWidth="64" MinWidth="64" HorizontalAlignment="Right"
+            <Button x:Name="closeButton" Content="Exit" MaxWidth="64" MinWidth="64" HorizontalAlignment="Right"
                     Click="closeButton_Click"/>
 
 

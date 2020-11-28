@@ -43,7 +43,7 @@ namespace VMManagementTool
             }
         }
 
-       
+
 
         public string GetStringConfig(string key)
         {
@@ -515,7 +515,7 @@ namespace VMManagementTool
             {
                 foreach (var fileName in Directory.EnumerateFiles(userTemplatesDir))
                 {
-                    var filePath = Path.Combine(userTemplatesDir, fileName);
+                    var filePath = fileName;//Path.Combine(userTemplatesDir, fileName);
                     var tempalteData = LoadTemplateMetaData(filePath);
                     osostTemplatesMetaList.Add(tempalteData);
                     tempalteData.Type = OSOTTemplateType.User;
@@ -566,6 +566,61 @@ namespace VMManagementTool
 
 
 
+        }
+
+        public void DeleteOSOTTemplate(OSOTTemplateMeta template)
+        {
+            if (template.Type != OSOTTemplateType.System)
+            {
+                osostTemplatesMetaList.Remove(template);
+                File.Delete(template.FilePath);
+
+            }
+        }
+        public bool ImportOSOTTEmplate(string path, out string errorMsg)
+        {
+            try
+            {
+                
+                var templateData = LoadTemplateMetaData(path);
+                if(templateData == null)
+                {
+                    errorMsg = "bad file";
+                    return false;
+                }
+
+                if (osostTemplatesMetaList.Any((t)=>t.ID.Equals(templateData.ID)))
+                {
+                    errorMsg = "already exists";
+                    return false;
+                }
+                osostTemplatesMetaList.Add(templateData);
+
+                var fileName = Path.GetFileName(path);
+                var copyTo = Path.Combine(Configs.USER_OPTIMIZATION_TEMPLATES_DIR, fileName);
+                
+                if (File.Exists(copyTo))
+                {                    
+                    //todo a better way is to give a it a random name, because the actual data is what matters 
+                    //also 
+                    errorMsg = "already exists";
+                    return false;
+                }
+                if(!Directory.Exists(Configs.USER_OPTIMIZATION_TEMPLATES_DIR))
+                {
+                    Directory.CreateDirectory(Configs.USER_OPTIMIZATION_TEMPLATES_DIR);
+                }
+                File.Copy(path, copyTo);
+                templateData.FilePath = copyTo;
+            }
+            catch (Exception e)
+            {
+                //log
+                errorMsg = "";
+                return false;
+            }
+            errorMsg = null;
+            return true;
         }
     }
 }

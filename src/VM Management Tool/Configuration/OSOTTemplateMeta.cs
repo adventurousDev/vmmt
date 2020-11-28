@@ -13,6 +13,7 @@ namespace VMManagementTool.Configuration
         public string Version { get; set; }
         public string FilePath { get; set; }
         public OSOTTemplateType Type { get; set; }
+        public string ID { get { return $"{Name} ({Version})"; } }
 
 
     }

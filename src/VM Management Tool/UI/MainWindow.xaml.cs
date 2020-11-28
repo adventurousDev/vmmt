@@ -110,9 +110,11 @@ namespace VMManagementTool
 
         private void AboutMenuItemSelected(object sender, RoutedEventArgs e)
         {
-            var version = Assembly.GetExecutingAssembly().GetName().Version;
+            var version = Assembly.GetExecutingAssembly().GetName().Version.ToString(3) ;
 
-            MessageBox.Show($"Version: {version.ToString(3)}");
+            //MessageBox.Show($"Version: {version.ToString(3)}");
+            var aboutWnd = new About(version);
+            aboutWnd.ShowDialog();
         }
 
         private void UpdateMenuItemSelected(object sender, RoutedEventArgs e)

@@ -113,6 +113,9 @@
     <Compile Include="Test\DummyCleanupManager.cs" />
     <Compile Include="Test\DummyWinUpdateManager.cs" />
     <Compile Include="UIUtils\TextLookEnum.cs" />
+    <Compile Include="UI\About.xaml.cs">
+      <DependentUpon>About.xaml</DependentUpon>
+    </Compile>
     <Compile Include="UI\AdvanceConfigPage.xaml.cs">
       <DependentUpon>AdvanceConfigPage.xaml</DependentUpon>
     </Compile>
@@ -169,6 +172,10 @@
     </Compile>
     <Compile Include="Session\OptimizationSession.cs" />
     <Compile Include="Session\SessionManager.cs" />
+    <Page Include="UI\About.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="UI\AdvanceConfigPage.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>

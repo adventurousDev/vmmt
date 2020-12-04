@@ -25,6 +25,7 @@
                    FontWeight="DemiBold"
                    VerticalAlignment="Top"
                    HorizontalAlignment="Center"
+                   ToolTip="Optimizations of system components (Services, Registry etc.), based on predefiend XML template"
                    >
                 System Optimizations
         </TextBlock>

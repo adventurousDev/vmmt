@@ -17,7 +17,7 @@ namespace VMManagementTool.Services
         public const string TOOL_NAME_CLEANMGR = "Disk Cleanup";
         public const string TOOL_NAME_SDELETE = "SDelete";
         public const string TOOL_NAME_DEFRAG = "Defrag";
-        public const string TOOL_NAME_DISM = "Dism";
+        public const string TOOL_NAME_DISM = "DISM";
 
         Process sDeleteProc;
         Process cleanmgrProc;

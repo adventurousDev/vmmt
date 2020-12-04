@@ -61,27 +61,32 @@ namespace VMManagementTool.UI
             if (sessionParams.RunDiskCleanmgr)
             {
                 cleanmgrParagrath = new Paragraph(new Run(CleanupManager.TOOL_NAME_CLEANMGR));
+                cleanmgrParagrath.ToolTip = "Frees disk space by deleting unused and temporary files";
                 cleanmgrParagrath.Tag = CleanupManager.TOOL_NAME_CLEANMGR;
                 list.ListItems.Add(new ListItem(cleanmgrParagrath));
+            }
+            if (sessionParams.RunDism)
+            {
+                dismParagrath = new Paragraph(new Run(CleanupManager.TOOL_NAME_DISM));
+                dismParagrath.ToolTip = "Removes old and unused Windows Update and system packages";
+                dismParagrath.Tag = CleanupManager.TOOL_NAME_DISM;
+                list.ListItems.Add(new ListItem(dismParagrath));
             }
             if (sessionParams.RunSDelete)
             {
                 sdeleteParagrath = new Paragraph(new Run(CleanupManager.TOOL_NAME_SDELETE));
+                sdeleteParagrath.ToolTip = "Completely removes all the residual data, preventing deleted file recovery";
                 sdeleteParagrath.Tag = CleanupManager.TOOL_NAME_SDELETE;
                 list.ListItems.Add(new ListItem(sdeleteParagrath));
             }
             if (sessionParams.RunDefrag)
             {
                 defragParagrath = new Paragraph(new Run(CleanupManager.TOOL_NAME_DEFRAG));
+                defragParagrath.ToolTip = "Rearranges files on disk to occupy contiguous space";
                 defragParagrath.Tag = CleanupManager.TOOL_NAME_DEFRAG;
                 list.ListItems.Add(new ListItem(defragParagrath));
             }
-            if (sessionParams.RunDism)
-            {
-                dismParagrath = new Paragraph(new Run(CleanupManager.TOOL_NAME_DISM));
-                dismParagrath.Tag = CleanupManager.TOOL_NAME_DISM;
-                list.ListItems.Add(new ListItem(dismParagrath));
-            }
+            
 
             flowDocument.Blocks.Add(list);
 

@@ -115,10 +115,15 @@
                     <CheckBox Tag="top" x:Name="cleanupCheckBox" IsThreeState="False" Content="Perform Cleanup" Checked="CheckBox_Checked" Unchecked="CheckBox_Checked"></CheckBox>
                 </GroupBox.Header>
                 <StackPanel Orientation="Vertical" IsEnabled="False">
-                    <CheckBox Checked="CheckBox_Checked" Unchecked="CheckBox_Checked" IsThreeState="False" x:Name="chkbxDiskCleanup" Content="Disk Cleanup" />
-                    <CheckBox Checked="CheckBox_Checked" Unchecked="CheckBox_Checked" IsThreeState="False" x:Name="chkbxSdelete" Content="SDelete"/>
-                    <CheckBox Checked="CheckBox_Checked" Unchecked="CheckBox_Checked" IsThreeState="False" x:Name="chkbxDefrag" Content="Defrag"/>
-                    <CheckBox Checked="CheckBox_Checked" Unchecked="CheckBox_Checked" IsThreeState="False" x:Name="chkbxDism" Content="Dism"/>
+                    <CheckBox Checked="CheckBox_Checked" Unchecked="CheckBox_Checked" IsThreeState="False" x:Name="chkbxDiskCleanup" Content="Disk Cleanup" 
+                              ToolTip="Frees disk space by deleting unused and temporary files"/>
+                    <CheckBox Checked="CheckBox_Checked" Unchecked="CheckBox_Checked" IsThreeState="False" x:Name="chkbxDism" Content="DISM"
+                              ToolTip="Removes old and unused Windows Update and system packages"/>
+                    <CheckBox Checked="CheckBox_Checked" Unchecked="CheckBox_Checked" IsThreeState="False" x:Name="chkbxSdelete" Content="SDelete"
+                              ToolTip="Completely removes all the residual data, preventing deleted file recovery" />
+                    <CheckBox Checked="CheckBox_Checked" Unchecked="CheckBox_Checked" IsThreeState="False" x:Name="chkbxDefrag" Content="Defrag"
+                              ToolTip="Rearranges files on disk to occupy contiguous space"/>
+                    
                 </StackPanel>
 
             </GroupBox>

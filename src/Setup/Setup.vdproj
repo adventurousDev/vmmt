@@ -214,7 +214,7 @@
         {
         "Name" = "8:Microsoft Visual Studio"
         "ProductName" = "8:VM Management Tool"
-        "ProductCode" = "8:{F0C9A42F-1556-4BE2-844F-7512B9BB6587}"
+        "ProductCode" = "8:{7735D985-B02C-44E6-AAA2-44385C12355E}"
         "PackageCode" = "8:{156E008C-4E58-4534-B24F-7816C63E3961}"
         "UpgradeCode" = "8:{8A3335A8-D38E-4C9B-97D7-D8892BBBAEC3}"
         "AspNetVersion" = "8:"
